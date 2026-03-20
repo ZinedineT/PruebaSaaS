@@ -6,6 +6,10 @@ module.exports = {
   darkMode: 'class',
   theme: {
     extend: {
+      fontFamily: {
+        'montserrat': ['Montserrat', 'sans-serif'],
+        'sans': ['Montserrat', 'sans-serif'],
+      },
       colors: {
         primary: {
           50: '#eff6ff',
@@ -19,6 +23,14 @@ module.exports = {
           800: '#1e40af',
           900: '#1e3a8a',
         }
+      },
+        fontWeight: {
+        light: 300,
+        normal: 400,
+        medium: 500,
+        semibold: 600,
+        bold: 700,
+        extrabold: 800,
       }
     },
   },
