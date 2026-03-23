@@ -10,9 +10,7 @@ import {
   InformationCircleIcon,
   BookOpenIcon,
   DocumentTextIcon,
-  UserGroupIcon,
-  CurrencyDollarIcon,
-  BuildingOfficeIcon
+  UsersIcon,
 } from '@heroicons/react/24/outline';
 
 interface SidebarProps {
@@ -23,10 +21,11 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
   const menuItems = [
     { path: '/', name: 'Dashboard', icon: HomeIcon },
+    { path: '/usuarios', name: 'Gestión Usuarios', icon: UsersIcon },  // Nuevo
     { path: '/planes', name: 'Planes', icon: CreditCardIcon },
     { path: '/contabilidad', name: 'Contabilidad', icon: ChartBarIcon },
     { path: '/configuracion', name: 'Configuración', icon: Cog6ToothIcon },
-    { path: '/actualizacion', name: 'Actualización', icon: ArrowPathIcon },
+    // { path: '/actualizacion', name: 'Actualización', icon: ArrowPathIcon },
     { path: '/backup', name: 'Backup', icon: CloudArrowUpIcon },
     { path: '/informacion', name: 'Información', icon: InformationCircleIcon },
     { path: '/wiki', name: 'Wiki', icon: BookOpenIcon },
@@ -44,7 +43,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
               AdminPanel
             </h1>
           ) : (
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg"></div>
+            <img
+              src="/logos/logo.png"
+              alt="Logo"
+              className="w-10 h-10 object-contain"
+            />
           )}
         </div>
 
