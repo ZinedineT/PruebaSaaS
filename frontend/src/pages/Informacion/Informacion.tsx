@@ -9,11 +9,11 @@ import {
   InformationCircleIcon,
   CheckCircleIcon,
   XCircleIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
+  ShieldCheckIcon,
+  CircleStackIcon
 } from '@heroicons/react/24/outline';
 import {
-  LineChart,
-  Line,
   AreaChart,
   Area,
   XAxis,
@@ -21,12 +21,9 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell
 } from 'recharts';
 
-// Datos de ejemplo para las gráficas
+// --- DATOS (Mantenidos igual que tu original) ---
 const cpuStats = [
   { time: '10:50', usage: 15, label: '10:50' },
   { time: '10:51', usage: 42, label: '10:51' },
@@ -55,7 +52,6 @@ const ramStats = [
   { time: '11:00', used_gb: 1.7, total_gb: 8, label: '11:00' },
 ];
 
-// Datos de configuración PHP
 const phpConfig = [
   { indicador: 'Memoria en bytes', valor: '134.217.728,00', estado: 'info', descripcion: 'Memoria límite por script' },
   { indicador: 'Memoria en el archivo', valor: '128M', estado: 'info', descripcion: 'Memoria configurada en PHP.ini' },
@@ -69,7 +65,6 @@ const phpConfig = [
   { indicador: 'version_laravel', valor: '10.48.29', estado: 'success', descripcion: 'Versión de Laravel instalada' },
 ];
 
-// Datos del servidor
 const serverInfo = {
   php_version: '8.3.29',
   server_software: 'Nginx/1.24.0',
@@ -80,7 +75,6 @@ const serverInfo = {
   loaded_extensions: 'pdo_mysql, mbstring, exif, pcntl, bcmath, gd, zip, curl, json',
 };
 
-// Estadísticas de uso
 const usageStats = {
   cpu_avg: 38,
   cpu_max: 52,
@@ -95,261 +89,199 @@ const usageStats = {
 const Informacion: React.FC = () => {
   const [lastUpdate, setLastUpdate] = useState<string>(new Date().toLocaleTimeString());
   const [selectedTab, setSelectedTab] = useState<'php' | 'server' | 'extensions'>('php');
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Simular actualización de datos
   const handleRefresh = () => {
-    setLastUpdate(new Date().toLocaleTimeString());
-    // Aquí se podría hacer una llamada a la API para obtener datos reales
+    setIsRefreshing(true);
+    setTimeout(() => {
+      setLastUpdate(new Date().toLocaleTimeString());
+      setIsRefreshing(false);
+    }, 800);
   };
 
-  // Obtener color del estado
-  const getEstadoColor = (estado: string) => {
+  const getEstadoStyles = (estado: string) => {
     switch (estado) {
       case 'success':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+        return 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20';
       case 'warning':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+        return 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20';
       case 'error':
-        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+        return 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20';
       default:
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+        return 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-500/10 dark:text-sky-400 dark:border-sky-500/20';
     }
   };
 
-  // Obtener icono del estado
   const getEstadoIcon = (estado: string) => {
     switch (estado) {
-      case 'success':
-        return <CheckCircleIcon className="w-4 h-4" />;
-      case 'warning':
-        return <ExclamationTriangleIcon className="w-4 h-4" />;
-      case 'error':
-        return <XCircleIcon className="w-4 h-4" />;
-      default:
-        return <InformationCircleIcon className="w-4 h-4" />;
+      case 'success': return <CheckCircleIcon className="w-3.5 h-3.5" />;
+      case 'warning': return <ExclamationTriangleIcon className="w-3.5 h-3.5" />;
+      case 'error': return <XCircleIcon className="w-3.5 h-3.5" />;
+      default: return <InformationCircleIcon className="w-3.5 h-3.5" />;
     }
   };
 
-  // Datos para el gráfico de uso de RAM
-  const ramPieData = [
-    { name: 'Usado', value: usageStats.ram_used, color: '#3b82f6' },
-    { name: 'Libre', value: usageStats.ram_total - usageStats.ram_used, color: '#e5e7eb' },
-  ];
-
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Información del Sistema</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Estado y configuración del servidor
-          </p>
+    <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700">
+      
+      {/* --- HEADER --- */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-blue-600 rounded-xl shadow-lg shadow-blue-200 dark:shadow-none">
+            <ServerIcon className="w-8 h-8 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              Panel de Control del Sistema
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+              </span>
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">Monitoreo de recursos y entorno en tiempo real</p>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="text-sm text-gray-500 dark:text-gray-400">
-            Última actualización: {lastUpdate}
+        <div className="flex items-center gap-4 bg-gray-50 dark:bg-gray-900/50 p-2 rounded-xl border border-gray-100 dark:border-gray-700">
+          <div className="px-3">
+            <p className="text-[10px] uppercase tracking-wider text-gray-400 font-bold">Último Sync</p>
+            <p className="text-sm font-mono font-medium text-gray-700 dark:text-gray-300">{lastUpdate}</p>
           </div>
           <button
             onClick={handleRefresh}
-            className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-            title="Actualizar"
+            className={`p-2.5 rounded-lg transition-all ${isRefreshing ? 'bg-blue-100 text-blue-600 animate-spin' : 'hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500'}`}
           >
-            <ArrowPathIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <ArrowPathIcon className="w-5 h-5" />
           </button>
         </div>
       </div>
 
-      {/* Tarjetas de resumen */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">CPU (Promedio)</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-2">{usageStats.cpu_avg}%</p>
-              <p className="text-xs text-gray-500 mt-1">Máx: {usageStats.cpu_max}%</p>
-            </div>
-            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-              <CpuChipIcon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">RAM</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-2">
-                {usageStats.ram_used} / {usageStats.ram_total} GB
-              </p>
-              <p className="text-xs text-gray-500 mt-1">{usageStats.ram_percent}% usado</p>
-            </div>
-            <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
-              <ServerIcon className="w-6 h-6 text-green-600 dark:text-green-400" />
+      {/* --- METRIC CARDS --- */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: 'CPU Promedio', val: `${usageStats.cpu_avg}%`, sub: `Pico: ${usageStats.cpu_max}%`, icon: CpuChipIcon, color: 'blue' },
+          { label: 'Memoria RAM', val: `${usageStats.ram_used} GB`, sub: `${usageStats.ram_percent}% en uso`, icon: CircleStackIcon, color: 'emerald' },
+          { label: 'Almacenamiento', val: `${usageStats.disk_used} GB`, sub: `${usageStats.disk_percent}% ocupado`, icon: DocumentTextIcon, color: 'purple' },
+          { label: 'Entorno PHP', val: `v${serverInfo.php_version}`, sub: `Laravel v${phpConfig.find(c => c.indicador === 'version_laravel')?.valor}`, icon: CommandLineIcon, color: 'orange' },
+        ].map((card, i) => (
+          <div key={i} className="group bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">{card.label}</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">{card.val}</p>
+                <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                  <span className={`w-1.5 h-1.5 rounded-full bg-${card.color}-500`}></span>
+                  {card.sub}
+                </p>
+              </div>
+              <div className={`p-2 rounded-lg bg-${card.color}-50 dark:bg-${card.color}-500/10`}>
+                <card.icon className={`w-6 h-6 text-${card.color}-600 dark:text-${card.color}-400`} />
+              </div>
             </div>
           </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Disco</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-2">
-                {usageStats.disk_used} / {usageStats.disk_total} GB
-              </p>
-              <p className="text-xs text-gray-500 mt-1">{usageStats.disk_percent}% usado</p>
-            </div>
-            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
-              <DocumentTextIcon className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">PHP</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-2">v{serverInfo.php_version}</p>
-              <p className="text-xs text-gray-500 mt-1">Laravel {phpConfig.find(c => c.indicador === 'version_laravel')?.valor}</p>
-            </div>
-            <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center">
-              <CommandLineIcon className="w-6 h-6 text-orange-600 dark:text-orange-400" />
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* Gráficas */}
+      {/* --- CHARTS SECTION --- */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Gráfica de CPU */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Uso de CPU</h2>
-            <CpuChipIcon className="w-5 h-5 text-gray-500" />
-          </div>
-          <div className="h-64">
+        {/* CPU Chart */}
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+          <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+            <CpuChipIcon className="w-4 h-4 text-blue-500" /> Rendimiento de CPU (%)
+          </h3>
+          <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={cpuStats}>
                 <defs>
-                  <linearGradient id="cpuGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                  <linearGradient id="cpuColor" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1}/>
                     <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis dataKey="label" stroke="#9ca3af" />
-                <YAxis stroke="#9ca3af" unit="%" />
-                <Tooltip
-                  contentStyle={{ backgroundColor: 'white', border: 'none', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
-                  formatter={(value) => [`${value}%`, 'Uso CPU']}
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />                <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#9ca3af'}} />
+                <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#9ca3af'}} unit="%" />
+                <Tooltip 
+                  contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'}} 
                 />
-                <Area
-                  type="monotone"
-                  dataKey="usage"
-                  stroke="#3b82f6"
-                  strokeWidth={2}
-                  fill="url(#cpuGradient)"
-                />
+                <Area type="monotone" dataKey="usage" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#cpuColor)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Gráfica de RAM */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Uso de RAM</h2>
-            <ServerIcon className="w-5 h-5 text-gray-500" />
-          </div>
-          <div className="h-64">
+        {/* RAM Chart */}
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+          <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+            <CircleStackIcon className="w-4 h-4 text-emerald-500" /> Consumo de RAM (GB)
+          </h3>
+          <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={ramStats}>
                 <defs>
-                  <linearGradient id="ramGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                  <linearGradient id="ramColor" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.1}/>
                     <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis dataKey="label" stroke="#9ca3af" />
-                <YAxis stroke="#9ca3af" unit=" GB" />
-                <Tooltip
-                  contentStyle={{ backgroundColor: 'white', border: 'none', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
-                  formatter={(value) => [`${value} GB`, 'RAM Usada']}                
-                  />
-                <Area
-                  type="monotone"
-                  dataKey="used_gb"
-                  stroke="#10b981"
-                  strokeWidth={2}
-                  fill="url(#ramGradient)"
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />                <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#9ca3af'}} />
+                <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#9ca3af'}} unit="G" />
+                <Tooltip 
+                  contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'}} 
                 />
+                <Area type="monotone" dataKey="used_gb" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#ramColor)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
       </div>
 
-      {/* Pestañas de configuración */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
-        <div className="border-b border-gray-200 dark:border-gray-700 px-6">
-          <div className="flex gap-6">
-            <button
-              onClick={() => setSelectedTab('php')}
-              className={`py-3 px-1 text-sm font-medium transition-colors relative ${
-                selectedTab === 'php'
-                  ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-              }`}
-            >
-              Configuración PHP
-            </button>
-            <button
-              onClick={() => setSelectedTab('server')}
-              className={`py-3 px-1 text-sm font-medium transition-colors relative ${
-                selectedTab === 'server'
-                  ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-              }`}
-            >
-              Información Servidor
-            </button>
-            <button
-              onClick={() => setSelectedTab('extensions')}
-              className={`py-3 px-1 text-sm font-medium transition-colors relative ${
-                selectedTab === 'extensions'
-                  ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-              }`}
-            >
-              Extensiones PHP
-            </button>
+      {/* --- TABS SECTION --- */}
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <div className="bg-gray-50/50 dark:bg-gray-900/50 px-6 pt-4 border-b border-gray-100 dark:border-gray-700">
+          <div className="flex gap-8">
+            {['php', 'server', 'extensions'].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setSelectedTab(tab as any)}
+                className={`pb-4 text-sm font-bold transition-all relative ${
+                  selectedTab === tab 
+                  ? 'text-blue-600 dark:text-blue-400' 
+                  : 'text-gray-400 hover:text-gray-600'
+                }`}
+              >
+                {tab === 'php' && 'Configuración PHP'}
+                {tab === 'server' && 'Información Servidor'}
+                {tab === 'extensions' && 'Extensiones Cargadas'}
+                {selectedTab === tab && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400 rounded-full" />
+                )}
+              </button>
+            ))}
           </div>
         </div>
 
         <div className="p-6">
           {selectedTab === 'php' && (
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead className="bg-gray-50 dark:bg-gray-900">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Indicador</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Valor</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Descripción</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Estado</th>
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-700">
+                    <th className="px-4 py-3">Variable</th>
+                    <th className="px-4 py-3">Valor Actual</th>
+                    <th className="px-4 py-3">Descripción</th>
+                    <th className="px-4 py-3 text-center">Estado</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                <tbody className="divide-y divide-gray-50 dark:divide-gray-700/50">
                   {phpConfig.map((item, idx) => (
-                    <tr key={idx} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                      <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-white">{item.indicador}</td>
-                      <td className="px-4 py-3 text-sm font-mono text-gray-600 dark:text-gray-400">{item.valor}</td>
-                      <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{item.descripcion}</td>
-                      <td className="px-4 py-3">
-                        <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full ${getEstadoColor(item.estado)}`}>
+                    <tr key={idx} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition-colors">
+                      <td className="px-4 py-4 text-sm font-bold text-gray-700 dark:text-gray-200 font-mono">{item.indicador}</td>
+                      <td className="px-4 py-4 text-sm text-blue-600 dark:text-blue-400 font-mono bg-blue-50/30 dark:bg-blue-500/5">{item.valor}</td>
+                      <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">{item.descripcion}</td>
+                      <td className="px-4 py-4">
+                        <div className={`mx-auto flex items-center justify-center gap-1.5 px-3 py-1 rounded-full border text-[11px] font-bold w-fit ${getEstadoStyles(item.estado)}`}>
                           {getEstadoIcon(item.estado)}
-                          {item.estado === 'success' ? 'Óptimo' : item.estado === 'warning' ? 'Revisar' : 'Info'}
-                        </span>
+                          {item.estado.toUpperCase()}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -359,72 +291,55 @@ const Informacion: React.FC = () => {
           )}
 
           {selectedTab === 'server' && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="text-md font-semibold text-gray-900 dark:text-white mb-4">Información General</h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-                      <span className="text-gray-600 dark:text-gray-400">Sistema Operativo</span>
-                      <span className="font-medium text-gray-900 dark:text-white">{serverInfo.operating_system}</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+              <div className="space-y-6">
+                <h4 className="flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+                  <InformationCircleIcon className="w-5 h-5 text-blue-500" />
+                  Software del Entorno
+                </h4>
+                <div className="space-y-1">
+                  {[
+                    { label: 'S.O.', val: serverInfo.operating_system },
+                    { label: 'Servidor', val: serverInfo.server_software },
+                    { label: 'IP Local', val: serverInfo.server_ip },
+                    { label: 'Ruta Base', val: serverInfo.document_root },
+                  ].map((info, i) => (
+                    <div key={i} className="flex justify-between py-3 border-b border-gray-50 dark:border-gray-700">
+                      <span className="text-sm text-gray-500">{info.label}</span>
+                      <span className="text-sm font-bold text-gray-700 dark:text-gray-200 font-mono">{info.val}</span>
                     </div>
-                    <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-                      <span className="text-gray-600 dark:text-gray-400">Servidor Web</span>
-                      <span className="font-medium text-gray-900 dark:text-white">{serverInfo.server_software}</span>
-                    </div>
-                    <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-                      <span className="text-gray-600 dark:text-gray-400">PHP Version</span>
-                      <span className="font-medium text-gray-900 dark:text-white">{serverInfo.php_version}</span>
-                    </div>
-                    <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-                      <span className="text-gray-600 dark:text-gray-400">Nombre Servidor</span>
-                      <span className="font-medium text-gray-900 dark:text-white">{serverInfo.server_name}</span>
-                    </div>
-                    <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-                      <span className="text-gray-600 dark:text-gray-400">IP Servidor</span>
-                      <span className="font-medium text-gray-900 dark:text-white">{serverInfo.server_ip}</span>
-                    </div>
-                    <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-                      <span className="text-gray-600 dark:text-gray-400">Document Root</span>
-                      <span className="font-medium text-gray-900 dark:text-white font-mono text-sm">{serverInfo.document_root}</span>
-                    </div>
-                  </div>
+                  ))}
                 </div>
-                <div>
-                  <h3 className="text-md font-semibold text-gray-900 dark:text-white mb-4">Estadísticas de Uso</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex justify-between mb-1">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">Uso de RAM</span>
-                        <span className="text-sm font-medium text-gray-900 dark:text-white">{usageStats.ram_percent}%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div
-                          className="bg-blue-600 rounded-full h-2"
-                          style={{ width: `${usageStats.ram_percent}%` }}
-                        />
-                      </div>
+              </div>
+
+              <div className="space-y-6">
+                <h4 className="flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+                  <ShieldCheckIcon className="w-5 h-5 text-emerald-500" />
+                  Estado de Salud
+                </h4>
+                <div className="space-y-5">
+                  <div>
+                    <div className="flex justify-between mb-2">
+                      <span className="text-xs font-bold text-gray-500 uppercase">Uso de Memoria</span>
+                      <span className="text-xs font-bold text-gray-900 dark:text-white">{usageStats.ram_percent}%</span>
                     </div>
-                    <div>
-                      <div className="flex justify-between mb-1">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">Uso de Disco</span>
-                        <span className="text-sm font-medium text-gray-900 dark:text-white">{usageStats.disk_percent}%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div
-                          className="bg-green-600 rounded-full h-2"
-                          style={{ width: `${usageStats.disk_percent}%` }}
-                        />
-                      </div>
+                    <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                      <div className="h-full bg-blue-500 rounded-full" style={{ width: `${usageStats.ram_percent}%` }} />
                     </div>
                   </div>
-                  <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <ClockIcon className="w-4 h-4 text-gray-500" />
-                      <span className="text-sm text-gray-600 dark:text-gray-400">Tiempo de actividad</span>
+                  <div>
+                    <div className="flex justify-between mb-2">
+                      <span className="text-xs font-bold text-gray-500 uppercase">Uso de Disco</span>
+                      <span className="text-xs font-bold text-gray-900 dark:text-white">{usageStats.disk_percent}%</span>
                     </div>
-                    <p className="text-lg font-semibold text-gray-900 dark:text-white">12 días, 8 horas, 32 minutos</p>
-                    <p className="text-xs text-gray-500 mt-1">Último reinicio: 11/03/2024 03:45:00</p>
+                    <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                      <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${usageStats.disk_percent}%` }} />
+                    </div>
+                  </div>
+                  <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700">
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Uptime del Servidor</p>
+                    <p className="text-lg font-bold text-gray-800 dark:text-gray-200">12d 08h 32m</p>
+                    <p className="text-[11px] text-gray-500 mt-1 italic">Desde: 11/03/2024 03:45:00</p>
                   </div>
                 </div>
               </div>
@@ -432,40 +347,29 @@ const Informacion: React.FC = () => {
           )}
 
           {selectedTab === 'extensions' && (
-            <div>
-              <h3 className="text-md font-semibold text-gray-900 dark:text-white mb-4">Extensiones de PHP Cargadas</h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-gray-500 italic">Total: {serverInfo.loaded_extensions.split(', ').length} extensiones críticas cargadas.</p>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
                 {serverInfo.loaded_extensions.split(', ').map((ext, idx) => (
-                  <div key={idx} className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
-                    <CheckCircleIcon className="w-4 h-4 text-green-500" />
-                    <span className="text-sm text-gray-700 dark:text-gray-300 font-mono">{ext}</span>
+                  <div key={idx} className="flex items-center gap-2 px-3 py-2 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-700 group hover:border-emerald-200 transition-colors">
+                    <CheckCircleIcon className="w-4 h-4 text-emerald-500" />
+                    <span className="text-xs font-bold text-gray-700 dark:text-gray-300 font-mono">{ext}</span>
                   </div>
                 ))}
-              </div>
-              <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <InformationCircleIcon className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
-                  <div>
-                    <p className="text-sm text-blue-800 dark:text-blue-300">
-                      Total de extensiones cargadas: <strong>{serverInfo.loaded_extensions.split(', ').length}</strong>
-                    </p>
-                    <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                      Estas extensiones son esenciales para el funcionamiento de Laravel y la aplicación.
-                    </p>
-                  </div>
-                </div>
               </div>
             </div>
           )}
         </div>
       </div>
 
-      {/* Footer con información adicional */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 text-center">
-        <p className="text-xs text-gray-500 dark:text-gray-400">
-          Información recopilada desde el servidor en tiempo real • Datos actualizados cada 30 segundos
+      <footer className="flex items-center justify-center gap-2 py-4 border-t border-gray-100 dark:border-gray-700">
+        <InformationCircleIcon className="w-4 h-4 text-gray-400" />
+        <p className="text-[11px] text-gray-400 font-medium uppercase tracking-widest">
+          Sistema de Monitoreo en Vivo • Datos actualizados cada 30 seg
         </p>
-      </div>
+      </footer>
     </div>
   );
 };

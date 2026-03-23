@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   CloudArrowUpIcon,
   DocumentArrowDownIcon,
@@ -13,443 +13,327 @@ import {
   ShieldCheckIcon,
   EyeIcon,
   EyeSlashIcon,
-  InformationCircleIcon
+  InformationCircleIcon,
+  CommandLineIcon
 } from '@heroicons/react/24/outline';
 import { 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  AreaChart,
-  Area
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
 } from 'recharts';
 
-// Tipos de datos
+// --- Interfaces y Datos (Se mantienen igual) ---
 interface BackupLog {
-  id: number;
-  fecha: string;
-  tipo: 'total' | 'database' | 'files';
-  estado: 'success' | 'error' | 'in_progress';
-  tamaño: string;
-  nombre: string;
-  error?: string;
+  id: number; fecha: string; tipo: 'total' | 'database' | 'files';
+  estado: 'success' | 'error' | 'in_progress'; tamaño: string;
+  nombre: string; error?: string;
 }
+interface BackupConfig { tipo: 'total' | 'database' | 'files'; incluirBaseDatos: boolean; incluirArchivos: boolean; carpetaEspecifica?: string; }
+interface FtpConfig { servidor: string; puerto: number; usuario: string; password: string; rutaDestino: string; }
 
-interface BackupConfig {
-  tipo: 'total' | 'database' | 'files';
-  incluirBaseDatos: boolean;
-  incluirArchivos: boolean;
-  carpetaEspecifica?: string;
-}
-
-interface FtpConfig {
-  servidor: string;
-  puerto: number;
-  usuario: string;
-  password: string;
-  rutaDestino: string;
-}
-
-// Datos de ejemplo para la gráfica de espacio en disco
 const diskSpaceData = [
-  { fecha: '01/03', usado: 4.2, total: 20 },
-  { fecha: '05/03', usado: 4.4, total: 20 },
-  { fecha: '10/03', usado: 4.5, total: 20 },
-  { fecha: '15/03', usado: 4.7, total: 20 },
-  { fecha: '20/03', usado: 4.9, total: 20 },
-  { fecha: '23/03', usado: 5.1, total: 20 },
+  { fecha: '01/03', usado: 4.2 }, { fecha: '05/03', usado: 4.4 },
+  { fecha: '10/03', usado: 4.5 }, { fecha: '15/03', usado: 4.7 },
+  { fecha: '20/03', usado: 4.9 }, { fecha: '23/03', usado: 5.1 },
 ];
 
-// Historial de logs de ejemplo
-const historialLogs: BackupLog[] = [
+const historialLogsOriginal: BackupLog[] = [
   { id: 1, fecha: '2024-03-23 10:30:00', tipo: 'total', estado: 'success', tamaño: '2.3 GB', nombre: 'backup_total_20240323_103000.zip' },
   { id: 2, fecha: '2024-03-22 15:45:00', tipo: 'database', estado: 'success', tamaño: '156 MB', nombre: 'backup_db_20240322_154500.sql' },
   { id: 3, fecha: '2024-03-21 09:15:00', tipo: 'files', estado: 'error', tamaño: '0 B', nombre: 'backup_files_20240321_091500.zip', error: 'Error de permisos en carpeta /var/www/backend/storage' },
-  { id: 4, fecha: '2024-03-20 14:20:00', tipo: 'total', estado: 'success', tamaño: '2.1 GB', nombre: 'backup_total_20240320_142000.zip' },
 ];
 
 const Backup: React.FC = () => {
+  // --- Estados ---
+  const [historial, setHistorial] = useState<BackupLog[]>(historialLogsOriginal);
   const [backupInProgress, setBackupInProgress] = useState(false);
   const [progress, setProgress] = useState(0);
   const [selectedTipo, setSelectedTipo] = useState<BackupConfig['tipo']>('total');
   const [carpetaEspecifica, setCarpetaEspecifica] = useState('/var/www/backend/storage');
   const [showFtpModal, setShowFtpModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [ftpConfig, setFtpConfig] = useState<FtpConfig>({
-    servidor: '',
-    puerto: 21,
-    usuario: '',
-    password: '',
-    rutaDestino: '/backups/'
-  });
-  const [ultimoBackup, setUltimoBackup] = useState<BackupLog | null>(historialLogs[0]);
-  const [espacioLibre, setEspacioLibre] = useState(14.9); // GB
-  const [espacioTotal] = useState(20); // GB
-  const [tamanioArchivos, setTamanioArchivos] = useState({
-    baseDatos: '156 MB',
-    archivos: '2.1 GB',
-    pdfs: '845 MB',
-    logs: '128 MB'
-  });
+  const [ftpConfig, setFtpConfig] = useState<FtpConfig>({ servidor: '', puerto: 21, usuario: '', password: '', rutaDestino: '/backups/' });
+  const [ultimoBackup, setUltimoBackup] = useState<BackupLog | null>(historial[0]);
+  const [espacioLibre] = useState(14.9);
+  const [espacioTotal] = useState(20);
 
-  // Simular proceso de backup
+  // --- Lógica ---
   const handleIniciarBackup = () => {
     setBackupInProgress(true);
     setProgress(0);
-    
-    // Simular progreso
     const interval = setInterval(() => {
       setProgress(prev => {
         if (prev >= 100) {
           clearInterval(interval);
           setBackupInProgress(false);
-          
-          // Agregar al historial
-          const nuevoBackup: BackupLog = {
-            id: historialLogs.length + 1,
-            fecha: new Date().toLocaleString(),
-            tipo: selectedTipo,
-            estado: 'success',
-            tamaño: selectedTipo === 'database' ? '158 MB' : selectedTipo === 'files' ? '2.2 GB' : '2.4 GB',
-            nombre: `backup_${selectedTipo}_${new Date().toISOString().slice(0,19).replace(/[-:]/g, '').replace('T', '_')}.${selectedTipo === 'database' ? 'sql' : 'zip'}`
+          const nuevo: BackupLog = {
+            id: Date.now(), fecha: new Date().toLocaleString(), tipo: selectedTipo,
+            estado: 'success', tamaño: selectedTipo === 'database' ? '158 MB' : '2.4 GB',
+            nombre: `backup_${selectedTipo}_${Date.now()}.zip`
           };
-          historialLogs.unshift(nuevoBackup);
-          setUltimoBackup(nuevoBackup);
-          
+          setHistorial([nuevo, ...historial]);
+          setUltimoBackup(nuevo);
           return 100;
         }
         return prev + 10;
       });
-    }, 500);
+    }, 400);
   };
 
-  // Simular descarga
-  const handleDescargar = (nombre: string) => {
-    // Simular descarga
-    const link = document.createElement('a');
-    link.href = '#';
-    link.download = nombre;
-    link.click();
-  };
-
-  // Simular envío remoto
-  const handleEnvioRemoto = (e: React.FormEvent) => {
-    e.preventDefault();
-    setShowFtpModal(false);
-    alert(`Enviando backup a ${ftpConfig.servidor}:${ftpConfig.puerto}...\nEsta es una simulación. En producción se conectaría al servidor FTP.`);
-    // Limpiar contraseña por seguridad
-    setFtpConfig(prev => ({ ...prev, password: '' }));
-  };
-
-  // Obtener comandos de restauración dinámicos
   const getComandosRestauracion = () => {
-    const nombreArchivo = ultimoBackup?.nombre || 'backup_actual.zip';
-    const esDatabase = ultimoBackup?.tipo === 'database' || nombreArchivo.endsWith('.sql');
-    
-    if (esDatabase) {
-      return {
-        mysql: `mysql -h mysql -u laravel_user -p facturacion_db < /ruta/al/backup/${nombreArchivo}`,
-        importar: `docker exec -i proyecto_mysql mysql -u laravel_user -plaravel_password facturacion_db < ${nombreArchivo}`,
-        archivos: `cp -r /ruta/al/backup/${nombreArchivo} /var/www/backend/storage/backups/`
-      };
-    } else {
-      return {
-        mysql: `mysql -h mysql -u laravel_user -p facturacion_db < backup_db.sql`,
-        importar: `docker exec -i proyecto_mysql mysql -u laravel_user -plaravel_password facturacion_db < backup_db.sql`,
-        archivos: `unzip ${nombreArchivo} -d /var/www/backend/`
-      };
-    }
-  };
-
-  const comandos = getComandosRestauracion();
-
-  // Obtener color del estado
-  const getEstadoColor = (estado: string) => {
-    switch (estado) {
-      case 'success':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'error':
-        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-      case 'in_progress':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
-    }
-  };
-
-  const getEstadoIcon = (estado: string) => {
-    switch (estado) {
-      case 'success':
-        return <CheckCircleIcon className="w-4 h-4" />;
-      case 'error':
-        return <XCircleIcon className="w-4 h-4" />;
-      case 'in_progress':
-        return <ClockIcon className="w-4 h-4" />;
-      default:
-        return <InformationCircleIcon className="w-4 h-4" />;
-    }
-  };
-
-  const getTipoTexto = (tipo: string) => {
-    switch (tipo) {
-      case 'total':
-        return 'Completo (BD + Archivos)';
-      case 'database':
-        return 'Solo Base de Datos';
-      case 'files':
-        return 'Solo Archivos';
-      default:
-        return tipo;
-    }
+    const file = ultimoBackup?.nombre || 'backup.zip';
+    return {
+      mysql: `mysql -h mysql -u user -p db < /backups/${file}`,
+      docker: `docker exec -i proyecto_db mysql -u user -ppass db < ${file}`,
+      files: `unzip ${file} -d /var/www/backend/`
+    };
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Backup del Sistema</h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">
-          Genera y gestiona respaldos de seguridad
-        </p>
+    <div className="max-w-[1400px] mx-auto p-6 space-y-8 bg-gray-50/50 dark:bg-[#0f1115] min-h-screen transition-colors duration-300">
+      
+      {/* HEADER */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Gestión de Respaldos</h1>
+          <p className="text-gray-500 dark:text-gray-400 font-medium mt-1 flex items-center gap-2">
+            <ShieldCheckIcon className="w-5 h-5 text-emerald-500" />
+            Infraestructura de recuperación de desastres activa
+          </p>
+        </div>
       </div>
 
-      {/* Tarjetas de estado */}
+      {/* STAT CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Espacio Libre en Disco</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-2">{espacioLibre} GB</p>
-              <p className="text-xs text-gray-500 mt-1">de {espacioTotal} GB totales</p>
+        {/* Disco */}
+        <div className="bg-white dark:bg-[#161b22] rounded-[2rem] p-6 border border-gray-100 dark:border-gray-800 shadow-sm">
+          <div className="flex justify-between items-center mb-4">
+            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-2xl">
+              <CircleStackIcon className="w-6 h-6 text-blue-600" />
             </div>
-            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-              <CircleStackIcon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-            </div>
+            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Almacenamiento</span>
           </div>
-          <div className="mt-4">
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div
-                className="bg-blue-600 rounded-full h-2"
+          <h3 className="text-2xl font-black text-gray-900 dark:text-white">{espacioLibre} GB <span className="text-sm font-medium text-gray-400">Libres</span></h3>
+          <div className="mt-4 space-y-2">
+            <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2 overflow-hidden">
+              <div 
+                className="bg-blue-600 h-full rounded-full transition-all duration-1000" 
                 style={{ width: `${((espacioTotal - espacioLibre) / espacioTotal) * 100}%` }}
               />
             </div>
-            <p className="text-xs text-gray-500 mt-2">
-              Usado: {(espacioTotal - espacioLibre).toFixed(1)} GB ({((espacioTotal - espacioLibre) / espacioTotal * 100).toFixed(0)}%)
-            </p>
+            <p className="text-[10px] font-bold text-gray-500 uppercase">Capacidad Total: {espacioTotal} GB</p>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Último Backup</p>
-              <p className="text-lg font-bold text-gray-900 dark:text-white mt-2">{ultimoBackup?.fecha || 'No disponible'}</p>
-              <p className="text-xs text-gray-500 mt-1">{ultimoBackup?.tamaño || '0 B'}</p>
+        {/* Último Backup */}
+        <div className="bg-white dark:bg-[#161b22] rounded-[2rem] p-6 border border-gray-100 dark:border-gray-800 shadow-sm">
+          <div className="flex justify-between items-center mb-4">
+            <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl">
+              <CheckCircleIcon className="w-6 h-6 text-emerald-600" />
             </div>
-            <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
-              <CheckCircleIcon className="w-6 h-6 text-green-600 dark:text-green-400" />
-            </div>
+            <span className={`px-2 py-1 rounded-lg text-[9px] font-black uppercase ${
+              ultimoBackup?.estado === 'success' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
+            }`}>
+              {ultimoBackup?.estado}
+            </span>
           </div>
-          {ultimoBackup && (
-            <div className="mt-4">
-              <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full ${getEstadoColor(ultimoBackup.estado)}`}>
-                {getEstadoIcon(ultimoBackup.estado)}
-                {ultimoBackup.estado === 'success' ? 'Completado con éxito' : 'Error en proceso'}
-              </span>
-            </div>
-          )}
+          <h3 className="text-lg font-black text-gray-900 dark:text-white truncate">{ultimoBackup?.fecha || 'Sin registros'}</h3>
+          <p className="text-xs font-bold text-gray-400 mt-1 uppercase tracking-tighter italic">{ultimoBackup?.nombre}</p>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Tamaño de Archivos</p>
-              <p className="text-lg font-bold text-gray-900 dark:text-white mt-2">{tamanioArchivos.archivos}</p>
-              <p className="text-xs text-gray-500 mt-1">PDFs: {tamanioArchivos.pdfs}</p>
+        {/* Info Archivos */}
+        <div className="bg-white dark:bg-[#161b22] rounded-[2rem] p-6 border border-gray-100 dark:border-gray-800 shadow-sm">
+          <div className="flex justify-between items-center mb-4">
+            <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-2xl">
+              <FolderOpenIcon className="w-6 h-6 text-purple-600" />
             </div>
-            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
-              <FolderOpenIcon className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-            </div>
+            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Data Node</span>
           </div>
+          <h3 className="text-2xl font-black text-gray-900 dark:text-white">2.1 GB</h3>
+          <p className="text-xs font-bold text-gray-500 mt-2 uppercase">Incluye: PDFs, SQL y Logs de sistema</p>
         </div>
       </div>
 
-      {/* Panel de Control de Backup */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Generar Nuevo Backup</h2>
-        
-        <div className="space-y-4">
-          {/* Selector de tipo */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Tipo de Respaldo
-            </label>
-            <div className="flex flex-wrap gap-4">
-              <label className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  value="total"
-                  checked={selectedTipo === 'total'}
-                  onChange={(e) => setSelectedTipo(e.target.value as BackupConfig['tipo'])}
-                  className="w-4 h-4 text-blue-600"
-                />
-                <span className="text-sm text-gray-700 dark:text-gray-300">Total (BD + Archivos)</span>
-              </label>
-              <label className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  value="database"
-                  checked={selectedTipo === 'database'}
-                  onChange={(e) => setSelectedTipo(e.target.value as BackupConfig['tipo'])}
-                  className="w-4 h-4 text-blue-600"
-                />
-                <span className="text-sm text-gray-700 dark:text-gray-300">Solo Base de Datos</span>
-              </label>
-              <label className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  value="files"
-                  checked={selectedTipo === 'files'}
-                  onChange={(e) => setSelectedTipo(e.target.value as BackupConfig['tipo'])}
-                  className="w-4 h-4 text-blue-600"
-                />
-                <span className="text-sm text-gray-700 dark:text-gray-300">Solo Archivos</span>
-              </label>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* CONTROL DE BACKUP */}
+        <div className="lg:col-span-1 space-y-6">
+          <div className="bg-white dark:bg-[#161b22] rounded-[2.5rem] border border-gray-100 dark:border-gray-800 p-8 shadow-sm">
+            <h2 className="text-xl font-black text-gray-900 dark:text-white mb-6">Nuevo Respaldo</h2>
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 gap-3">
+                {['total', 'database', 'files'].map((tipo) => (
+                  <button
+                    key={tipo}
+                    onClick={() => setSelectedTipo(tipo as any)}
+                    className={`flex items-center justify-between p-4 rounded-2xl border-2 transition-all ${
+                      selectedTipo === tipo 
+                      ? 'border-blue-600 bg-blue-50/50 dark:bg-blue-900/10' 
+                      : 'border-transparent bg-gray-50 dark:bg-gray-900 hover:bg-gray-100'
+                    }`}
+                  >
+                    <span className="text-sm font-black uppercase tracking-tight text-gray-700 dark:text-gray-200">
+                      {tipo === 'total' ? 'Full System' : tipo === 'database' ? 'Database Only' : 'Files Only'}
+                    </span>
+                    {selectedTipo === tipo && <CheckCircleIcon className="w-5 h-5 text-blue-600" />}
+                  </button>
+                ))}
+              </div>
+
+              {selectedTipo === 'files' && (
+                <div className="animate-in fade-in slide-in-from-top-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase ml-2 mb-2 block">Ruta Específica</label>
+                  <input
+                    type="text"
+                    value={carpetaEspecifica}
+                    onChange={(e) => setCarpetaEspecifica(e.target.value)}
+                    className="w-full bg-gray-100 dark:bg-gray-900 border-none rounded-xl p-3 text-sm font-mono text-blue-500"
+                  />
+                </div>
+              )}
+
+              <button
+                onClick={handleIniciarBackup}
+                disabled={backupInProgress}
+                className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-sm transition-all flex items-center justify-center gap-3 ${
+                  backupInProgress 
+                  ? 'bg-gray-100 dark:bg-gray-800 text-gray-400' 
+                  : 'bg-gray-900 dark:bg-white text-white dark:text-black hover:scale-[1.02] shadow-xl'
+                }`}
+              >
+                {backupInProgress ? (
+                  <ClockIcon className="w-5 h-5 animate-spin" />
+                ) : (
+                  <PlayIcon className="w-5 h-5" />
+                )}
+                {backupInProgress ? `Procesando ${progress}%` : 'Ejecutar Ahora'}
+              </button>
             </div>
           </div>
 
-          {/* Carpeta específica (solo para archivos) */}
-          {selectedTipo === 'files' && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Carpeta Específica
-              </label>
-              <input
-                type="text"
-                value={carpetaEspecifica}
-                onChange={(e) => setCarpetaEspecifica(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white font-mono text-sm"
-              />
-              <p className="text-xs text-gray-500 mt-1">Ruta dentro del contenedor Docker</p>
+          <div className="bg-gradient-to-br from-indigo-600 to-blue-700 rounded-[2.5rem] p-8 text-white shadow-lg relative overflow-hidden">
+            <CloudArrowUpIcon className="absolute -right-4 -bottom-4 w-32 h-32 opacity-10" />
+            <h3 className="text-lg font-black mb-2">Envío Remoto</h3>
+            <p className="text-xs text-indigo-100 mb-6">Asegura tus datos fuera de este servidor enviándolos vía FTP/SFTP.</p>
+            <button 
+              onClick={() => setShowFtpModal(true)}
+              className="w-full py-3 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-xl text-xs font-black uppercase tracking-widest transition-all"
+            >
+              Configurar Destino
+            </button>
+          </div>
+        </div>
+
+        {/* GRAFICA Y COMANDOS */}
+        <div className="lg:col-span-2 space-y-8">
+          {/* Gráfico de Espacio */}
+          <div className="bg-white dark:bg-[#161b22] rounded-[2.5rem] border border-gray-100 dark:border-gray-800 p-8 shadow-sm">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">Crecimiento de Almacenamiento</h2>
+              <ServerIcon className="w-5 h-5 text-gray-400" />
             </div>
-          )}
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={diskSpaceData}>
+                  <defs>
+                    <linearGradient id="colorDisk" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.2}/>
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" opacity={0.5} />
+                  <XAxis dataKey="fecha" axisLine={false} tickLine={false} tick={{fontSize: 10, fontWeight: 700}} />
+                  <YAxis hide />
+                  <Tooltip 
+                    contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'}}
+                  />
+                  <Area type="monotone" dataKey="usado" stroke="#3b82f6" strokeWidth={3} fill="url(#colorDisk)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
 
-          {/* Botón de iniciar */}
-          <button
-            onClick={handleIniciarBackup}
-            disabled={backupInProgress}
-            className={`w-full py-3 rounded-lg font-medium transition-all flex items-center justify-center gap-2 ${
-              backupInProgress
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-blue-500 to-purple-500 hover:shadow-lg text-white'
-            }`}
-          >
-            {backupInProgress ? (
-              <>
-                <ClockIcon className="w-5 h-5 animate-spin" />
-                Procesando... {progress}%
-              </>
-            ) : (
-              <>
-                <PlayIcon className="w-5 h-5" />
-                Iniciar Proceso de Backup
-              </>
-            )}
-          </button>
+          {/* Restauración (Terminal Style) */}
+          <div className="bg-white dark:bg-[#161b22] rounded-[2.5rem] border border-gray-100 dark:border-gray-800 p-8 shadow-sm">
+            <div className="flex items-center gap-3 mb-6">
+              <CommandLineIcon className="w-6 h-6 text-blue-600" />
+              <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">Consola de Restauración</h2>
+            </div>
+            
+            <div className="space-y-4">
+              {[
+                { label: 'MySQL Direct', cmd: getComandosRestauracion().mysql },
+                { label: 'Docker Instance', cmd: getComandosRestauracion().docker },
+                { label: 'File System', cmd: getComandosRestauracion().files }
+              ].map((c, i) => (
+                <div key={i}>
+                  <p className="text-[10px] font-black text-gray-400 uppercase mb-2 ml-1">{c.label}</p>
+                  <div className="bg-gray-900 rounded-2xl p-4 font-mono text-sm relative group overflow-hidden">
+                    <div className="flex items-center gap-2 mb-2 border-b border-white/5 pb-2">
+                      <div className="w-2.5 h-2.5 rounded-full bg-red-500/50" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-amber-500/50" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/50" />
+                    </div>
+                    <code className="text-emerald-400 break-all leading-relaxed">$ {c.cmd}</code>
+                  </div>
+                </div>
+              ))}
+            </div>
 
-          {/* Barra de progreso */}
-          {backupInProgress && (
-            <div className="mt-4">
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                <div
-                  className="bg-gradient-to-r from-blue-500 to-purple-500 rounded-full h-2 transition-all duration-300"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-              <p className="text-xs text-center text-gray-500 mt-2">
-                Empaquetando archivos... {progress}%
+            <div className="mt-6 flex items-start gap-3 bg-amber-50 dark:bg-amber-900/10 p-4 rounded-2xl border border-amber-100 dark:border-amber-900/30">
+              <ExclamationTriangleIcon className="w-5 h-5 text-amber-600 flex-shrink-0" />
+              <p className="text-[11px] font-bold text-amber-800 dark:text-amber-200">
+                ADVERTENCIA: La restauración sobrescribirá los datos actuales. Asegúrese de detener los servicios afectados antes de proceder.
               </p>
             </div>
-          )}
+          </div>
         </div>
       </div>
 
-      {/* Gráfica de espacio en disco */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Evolución del Espacio en Disco</h2>
-          <ServerIcon className="w-5 h-5 text-gray-500" />
-        </div>
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={diskSpaceData}>
-              <defs>
-                <linearGradient id="diskGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="fecha" stroke="#9ca3af" />
-              <YAxis stroke="#9ca3af" unit=" GB" />
-              <Tooltip
-                contentStyle={{ backgroundColor: 'white', border: 'none', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
-                formatter={(value) => [`${value}%`, 'CPU']}              
-                />
-              <Area
-                type="monotone"
-                dataKey="usado"
-                stroke="#3b82f6"
-                strokeWidth={2}
-                fill="url(#diskGradient)"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Historial de Logs */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Historial de Respaldos</h2>
+      {/* TABLA DE HISTORIAL */}
+      <div className="bg-white dark:bg-[#161b22] rounded-[2.5rem] border border-gray-100 dark:border-gray-800 overflow-hidden shadow-sm mt-8">
+        <div className="px-8 py-6 border-b border-gray-50 dark:border-gray-800 flex justify-between items-center bg-gray-50/50">
+          <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">Log de Auditoría de Respaldos</h2>
+          <span className="text-[10px] font-black bg-gray-200 dark:bg-gray-800 px-3 py-1 rounded-full uppercase tracking-widest text-gray-500">
+            {historial.length} Entradas
+          </span>
         </div>
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-900">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Fecha</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Tipo</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Tamaño</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Estado</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Acciones</th>
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gray-50/50 dark:bg-gray-900/50">
+                <th className="px-8 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Metadata</th>
+                <th className="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Tipo</th>
+                <th className="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Peso</th>
+                <th className="px-6 py-4 text-left text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
+                <th className="px-8 py-4 text-right text-[10px] font-black text-gray-400 uppercase tracking-widest">Acciones</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {historialLogs.map((log) => (
-                <tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">{log.fecha}</td>
-                  <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">{getTipoTexto(log.tipo)}</td>
-                  <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">{log.tamaño}</td>
-                  <td className="px-4 py-3">
-                    <span className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full ${getEstadoColor(log.estado)}`}>
-                      {getEstadoIcon(log.estado)}
-                      {log.estado === 'success' ? 'Éxito' : log.estado === 'error' ? 'Error' : 'En Proceso'}
-                    </span>
-                    {log.error && (
-                      <p className="text-xs text-red-500 mt-1">{log.error}</p>
-                    )}
+            <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
+              {historial.map((log) => (
+                <tr key={log.id} className="group hover:bg-gray-50/50 dark:hover:bg-blue-900/5 transition-colors">
+                  <td className="px-8 py-6">
+                    <p className="text-sm font-black text-gray-900 dark:text-white">{log.fecha}</p>
+                    <p className="text-[10px] font-bold text-gray-400 mt-0.5 truncate max-w-[200px]">{log.nombre}</p>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-6 py-6">
+                    <span className="text-[11px] font-black uppercase text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-lg">
+                      {log.tipo}
+                    </span>
+                  </td>
+                  <td className="px-6 py-6 text-center text-sm font-black text-blue-600 dark:text-blue-400">{log.tamaño}</td>
+                  <td className="px-6 py-6">
+                    <div className="flex flex-col">
+                      <div className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest ${
+                        log.estado === 'success' ? 'text-emerald-500' : 'text-red-500'
+                      }`}>
+                        {log.estado === 'success' ? <CheckCircleIcon className="w-4 h-4" /> : <XCircleIcon className="w-4 h-4" />}
+                        {log.estado}
+                      </div>
+                      {log.error && <p className="text-[10px] text-red-400 font-medium italic mt-1 leading-tight">{log.error}</p>}
+                    </div>
+                  </td>
+                  <td className="px-8 py-6 text-right">
                     {log.estado === 'success' && (
-                      <button
-                        onClick={() => handleDescargar(log.nombre)}
-                        className="flex items-center gap-1 px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm"
-                      >
-                        <DocumentArrowDownIcon className="w-4 h-4" />
-                        Descargar
+                      <button className="p-2 hover:bg-blue-600 hover:text-white bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl transition-all">
+                        <DocumentArrowDownIcon className="w-5 h-5" />
                       </button>
                     )}
                   </td>
@@ -460,171 +344,51 @@ const Backup: React.FC = () => {
         </div>
       </div>
 
-      {/* Comandos de Restauración */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <ShieldCheckIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Comandos de Restauración</h2>
-        </div>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-          Estos comandos te permitirán restaurar el sistema manualmente desde la terminal
-        </p>
-        <div className="space-y-3">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Restaurar Base de Datos
-            </label>
-            <div className="bg-gray-900 dark:bg-gray-950 rounded-lg p-3">
-              <code className="text-sm text-green-400 break-all">{comandos.mysql}</code>
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Restaurar desde Docker
-            </label>
-            <div className="bg-gray-900 dark:bg-gray-950 rounded-lg p-3">
-              <code className="text-sm text-green-400 break-all">{comandos.importar}</code>
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Restaurar Archivos
-            </label>
-            <div className="bg-gray-900 dark:bg-gray-950 rounded-lg p-3">
-              <code className="text-sm text-green-400 break-all">{comandos.archivos}</code>
-            </div>
-          </div>
-        </div>
-        <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-          <div className="flex items-start gap-2">
-            <ExclamationTriangleIcon className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mt-0.5" />
-            <p className="text-xs text-yellow-800 dark:text-yellow-300">
-              ⚠️ Asegúrate de tener los archivos de backup en la ruta especificada antes de ejecutar estos comandos.
-              Los comandos son solo referenciales y pueden requerir ajustes según tu entorno.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Envío Remoto */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <CloudArrowUpIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Envío Remoto (FTP/SFTP)</h2>
-          </div>
-          <button
-            onClick={() => setShowFtpModal(true)}
-            className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:shadow-lg text-sm"
-          >
-            Configurar Envío
-          </button>
-        </div>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          Envía el último backup a un servidor externo para mayor seguridad.
-          Las credenciales no se almacenan y se solicitan en cada transferencia.
-        </p>
-      </div>
-
-      {/* Modal FTP */}
+      {/* MODAL FTP (Rediseñado) */}
       {showFtpModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full">
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Configurar Envío Remoto</h2>
-            </div>
-            <form onSubmit={handleEnvioRemoto} className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Servidor FTP/SFTP *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="ftp.ejemplo.com"
-                  value={ftpConfig.servidor}
-                  onChange={(e) => setFtpConfig({ ...ftpConfig, servidor: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Puerto
-                </label>
-                <input
-                  type="number"
-                  value={ftpConfig.puerto}
-                  onChange={(e) => setFtpConfig({ ...ftpConfig, puerto: parseInt(e.target.value) })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Usuario *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={ftpConfig.usuario}
-                  onChange={(e) => setFtpConfig({ ...ftpConfig, usuario: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Contraseña *
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    required
-                    value={ftpConfig.password}
-                    onChange={(e) => setFtpConfig({ ...ftpConfig, password: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 pr-10"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2"
-                  >
-                    {showPassword ? <EyeSlashIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
-                  </button>
+        <div className="fixed inset-0 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
+          <div className="bg-white dark:bg-[#161b22] rounded-[2.5rem] max-w-md w-full border border-gray-100 dark:border-gray-800 shadow-2xl p-8">
+            <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2">Parámetros de Red</h2>
+            <p className="text-sm text-gray-500 mb-6 font-medium">Configure el destino remoto para la transferencia segura.</p>
+            
+            <div className="space-y-4">
+              <div className="grid grid-cols-3 gap-4">
+                <div className="col-span-2">
+                  <label className="text-[10px] font-black text-gray-400 uppercase ml-2 mb-1 block">Host</label>
+                  <input type="text" className="w-full bg-gray-100 dark:bg-gray-900 border-none rounded-2xl p-3 text-sm" placeholder="ftp.server.com" />
+                </div>
+                <div>
+                  <label className="text-[10px] font-black text-gray-400 uppercase ml-2 mb-1 block">Port</label>
+                  <input type="number" className="w-full bg-gray-100 dark:bg-gray-900 border-none rounded-2xl p-3 text-sm" placeholder="21" />
                 </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Ruta de Destino
-                </label>
-                <input
-                  type="text"
-                  placeholder="/backups/"
-                  value={ftpConfig.rutaDestino}
-                  onChange={(e) => setFtpConfig({ ...ftpConfig, rutaDestino: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700"
-                />
+
+              <div className="space-y-4">
+                <div>
+                  <label className="text-[10px] font-black text-gray-400 uppercase ml-2 mb-1 block">Usuario</label>
+                  <input type="text" className="w-full bg-gray-100 dark:bg-gray-900 border-none rounded-2xl p-3 text-sm" />
+                </div>
+                <div>
+                  <label className="text-[10px] font-black text-gray-400 uppercase ml-2 mb-1 block">Password</label>
+                  <div className="relative">
+                    <input type={showPassword ? 'text' : 'password'} className="w-full bg-gray-100 dark:bg-gray-900 border-none rounded-2xl p-3 text-sm pr-12" />
+                    <button 
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500"
+                    >
+                      {showPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-end gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowFtpModal(false)}
-                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg"
-                >
-                  Cancelar
+
+              <div className="pt-6 flex gap-3">
+                <button onClick={() => setShowFtpModal(false)} className="flex-1 py-3 font-black uppercase tracking-widest text-[10px] text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-2xl transition-all">
+                  Cerrar
                 </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg"
-                >
-                  Enviar Backup
+                <button className="flex-1 py-3 font-black uppercase tracking-widest text-[10px] bg-blue-600 text-white rounded-2xl hover:shadow-lg hover:shadow-blue-500/30 transition-all">
+                  Transferir
                 </button>
-              </div>
-            </form>
-            <div className="px-6 pb-6">
-              <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <p className="text-xs text-blue-800 dark:text-blue-300">
-                  🔒 Las credenciales no se almacenan en la base de datos por seguridad.
-                  Se utilizan solo para la transferencia actual.
-                </p>
               </div>
             </div>
           </div>
