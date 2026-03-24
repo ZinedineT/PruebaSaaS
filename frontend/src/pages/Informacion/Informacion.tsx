@@ -114,67 +114,67 @@ const Informacion: React.FC = () => {
 
   const getEstadoIcon = (estado: string) => {
     switch (estado) {
-      case 'success': return <CheckCircleIcon className="w-3.5 h-3.5" />;
-      case 'warning': return <ExclamationTriangleIcon className="w-3.5 h-3.5" />;
-      case 'error': return <XCircleIcon className="w-3.5 h-3.5" />;
-      default: return <InformationCircleIcon className="w-3.5 h-3.5" />;
+      case 'success': return <CheckCircleIcon className="w-3 sm:w-3.5 h-3 sm:h-3.5" />;
+      case 'warning': return <ExclamationTriangleIcon className="w-3 sm:w-3.5 h-3 sm:h-3.5" />;
+      case 'error': return <XCircleIcon className="w-3 sm:w-3.5 h-3 sm:h-3.5" />;
+      default: return <InformationCircleIcon className="w-3 sm:w-3.5 h-3 sm:h-3.5" />;
     }
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700">
+    <div className="max-w-7xl mx-auto p-4 sm:p-6 space-y-6 sm:space-y-8 animate-in fade-in duration-700">
       
       {/* --- HEADER --- */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
-        <div className="flex items-center gap-4">
-          <div className="p-3 bg-blue-600 rounded-xl shadow-lg shadow-blue-200 dark:shadow-none">
-            <ServerIcon className="w-8 h-8 text-white" />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="p-2 sm:p-3 bg-blue-600 rounded-lg sm:rounded-xl shadow-lg shadow-blue-200 dark:shadow-none">
+            <ServerIcon className="w-6 sm:w-8 h-6 sm:h-8 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
               Panel de Control del Sistema
-              <span className="relative flex h-3 w-3">
+              <span className="relative flex h-2 w-2 sm:h-3 sm:w-3">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 sm:h-3 sm:w-3 bg-green-500"></span>
               </span>
             </h1>
-            <p className="text-gray-500 dark:text-gray-400 text-sm">Monitoreo de recursos y entorno en tiempo real</p>
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Monitoreo de recursos y entorno en tiempo real</p>
           </div>
         </div>
-        <div className="flex items-center gap-4 bg-gray-50 dark:bg-gray-900/50 p-2 rounded-xl border border-gray-100 dark:border-gray-700">
-          <div className="px-3">
-            <p className="text-[10px] uppercase tracking-wider text-gray-400 font-bold">Último Sync</p>
-            <p className="text-sm font-mono font-medium text-gray-700 dark:text-gray-300">{lastUpdate}</p>
+        <div className="flex items-center gap-2 sm:gap-4 bg-gray-50 dark:bg-gray-900/50 p-1.5 sm:p-2 rounded-lg sm:rounded-xl border border-gray-100 dark:border-gray-700">
+          <div className="px-2 sm:px-3">
+            <p className="text-[8px] sm:text-[10px] uppercase tracking-wider text-gray-400 font-bold">Último Sync</p>
+            <p className="text-[10px] sm:text-sm font-mono font-medium text-gray-700 dark:text-gray-300">{lastUpdate}</p>
           </div>
           <button
             onClick={handleRefresh}
-            className={`p-2.5 rounded-lg transition-all ${isRefreshing ? 'bg-blue-100 text-blue-600 animate-spin' : 'hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500'}`}
+            className={`p-1.5 sm:p-2.5 rounded-lg transition-all ${isRefreshing ? 'bg-blue-100 text-blue-600 animate-spin' : 'hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500'}`}
           >
-            <ArrowPathIcon className="w-5 h-5" />
+            <ArrowPathIcon className="w-4 sm:w-5 h-4 sm:h-5" />
           </button>
         </div>
       </div>
 
       {/* --- METRIC CARDS --- */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {[
           { label: 'CPU Promedio', val: `${usageStats.cpu_avg}%`, sub: `Pico: ${usageStats.cpu_max}%`, icon: CpuChipIcon, color: 'blue' },
           { label: 'Memoria RAM', val: `${usageStats.ram_used} GB`, sub: `${usageStats.ram_percent}% en uso`, icon: CircleStackIcon, color: 'emerald' },
           { label: 'Almacenamiento', val: `${usageStats.disk_used} GB`, sub: `${usageStats.disk_percent}% ocupado`, icon: DocumentTextIcon, color: 'purple' },
           { label: 'Entorno PHP', val: `v${serverInfo.php_version}`, sub: `Laravel v${phpConfig.find(c => c.indicador === 'version_laravel')?.valor}`, icon: CommandLineIcon, color: 'orange' },
         ].map((card, i) => (
-          <div key={i} className="group bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all">
+          <div key={i} className="group bg-white dark:bg-gray-800 p-4 sm:p-5 rounded-xl sm:rounded-2xl border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">{card.label}</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">{card.val}</p>
-                <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                  <span className={`w-1.5 h-1.5 rounded-full bg-${card.color}-500`}></span>
+                <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">{card.label}</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">{card.val}</p>
+                <p className="text-[10px] sm:text-xs text-gray-500 mt-1 flex items-center gap-1">
+                  <span className={`w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-${card.color}-500`}></span>
                   {card.sub}
                 </p>
               </div>
-              <div className={`p-2 rounded-lg bg-${card.color}-50 dark:bg-${card.color}-500/10`}>
-                <card.icon className={`w-6 h-6 text-${card.color}-600 dark:text-${card.color}-400`} />
+              <div className={`p-1.5 sm:p-2 rounded-lg bg-${card.color}-50 dark:bg-${card.color}-500/10`}>
+                <card.icon className={`w-5 sm:w-6 h-5 sm:h-6 text-${card.color}-600 dark:text-${card.color}-400`} />
               </div>
             </div>
           </div>
@@ -184,11 +184,11 @@ const Informacion: React.FC = () => {
       {/* --- CHARTS SECTION --- */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* CPU Chart */}
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
-          <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-            <CpuChipIcon className="w-4 h-4 text-blue-500" /> Rendimiento de CPU (%)
+        <div className="bg-white dark:bg-gray-800 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+          <h3 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white mb-4 sm:mb-6 flex items-center gap-2">
+            <CpuChipIcon className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-blue-500" /> Rendimiento de CPU (%)
           </h3>
-          <div className="h-64 w-full">
+          <div className="h-48 sm:h-56 lg:h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={cpuStats}>
                 <defs>
@@ -197,23 +197,30 @@ const Informacion: React.FC = () => {
                     <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />                <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#9ca3af'}} />
-                <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#9ca3af'}} unit="%" />
-                <Tooltip 
-                  contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'}} 
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
+                <XAxis 
+                  dataKey="label" 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{fontSize: 10, fill: '#9ca3af'}} 
+                  interval={window.innerWidth < 640 ? 2 : 0}
                 />
-                <Area type="monotone" dataKey="usage" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#cpuColor)" />
+                <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#9ca3af'}} unit="%" />
+                <Tooltip 
+                  contentStyle={{borderRadius: '10px sm:12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'}} 
+                />
+                <Area type="monotone" dataKey="usage" stroke="#3b82f6" strokeWidth={2.5} fillOpacity={1} fill="url(#cpuColor)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* RAM Chart */}
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
-          <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-            <CircleStackIcon className="w-4 h-4 text-emerald-500" /> Consumo de RAM (GB)
+        <div className="bg-white dark:bg-gray-800 p-4 sm:p-5 lg:p-6 rounded-xl sm:rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+          <h3 className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white mb-4 sm:mb-6 flex items-center gap-2">
+            <CircleStackIcon className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-emerald-500" /> Consumo de RAM (GB)
           </h3>
-          <div className="h-64 w-full">
+          <div className="h-48 sm:h-56 lg:h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={ramStats}>
                 <defs>
@@ -222,12 +229,19 @@ const Informacion: React.FC = () => {
                     <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />                <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#9ca3af'}} />
-                <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#9ca3af'}} unit="G" />
-                <Tooltip 
-                  contentStyle={{borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'}} 
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
+                <XAxis 
+                  dataKey="label" 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{fontSize: 10, fill: '#9ca3af'}} 
+                  interval={window.innerWidth < 640 ? 2 : 0}
                 />
-                <Area type="monotone" dataKey="used_gb" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#ramColor)" />
+                <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#9ca3af'}} unit="G" />
+                <Tooltip 
+                  contentStyle={{borderRadius: '10px sm:12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'}} 
+                />
+                <Area type="monotone" dataKey="used_gb" stroke="#10b981" strokeWidth={2.5} fillOpacity={1} fill="url(#ramColor)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -235,14 +249,14 @@ const Informacion: React.FC = () => {
       </div>
 
       {/* --- TABS SECTION --- */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-        <div className="bg-gray-50/50 dark:bg-gray-900/50 px-6 pt-4 border-b border-gray-100 dark:border-gray-700">
-          <div className="flex gap-8">
+      <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <div className="bg-gray-50/50 dark:bg-gray-900/50 px-4 sm:px-6 pt-3 sm:pt-4 border-b border-gray-100 dark:border-gray-700">
+          <div className="flex gap-4 sm:gap-6 lg:gap-8 overflow-x-auto">
             {['php', 'server', 'extensions'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setSelectedTab(tab as any)}
-                className={`pb-4 text-sm font-bold transition-all relative ${
+                className={`pb-2 sm:pb-3 lg:pb-4 text-xs sm:text-sm font-bold transition-all whitespace-nowrap relative ${
                   selectedTab === tab 
                   ? 'text-blue-600 dark:text-blue-400' 
                   : 'text-gray-400 hover:text-gray-600'
@@ -259,28 +273,29 @@ const Informacion: React.FC = () => {
           </div>
         </div>
 
-        <div className="p-6">
+        <div className="p-4 sm:p-5 lg:p-6">
           {selectedTab === 'php' && (
             <div className="overflow-x-auto">
-              <table className="w-full text-left">
+              <table className="w-full text-left min-w-[600px] sm:min-w-full">
                 <thead>
-                  <tr className="text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-700">
-                    <th className="px-4 py-3">Variable</th>
-                    <th className="px-4 py-3">Valor Actual</th>
-                    <th className="px-4 py-3">Descripción</th>
-                    <th className="px-4 py-3 text-center">Estado</th>
+                  <tr className="text-[9px] sm:text-[11px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-gray-700">
+                    <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-3">Variable</th>
+                    <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-3">Valor Actual</th>
+                    <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-3">Descripción</th>
+                    <th className="px-2 sm:px-3 lg:px-4 py-2 sm:py-3 text-center">Estado</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50 dark:divide-gray-700/50">
                   {phpConfig.map((item, idx) => (
                     <tr key={idx} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition-colors">
-                      <td className="px-4 py-4 text-sm font-bold text-gray-700 dark:text-gray-200 font-mono">{item.indicador}</td>
-                      <td className="px-4 py-4 text-sm text-blue-600 dark:text-blue-400 font-mono bg-blue-50/30 dark:bg-blue-500/5">{item.valor}</td>
-                      <td className="px-4 py-4 text-sm text-gray-500 dark:text-gray-400">{item.descripcion}</td>
-                      <td className="px-4 py-4">
-                        <div className={`mx-auto flex items-center justify-center gap-1.5 px-3 py-1 rounded-full border text-[11px] font-bold w-fit ${getEstadoStyles(item.estado)}`}>
+                      <td className="px-2 sm:px-3 lg:px-4 py-3 sm:py-4 text-[11px] sm:text-sm font-bold text-gray-700 dark:text-gray-200 font-mono">{item.indicador}</td>
+                      <td className="px-2 sm:px-3 lg:px-4 py-3 sm:py-4 text-[10px] sm:text-sm text-blue-600 dark:text-blue-400 font-mono bg-blue-50/30 dark:bg-blue-500/5">{item.valor}</td>
+                      <td className="px-2 sm:px-3 lg:px-4 py-3 sm:py-4 text-[10px] sm:text-sm text-gray-500 dark:text-gray-400">{item.descripcion}</td>
+                      <td className="px-2 sm:px-3 lg:px-4 py-3 sm:py-4">
+                        <div className={`mx-auto flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full border text-[9px] sm:text-[11px] font-bold w-fit ${getEstadoStyles(item.estado)}`}>
                           {getEstadoIcon(item.estado)}
-                          {item.estado.toUpperCase()}
+                          <span className="hidden sm:inline">{item.estado.toUpperCase()}</span>
+                          <span className="sm:hidden">{item.estado.substring(0, 1).toUpperCase()}</span>
                         </div>
                       </td>
                     </tr>
@@ -291,55 +306,55 @@ const Informacion: React.FC = () => {
           )}
 
           {selectedTab === 'server' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-              <div className="space-y-6">
-                <h4 className="flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">
-                  <InformationCircleIcon className="w-5 h-5 text-blue-500" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
+              <div className="space-y-4 sm:space-y-6">
+                <h4 className="flex items-center gap-2 text-xs sm:text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+                  <InformationCircleIcon className="w-4 sm:w-5 h-4 sm:h-5 text-blue-500" />
                   Software del Entorno
                 </h4>
-                <div className="space-y-1">
+                <div className="space-y-2 sm:space-y-3">
                   {[
                     { label: 'S.O.', val: serverInfo.operating_system },
                     { label: 'Servidor', val: serverInfo.server_software },
                     { label: 'IP Local', val: serverInfo.server_ip },
                     { label: 'Ruta Base', val: serverInfo.document_root },
                   ].map((info, i) => (
-                    <div key={i} className="flex justify-between py-3 border-b border-gray-50 dark:border-gray-700">
-                      <span className="text-sm text-gray-500">{info.label}</span>
-                      <span className="text-sm font-bold text-gray-700 dark:text-gray-200 font-mono">{info.val}</span>
+                    <div key={i} className="flex justify-between py-2 sm:py-3 border-b border-gray-50 dark:border-gray-700">
+                      <span className="text-[10px] sm:text-sm text-gray-500">{info.label}</span>
+                      <span className="text-[10px] sm:text-sm font-bold text-gray-700 dark:text-gray-200 font-mono truncate ml-2">{info.val}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="space-y-6">
-                <h4 className="flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">
-                  <ShieldCheckIcon className="w-5 h-5 text-emerald-500" />
+              <div className="space-y-4 sm:space-y-6">
+                <h4 className="flex items-center gap-2 text-xs sm:text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+                  <ShieldCheckIcon className="w-4 sm:w-5 h-4 sm:h-5 text-emerald-500" />
                   Estado de Salud
                 </h4>
-                <div className="space-y-5">
+                <div className="space-y-4 sm:space-y-5">
                   <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-xs font-bold text-gray-500 uppercase">Uso de Memoria</span>
-                      <span className="text-xs font-bold text-gray-900 dark:text-white">{usageStats.ram_percent}%</span>
+                    <div className="flex justify-between mb-1.5 sm:mb-2">
+                      <span className="text-[9px] sm:text-xs font-bold text-gray-500 uppercase">Uso de Memoria</span>
+                      <span className="text-[9px] sm:text-xs font-bold text-gray-900 dark:text-white">{usageStats.ram_percent}%</span>
                     </div>
-                    <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                    <div className="h-1.5 sm:h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                       <div className="h-full bg-blue-500 rounded-full" style={{ width: `${usageStats.ram_percent}%` }} />
                     </div>
                   </div>
                   <div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-xs font-bold text-gray-500 uppercase">Uso de Disco</span>
-                      <span className="text-xs font-bold text-gray-900 dark:text-white">{usageStats.disk_percent}%</span>
+                    <div className="flex justify-between mb-1.5 sm:mb-2">
+                      <span className="text-[9px] sm:text-xs font-bold text-gray-500 uppercase">Uso de Disco</span>
+                      <span className="text-[9px] sm:text-xs font-bold text-gray-900 dark:text-white">{usageStats.disk_percent}%</span>
                     </div>
-                    <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                    <div className="h-1.5 sm:h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                       <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${usageStats.disk_percent}%` }} />
                     </div>
                   </div>
-                  <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700">
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Uptime del Servidor</p>
-                    <p className="text-lg font-bold text-gray-800 dark:text-gray-200">12d 08h 32m</p>
-                    <p className="text-[11px] text-gray-500 mt-1 italic">Desde: 11/03/2024 03:45:00</p>
+                  <div className="p-3 sm:p-4 bg-gray-50 dark:bg-gray-900 rounded-lg sm:rounded-xl border border-gray-100 dark:border-gray-700">
+                    <p className="text-[8px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Uptime del Servidor</p>
+                    <p className="text-base sm:text-lg font-bold text-gray-800 dark:text-gray-200">12d 08h 32m</p>
+                    <p className="text-[9px] sm:text-[11px] text-gray-500 mt-1 italic">Desde: 11/03/2024 03:45:00</p>
                   </div>
                 </div>
               </div>
@@ -347,15 +362,15 @@ const Informacion: React.FC = () => {
           )}
 
           {selectedTab === 'extensions' && (
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-500 italic">Total: {serverInfo.loaded_extensions.split(', ').length} extensiones críticas cargadas.</p>
+                <p className="text-[10px] sm:text-sm text-gray-500 italic">Total: {serverInfo.loaded_extensions.split(', ').length} extensiones críticas cargadas.</p>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
                 {serverInfo.loaded_extensions.split(', ').map((ext, idx) => (
-                  <div key={idx} className="flex items-center gap-2 px-3 py-2 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-700 group hover:border-emerald-200 transition-colors">
-                    <CheckCircleIcon className="w-4 h-4 text-emerald-500" />
-                    <span className="text-xs font-bold text-gray-700 dark:text-gray-300 font-mono">{ext}</span>
+                  <div key={idx} className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-700 group hover:border-emerald-200 transition-colors">
+                    <CheckCircleIcon className="w-3 sm:w-4 h-3 sm:h-4 text-emerald-500" />
+                    <span className="text-[9px] sm:text-xs font-bold text-gray-700 dark:text-gray-300 font-mono truncate">{ext}</span>
                   </div>
                 ))}
               </div>
@@ -364,9 +379,9 @@ const Informacion: React.FC = () => {
         </div>
       </div>
 
-      <footer className="flex items-center justify-center gap-2 py-4 border-t border-gray-100 dark:border-gray-700">
-        <InformationCircleIcon className="w-4 h-4 text-gray-400" />
-        <p className="text-[11px] text-gray-400 font-medium uppercase tracking-widest">
+      <footer className="flex items-center justify-center gap-1.5 sm:gap-2 py-3 sm:py-4 border-t border-gray-100 dark:border-gray-700">
+        <InformationCircleIcon className="w-3 sm:w-4 h-3 sm:h-4 text-gray-400" />
+        <p className="text-[9px] sm:text-[11px] text-gray-400 font-medium uppercase tracking-widest">
           Sistema de Monitoreo en Vivo • Datos actualizados cada 30 seg
         </p>
       </footer>

@@ -12,7 +12,7 @@ import {
   ClockIcon,
   NoSymbolIcon
 } from '@heroicons/react/24/outline';
-import UsuarioModal from '../../components/UsuarioModal/UsuarioModal';
+import UsuarioModal from '../../components/GestionUsuarios/UsuarioModal';
 
 interface Usuario {
   id: number;
