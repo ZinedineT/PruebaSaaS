@@ -12,7 +12,6 @@ import {
   UsersIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  CircleStackIcon,
   Square3Stack3DIcon
 } from '@heroicons/react/24/outline';
 

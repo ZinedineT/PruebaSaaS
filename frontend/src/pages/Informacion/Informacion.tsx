@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState} from 'react';
 import {
-  ServerIcon,
   CpuChipIcon,
   CommandLineIcon,
-  ClockIcon,
   DocumentTextIcon,
   ArrowPathIcon,
   InformationCircleIcon,
@@ -22,6 +20,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
+import { ServerIcon } from 'lucide-react';
 
 // --- DATOS (Mantenidos igual que tu original) ---
 const cpuStats = [
@@ -127,9 +126,7 @@ const Informacion: React.FC = () => {
       {/* --- HEADER --- */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
         <div className="flex items-center gap-3 sm:gap-4">
-          <div className="p-2 sm:p-3 bg-blue-600 rounded-lg sm:rounded-xl shadow-lg shadow-blue-200 dark:shadow-none">
-            <ServerIcon className="w-6 sm:w-8 h-6 sm:h-8 text-white" />
-          </div>
+            <ServerIcon className="text-blue-500" size={24} />
           <div>
             <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
               Panel de Control del Sistema

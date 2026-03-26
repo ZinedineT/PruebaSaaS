@@ -13,6 +13,7 @@ import {
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
 } from 'recharts';
+import { HomeIcon } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
   const stats = [
@@ -51,7 +52,8 @@ const Dashboard: React.FC = () => {
       {/* HEADER */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 sm:gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-gray-900 dark:text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2 sm:gap-3">
+            <HomeIcon className="text-blue-500" size={24} />
             Dashboard General
           </h1>
           <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 font-medium mt-1">

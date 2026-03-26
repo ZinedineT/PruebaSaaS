@@ -9,8 +9,9 @@ import {
   BanknotesIcon,
   SparklesIcon,
   CpuChipIcon,
-  RocketLaunchIcon
+  RocketLaunchIcon,
 } from '@heroicons/react/24/outline';
+import { CreditCardIcon } from 'lucide-react';
 
 interface Plan {
   id: number;
@@ -52,7 +53,8 @@ const Planes: React.FC = () => {
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-gray-900 dark:text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2 sm:gap-3">
+            <CreditCardIcon className="text-blue-500" size={24} />
             Planes de Suscripción
           </h1>
           <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mt-1 sm:mt-2 font-medium">

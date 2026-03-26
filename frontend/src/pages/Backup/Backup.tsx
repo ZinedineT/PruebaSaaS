@@ -10,12 +10,11 @@ import {
   ExclamationTriangleIcon,
   PlayIcon,
   FolderOpenIcon,
-  ShieldCheckIcon,
   EyeIcon,
   EyeSlashIcon,
-  InformationCircleIcon,
   CommandLineIcon
 } from '@heroicons/react/24/outline';
+import { CloudDownloadIcon } from "lucide-react";
 import { 
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area
 } from 'recharts';
@@ -93,9 +92,11 @@ const Backup: React.FC = () => {
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight">Gestión de Respaldos</h1>
+          <h1 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2 sm:gap-3">
+            <CloudDownloadIcon className="text-blue-500" size={24}/>
+            Gestión de Respaldos
+          </h1>
           <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 font-medium mt-1 flex items-center gap-1.5 sm:gap-2">
-            <ShieldCheckIcon className="w-4 sm:w-5 h-4 sm:h-5 text-emerald-500" />
             Infraestructura de recuperación de desastres activa
           </p>
         </div>

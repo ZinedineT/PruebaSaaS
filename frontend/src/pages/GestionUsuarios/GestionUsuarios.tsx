@@ -13,6 +13,7 @@ import {
   NoSymbolIcon
 } from '@heroicons/react/24/outline';
 import UsuarioModal from '../../components/GestionUsuarios/UsuarioModal';
+import { Users } from 'lucide-react';
 
 interface Usuario {
   id: number;
@@ -123,9 +124,7 @@ const GestionUsuarios: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 sm:gap-6">
           <div className="space-y-1">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-600 rounded-xl shadow-lg shadow-blue-500/20">
-                <ShieldCheckIcon className="w-6 sm:w-8 h-6 sm:h-8 text-white" />
-              </div>
+              <Users className="text-blue-500" size={24} />
               <h1 className="text-2xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight">Usuarios</h1>
             </div>
             <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 font-medium ml-1">
