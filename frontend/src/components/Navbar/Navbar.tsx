@@ -200,7 +200,7 @@ const Navbar: React.FC<NavbarProps> = ({ sidebarOpen, setSidebarOpen }) => {
                     <span>Configuración</span>
                   </button>
                   
-                  {user?.role === 'admin' && (
+                  {/* {user?.role === 'admin' && (
                     <button
                       onClick={() => {
                         setShowUserMenu(false);
@@ -211,7 +211,7 @@ const Navbar: React.FC<NavbarProps> = ({ sidebarOpen, setSidebarOpen }) => {
                       <ShieldCheckIcon className="w-4 h-4" />
                       <span>Seguridad</span>
                     </button>
-                  )}
+                  )} */}
                 </div>
                 
                 {/* Separador y botón de cerrar sesión */}

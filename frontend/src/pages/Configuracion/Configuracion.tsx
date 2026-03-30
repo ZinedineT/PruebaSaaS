@@ -1,15 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  ShieldCheck, 
-  Layout, 
-  CreditCard, 
-  Search, 
-  Smartphone, 
-  Upload, 
-  Save,
-  Globe,
-  Settings,
-  Share2
+  ShieldCheck, Layout, CreditCard, Search, Smartphone, Upload, Save,Globe,Settings,Share2,Server
 } from 'lucide-react';
 
 const Configuracion: React.FC = () => {
@@ -19,6 +10,11 @@ const Configuracion: React.FC = () => {
     usuarioSecundario: '',
     rucUsuario: '',
     contrasena: ''
+  });
+  // NUEVO: Estado para OSE
+  const [configOse, setConfigOse] = useState({
+    url: '',
+    entorno: 'produccion'
   });
 
   const [configGlobal, setConfigGlobal] = useState({
@@ -120,7 +116,45 @@ const Configuracion: React.FC = () => {
               </div>
             </div>
           </section>
+          {/* NUEVA SECCIÓN: RUTA OSE */}
+          <section className="bg-white dark:bg-[#161b22] rounded-2xl sm:rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-800 p-5 sm:p-6 lg:p-8">
+            <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+              <div className="p-2 sm:p-3 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-xl sm:rounded-2xl">
+                <Server size={24} />
+              </div>
+              <div>
+                <h2 className="text-lg sm:text-xl font-bold text-gray-800 dark:text-white">Ruta del OSE</h2>
+                <p className="text-xs sm:text-sm text-gray-500">Servidor de envío para Operador de Servicios Electrónicos</p>
+              </div>
+            </div>
 
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1 space-y-1.5 sm:space-y-2">
+                <label className="text-xs sm:text-sm font-bold text-gray-600 dark:text-gray-400 ml-1 uppercase tracking-widest text-[10px]">URL del Servidor OSE</label>
+                <div className="relative group">
+                    <Globe className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={18} />
+                    <input 
+                    type="text" 
+                    value={configOse.url}
+                    onChange={(e) => setConfigOse({...configOse, url: e.target.value})}
+                    className="w-full pl-11 pr-4 sm:pr-5 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all dark:text-white font-medium text-sm sm:text-base" 
+                    placeholder="https://ose.tuservidor.com/ol-ti-itpw/billService" 
+                    />
+                </div>
+              </div>
+              <div className="sm:w-1/3 space-y-1.5 sm:space-y-2">
+                <label className="text-xs sm:text-sm font-bold text-gray-600 dark:text-gray-400 ml-1 uppercase tracking-widest text-[10px]">Entorno</label>
+                <select 
+                   value={configOse.entorno}
+                   onChange={(e) => setConfigOse({...configOse, entorno: e.target.value})}
+                   className="w-full px-4 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all dark:text-white font-bold text-sm sm:text-base"
+                >
+                  <option value="demo">DEMO / BETA</option>
+                  <option value="produccion">PRODUCCIÓN</option>
+                </select>
+              </div>
+            </div>
+          </section>
           {/* CULQI & API PERU */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">
             <div className="bg-white dark:bg-[#161b22] rounded-xl sm:rounded-[2rem] p-5 sm:p-6 lg:p-8 border border-gray-100 dark:border-gray-800 shadow-sm">
