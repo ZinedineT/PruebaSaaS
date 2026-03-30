@@ -2,10 +2,8 @@ import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext'; // Importamos el contexto
 import { 
-  HomeIcon, CreditCardIcon, ChartBarIcon, Cog6ToothIcon,
-  CloudArrowUpIcon, InformationCircleIcon, BookOpenIcon,
-  DocumentTextIcon, UsersIcon, ChevronLeftIcon, ChevronRightIcon,
-  Square3Stack3DIcon, ArrowRightOnRectangleIcon, RocketLaunchIcon // Icono de Logout
+  HomeIcon, CreditCardIcon, CalculatorIcon, Cog6ToothIcon,CloudArrowUpIcon, InformationCircleIcon,
+  DocumentTextIcon, UsersIcon, ChevronLeftIcon, ChevronRightIcon,Square3Stack3DIcon, ArrowRightOnRectangleIcon, RocketLaunchIcon // Icono de Logout
 } from '@heroicons/react/24/outline';
 
 interface SidebarProps {
@@ -39,8 +37,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
       label: 'Administración',
       items: [
         { path: '/planes', name: 'Planes', icon: CreditCardIcon },
-        { path: '/contabilidad', name: 'Contabilidad', icon: ChartBarIcon },
-        { path: '/reportes', name: 'Reportes', icon: Square3Stack3DIcon },
+        { path: '/contabilidad', name: 'Contabilidad', icon: CalculatorIcon },
+        // { path: '/reportes', name: 'Reportes', icon: Square3Stack3DIcon },
       ]
     },
     {
@@ -50,7 +48,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
         { path: '/backup', name: 'Backup', icon: CloudArrowUpIcon },
         { path: '/informacion', name: 'Estado', icon: InformationCircleIcon },
         { path: '/logs', name: 'Logs', icon: DocumentTextIcon },
-        { path: '/wiki', name: 'Wiki', icon: BookOpenIcon },
+        // { path: '/wiki', name: 'Wiki', icon: BookOpenIcon },
       ]
     }
   ];
@@ -120,46 +118,28 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
           ))}
         </nav>
 
-        {/* SECCIÓN DE USUARIO Y LOGOUT (REDISEÑADA) */}
+        {/* SECCIÓN DE LOGOUT */}
         <div className="p-3 mt-auto border-t border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-gray-900/20">
-          <div className={`flex items-center gap-3 p-2 rounded-2xl transition-colors ${isOpen ? 'hover:bg-gray-100 dark:hover:bg-gray-800/50' : ''}`}>
-            {/* Avatar con iniciales reales */}
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex-shrink-0 shadow-md flex items-center justify-center text-white font-bold text-sm">
-              {user?.name?.charAt(0).toUpperCase() || 'U'}
-            </div>
-            
-            {isOpen && (
-              <div className="flex-1 min-w-0 animate-in fade-in duration-300">
-                <p className="text-sm font-bold text-gray-900 dark:text-white truncate">
-                  {user?.name || 'Usuario'}
-                </p>
-                <p className="text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider truncate">
-                  {user?.role || 'Premium'}
-                </p>
-              </div>
-            )}
-
-            {/* Botón de Logout condicional o siempre visible */}
-            {isOpen && (
-              <button 
-                onClick={handleLogout}
-                title="Cerrar Sesión"
-                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-all"
-              >
-                <ArrowRightOnRectangleIcon className="w-5 h-5" />
-              </button>
-            )}
-          </div>
+          {/* Cuando el Sidebar está abierto */}
+          {isOpen && (
+            <button 
+              onClick={handleLogout}
+              className="w-full flex items-center justify-left gap-3 p-3 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20 transition-all group"
+            >
+              <ArrowRightOnRectangleIcon className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+              <span className="text-sm font-bold tracking-wider">Cerrar Sesión</span>
+            </button>
+          )}
           
-          {/* Botón de Logout cuando el Sidebar está cerrado */}
+          {/* Cuando el Sidebar está cerrado */}
           {!isOpen && (
-             <button 
-               onClick={handleLogout}
-               className="mt-2 w-full flex justify-center p-3 text-gray-400 hover:text-red-500 transition-colors"
-               title="Cerrar Sesión"
-             >
-               <ArrowRightOnRectangleIcon className="w-6 h-6" />
-             </button>
+            <button 
+              onClick={handleLogout}
+              className="w-full flex justify-center p-3 text-gray-400 hover:text-red-500 transition-colors"
+              title="Cerrar Sesión"
+            >
+              <ArrowRightOnRectangleIcon className="w-6 h-6" />
+            </button>
           )}
         </div>
 

@@ -11,7 +11,7 @@ import {
 interface CambiarPlanModalProps {
   isOpen: boolean;
   onClose: () => void;
-  cliente: { empresa: string; planActual: string; ruc: string } | null;
+  cliente: { id: number; empresa: string; planActual: string; ruc: string } | null;
   onConfirm: (data: { nuevoPlan: string; monto: string; fechaInicio: string }) => void;
 }
 
@@ -179,8 +179,15 @@ const CambiarPlanModal: React.FC<CambiarPlanModalProps> = ({ isOpen, onClose, cl
           </button>
           <button
             type="button"
-            onClick={() => onConfirm({ nuevoPlan, monto: `S/ ${monto}`, fechaInicio })}
-            className="flex-1 py-3.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-blue-500/20 flex items-center justify-center gap-2"
+            onClick={() => {
+              if(!nuevoPlan || !monto) return alert("Por favor seleccione un plan");    
+              onConfirm({ 
+                nuevoPlan, 
+                monto: monto.startsWith('S/') ? monto : `S/ ${monto}`, 
+                fechaInicio 
+              });
+            }}
+            className="flex-1 py-4 bg-blue-600 dark:bg-blue-500 text-white rounded-2xl font-black uppercase text-[10px] tracking-[0.2em] hover:shadow-2xl shadow-blue-500/30 transition-all active:scale-95 flex items-center justify-center gap-2"
           >
             <CheckIcon className="w-4 h-4" />
             Confirmar Cambio

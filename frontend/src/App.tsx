@@ -14,9 +14,9 @@ import Configuracion from './pages/Configuracion/Configuracion';
 import Actualizacion from './pages/Actualizacion/Actualizacion';
 import Backup from './pages/Backup/Backup';
 import Informacion from './pages/Informacion/Informacion';
-import Wiki from './pages/Wiki/Wiki';
+// import Wiki from './pages/Wiki/Wiki';
 import Logs from './pages/Logs/Logs';
-import Reportes from './pages/Reportes/Reportes';
+// import Reportes from './pages/Reportes/Reportes';
 import Perfil from './pages/Perfil/Perfil';
 
 // Componente para rutas protegidas
@@ -156,7 +156,7 @@ const AppRoutes: React.FC = () => {
         } 
       />
       
-      <Route 
+      {/* <Route 
         path="/wiki" 
         element={
           <ProtectedRoute>
@@ -165,7 +165,7 @@ const AppRoutes: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } 
-      />
+      /> */}
       
       <Route 
         path="/logs" 
@@ -178,7 +178,7 @@ const AppRoutes: React.FC = () => {
         } 
       />
       
-      <Route 
+      {/* <Route 
         path="/reportes" 
         element={
           <ProtectedRoute>
@@ -187,7 +187,7 @@ const AppRoutes: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } 
-      />
+      /> */}
     </Routes>
   );
 };

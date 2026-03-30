@@ -42,7 +42,7 @@ const Contabilidad: React.FC = () => {
             <select
               value={selectedPeriodo}
               onChange={(e) => setSelectedPeriodo(e.target.value)}
-              className="bg-transparent border-none text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-200 focus:ring-0 outline-none cursor-pointer"
+              className="bg-white dark:bg-[#161b22] border-none text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-200 focus:ring-0 outline-none cursor-pointer"
             >
               <option value="2024-01">Enero 2024</option>
               <option value="2024-02">Febrero 2024</option>
@@ -55,7 +55,7 @@ const Contabilidad: React.FC = () => {
             <select
               value={selectedFormato}
               onChange={(e) => setSelectedFormato(e.target.value)}
-              className="bg-transparent border-none text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-200 focus:ring-0 outline-none cursor-pointer uppercase"
+              className="bg-white dark:bg-[#161b22] border-none text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-200 focus:ring-0 outline-none cursor-pointer uppercase"
             >
               {formatos.map((f) => (
                 <option key={f} value={f}>{f}</option>
