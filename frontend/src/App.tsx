@@ -7,6 +7,7 @@ import Layout from './components/Layout/Layout';
 import Login from './pages/Login/Login';
 import Dashboard from './pages/Dashboard/Dashboard';
 import GestionUsuarios from './pages/GestionUsuarios/GestionUsuarios'; 
+import GestionPlanes from './pages/GestionPlanes/GestionPlanes';
 import Planes from './pages/Planes/Planes';
 import Contabilidad from './pages/Contabilidad/Contabilidad';
 import Configuracion from './pages/Configuracion/Configuracion';
@@ -84,6 +85,17 @@ const AppRoutes: React.FC = () => {
           <ProtectedRoute>
             <Layout>
               <Planes />
+            </Layout>
+          </ProtectedRoute>
+        } 
+      />
+
+      <Route 
+        path="/gestion-planes" 
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <GestionPlanes />
             </Layout>
           </ProtectedRoute>
         } 

@@ -5,7 +5,7 @@ import {
   HomeIcon, CreditCardIcon, ChartBarIcon, Cog6ToothIcon,
   CloudArrowUpIcon, InformationCircleIcon, BookOpenIcon,
   DocumentTextIcon, UsersIcon, ChevronLeftIcon, ChevronRightIcon,
-  Square3Stack3DIcon, ArrowRightOnRectangleIcon // Icono de Logout
+  Square3Stack3DIcon, ArrowRightOnRectangleIcon, RocketLaunchIcon // Icono de Logout
 } from '@heroicons/react/24/outline';
 
 interface SidebarProps {
@@ -32,6 +32,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
       items: [
         { path: '/', name: 'Dashboard', icon: HomeIcon },
         { path: '/usuarios', name: 'Usuarios', icon: UsersIcon },
+        { path: '/gestion-planes', name: 'Suscripciones', icon: RocketLaunchIcon },
       ]
     },
     {
