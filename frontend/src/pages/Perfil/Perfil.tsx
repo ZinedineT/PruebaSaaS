@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import { profileService } from '../../services/profileService';
+import { useProfile } from '../../hooks/useProfile';
 import { 
   UserIcon, EnvelopeIcon, PencilSquareIcon, 
   CheckIcon, XMarkIcon, KeyIcon, EyeIcon, EyeSlashIcon,
@@ -8,12 +7,10 @@ import {
 } from '@heroicons/react/24/outline';
 
 const Perfil: React.FC = () => {
-  const { user, setUser } = useAuth();
+  const { user, loading, message, updateProfile, changePassword, clearMessages } = useProfile();
   const [isEditing, setIsEditing] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-
+  
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
@@ -38,10 +35,10 @@ const Perfil: React.FC = () => {
   // Auto-cerrar mensajes después de 5 segundos
   useEffect(() => {
     if (message) {
-      const timer = setTimeout(() => setMessage(null), 5000);
+      const timer = setTimeout(() => clearMessages(), 5000);
       return () => clearTimeout(timer);
     }
-  }, [message]);
+  }, [message, clearMessages]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -49,39 +46,14 @@ const Perfil: React.FC = () => {
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setMessage(null);
+    const result = await updateProfile({
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+    });
     
-    try {
-      const response = await profileService.updateProfile({
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-      });
-      
-      // ✅ Estructura correcta: response.data.data contiene el usuario actualizado
-      if (response.data.success) {
-        const updatedUser = response.data.data;
-        setUser(updatedUser);
-        setMessage({ type: 'success', text: response.data.message || 'Perfil actualizado correctamente' });
-        setIsEditing(false);
-      }
-    } catch (error: any) {
-      console.error('Error al actualizar perfil:', error);
-      
-      // Manejar errores de validación (422)
-      if (error.response?.status === 422 && error.response?.data?.errors) {
-        const errors = error.response.data.errors;
-        const firstError = Object.values(errors)[0] as string[];
-        setMessage({ type: 'error', text: firstError?.[0] || 'Error de validación' });
-      } else {
-        setMessage({ 
-          type: 'error', 
-          text: error.response?.data?.message || 'Error al actualizar el perfil' 
-        });
-      }
-    } finally {
-      setLoading(false);
+    if (result.success) {
+      setIsEditing(false);
     }
   };
 
@@ -89,57 +61,34 @@ const Perfil: React.FC = () => {
     e.preventDefault();
     
     if (formData.newPassword !== formData.newPasswordConfirmation) {
-      return setMessage({ type: 'error', text: 'Las contraseñas no coinciden' });
+      // Podrías usar el hook para mostrar errores también
+      alert('Las contraseñas no coinciden');
+      return;
     }
     
     if (formData.newPassword.length < 6) {
-      return setMessage({ type: 'error', text: 'La contraseña debe tener al menos 6 caracteres' });
+      alert('La contraseña debe tener al menos 6 caracteres');
+      return;
     }
     
-    setLoading(true);
-    setMessage(null);
+    const result = await changePassword({
+      current_password: formData.currentPassword,
+      new_password: formData.newPassword,
+      new_password_confirmation: formData.newPasswordConfirmation,
+    });
     
-    try {
-      const response = await profileService.changePassword({
-        current_password: formData.currentPassword,
-        new_password: formData.newPassword,
-        new_password_confirmation: formData.newPasswordConfirmation,
-      });
-      
-      // ✅ Estructura correcta
-      if (response.data.success) {
-        setMessage({ type: 'success', text: response.data.message || 'Contraseña cambiada exitosamente' });
-        // Limpiar campos de contraseña
-        setFormData(prev => ({ 
-          ...prev, 
-          currentPassword: '', 
-          newPassword: '', 
-          newPasswordConfirmation: '' 
-        }));
-      }
-    } catch (error: any) {
-      console.error('Error al cambiar contraseña:', error);
-      
-      // Manejar error de contraseña actual incorrecta
-      if (error.response?.status === 401) {
-        setMessage({ type: 'error', text: 'Contraseña actual incorrecta' });
-      } else if (error.response?.status === 422 && error.response?.data?.errors) {
-        const errors = error.response.data.errors;
-        const firstError = Object.values(errors)[0] as string[];
-        setMessage({ type: 'error', text: firstError?.[0] || 'Error de validación' });
-      } else {
-        setMessage({ 
-          type: 'error', 
-          text: error.response?.data?.message || 'Error al cambiar la contraseña' 
-        });
-      }
-    } finally {
-      setLoading(false);
+    if (result.success) {
+      // Limpiar campos de contraseña
+      setFormData(prev => ({ 
+        ...prev, 
+        currentPassword: '', 
+        newPassword: '', 
+        newPasswordConfirmation: '' 
+      }));
     }
   };
 
   const cancelEdit = () => {
-    // Restaurar valores originales del usuario
     if (user) {
       setFormData(prev => ({
         ...prev,
@@ -210,11 +159,13 @@ const Perfil: React.FC = () => {
                 <div className="text-center">
                   <p className="text-xs text-gray-400 uppercase">Miembro desde</p>
                   <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-                    {user?.created_at ? new Date(user.created_at).toLocaleDateString('es-ES', { 
+                    {user?.created_at ? (
+                      new Date(user.created_at).toLocaleDateString('es-ES', { 
                         year: 'numeric', 
                         month: 'short',
                         day: 'numeric'
-                    }) : 'N/A'}
+                      })
+                    ) : 'N/A'}
                   </p>                
                 </div>
               </div>
