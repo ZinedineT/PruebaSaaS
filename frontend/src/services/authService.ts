@@ -1,32 +1,7 @@
 // D:\proyecto_prueba\frontend\src\services\authService.ts
 import apiService from './apiService';
-import { LoginCredentials } from '../types/auth.types';
+import { LoginCredentials, LoginResponse, MeResponse } from '../types/auth.types';
 import { API_ROUTES } from '../config/apiRoutes';
-
-// Definir la estructura correcta de la respuesta
-interface LoginResponse {
-  success: boolean;
-  message: string;
-  data: {
-    user: {
-      id: number;
-      name: string;
-      email: string;
-      phone: string;
-      role: string;
-      is_active: boolean;
-      last_login: string;
-    };
-    token: string;
-  };
-}
-
-interface MeResponse {
-  success: boolean;
-  data: {
-    user: any;
-  };
-}
 
 export const authService = {
   login: (credentials: LoginCredentials) => 

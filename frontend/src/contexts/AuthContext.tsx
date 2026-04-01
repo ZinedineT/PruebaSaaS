@@ -40,7 +40,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       // Guardar token
       authService.setToken(token);
-      
       setState({
         user: user,
         token: token,
@@ -97,7 +96,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       try {
         const response = await authService.me();
         // Extraer usuario de la estructura correcta
-        const user = response.data.data.user;
+        const user = response.data.data;
         
         setState({
           user: user,

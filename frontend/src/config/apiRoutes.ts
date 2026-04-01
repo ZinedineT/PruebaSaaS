@@ -8,8 +8,9 @@ export const API_ROUTES = {
   
   // Profile routes
   PROFILE: {
-    BASE: '/profile',
-    UPDATE: '/profile',
-    CHANGE_PASSWORD: '/change-password',
+    BASE: '/me',
+    UPDATE: '/me',           // PUT /me
+    CHANGE_PASSWORD: '/me/password',  // PUT /me/password
+    REGENERATE_TOKEN: '/me/token',    // POST /me/token
   },
 } as const;
