@@ -33,16 +33,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (credentials: LoginCredentials) => {
     setState(prev => ({ ...prev, loading: true, error: null }));
     try {
-      const { data } = await authService.login(credentials);
-      authService.setToken(data.token);
+      const response = await authService.login(credentials);
+      
+      // Extraer datos de la estructura correcta
+      const { user, token } = response.data.data;
+      
+      // Guardar token
+      authService.setToken(token);
+      
       setState({
-        user: data.user,
-        token: data.token,
+        user: user,
+        token: token,
         isAuthenticated: true,
         loading: false,
         error: null,
       });
     } catch (error: any) {
+      console.error('Login error:', error);
       authService.removeToken();
       setState({
         user: null,
@@ -72,6 +79,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
     }
   };
+  
   const setUser = (user: AuthState['user']) => {
     setState(prev => ({ ...prev, user }));
   };
@@ -87,15 +95,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       try {
-        const { data } = await authService.me();
+        const response = await authService.me();
+        // Extraer usuario de la estructura correcta
+        const user = response.data.data.user;
+        
         setState({
-          user: data,
-          token,
+          user: user,
+          token: token,
           isAuthenticated: true,
           loading: false,
           error: null,
         });
       } catch (error) {
+        console.error('Error al validar token:', error);
         authService.removeToken();
         setState({
           user: null,

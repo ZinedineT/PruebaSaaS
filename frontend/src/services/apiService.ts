@@ -10,7 +10,7 @@ export interface ApiResponse<T = any> {
 
 // Configuración de la instancia de axios
 const apiService: AxiosInstance = axios.create({
-  baseURL: '/api', 
+  baseURL: 'http://localhost:8081/api', 
   headers: {
     'Content-Type': 'application/json',
   },

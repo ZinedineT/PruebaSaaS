@@ -1,33 +1,55 @@
-// src/services/authService.ts
+// D:\proyecto_prueba\frontend\src\services\authService.ts
 import apiService from './apiService';
-import { LoginCredentials, AuthResponse } from '../types/auth.types';
+import { LoginCredentials } from '../types/auth.types';
+import { API_ROUTES } from '../config/apiRoutes';
+
+// Definir la estructura correcta de la respuesta
+interface LoginResponse {
+  success: boolean;
+  message: string;
+  data: {
+    user: {
+      id: number;
+      name: string;
+      email: string;
+      phone: string;
+      role: string;
+      is_active: boolean;
+      last_login: string;
+    };
+    token: string;
+  };
+}
+
+interface MeResponse {
+  success: boolean;
+  data: {
+    user: any;
+  };
+}
 
 export const authService = {
   login: (credentials: LoginCredentials) => 
-    apiService.post<AuthResponse>('/auth/login', credentials),
+    apiService.post<LoginResponse>(API_ROUTES.AUTH.LOGIN, credentials),
   
   logout: () => 
-    apiService.post('/auth/logout'),
+    apiService.post(API_ROUTES.AUTH.LOGOUT),
   
   me: () => 
-    apiService.get('/auth/me'),
+    apiService.get<MeResponse>(API_ROUTES.AUTH.ME),
   
-  // Guardar token en localStorage
   setToken: (token: string) => {
     localStorage.setItem('token', token);
     apiService.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   },
   
-  // Obtener token
   getToken: () => localStorage.getItem('token'),
   
-  // Eliminar token
   removeToken: () => {
     localStorage.removeItem('token');
     delete apiService.defaults.headers.common['Authorization'];
   },
   
-  // Configurar token inicial (al cargar app)
   initAuth: () => {
     const token = localStorage.getItem('token');
     if (token) {

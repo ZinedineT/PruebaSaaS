@@ -4,10 +4,10 @@ services:
     container_name: proyecto_mysql
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: facturacion_db      # Nombre de tu BD
-      MYSQL_ROOT_PASSWORD: root123        # Contraseña del root (cámbiala si quieres)
-      MYSQL_USER: laravel_user            # Usuario que usará Laravel
-      MYSQL_PASSWORD: laravel_password    # Contraseña para Laravel
+      MYSQL_DATABASE: facturacion_db
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_USER: laravel_user
+      MYSQL_PASSWORD: laravel_password
     ports:
       - "3307:3306"
     volumes:
@@ -15,23 +15,6 @@ services:
     networks:
       - app-network
     command: --default-authentication-plugin=mysql_native_password
-
-  php:
-    build:
-      context: ./docker/php
-      dockerfile: Dockerfile
-    container_name: proyecto_php
-    restart: unless-stopped
-    working_dir: /var/www/backend
-    volumes:
-      - ./backend:/var/www/backend
-      - ./frontend:/var/www/frontend
-    environment:
-      - PHP_IDE_CONFIG=serverName=localhost
-    depends_on:
-      - mysql
-    networks:
-      - app-network
 
   nginx:
     image: nginx:alpine
@@ -41,17 +24,18 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./backend:/var/www/backend
       - ./frontend/build:/var/www/frontend
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
-    depends_on:
-      - php
     networks:
       - app-network
+      - backend-network 
 
 networks:
   app-network:
     driver: bridge
+  backend-network:
+    external: true
+    name: cistcorfact_cistcorfact-network 
 
 volumes:
   mysql_data:
