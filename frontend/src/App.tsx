@@ -20,8 +20,8 @@ import Logs from './pages/Logs/Logs';
 import Perfil from './pages/Perfil/Perfil';
 
 // Componente para rutas protegidas
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+const ProtectedRoute: React.FC<{ children: React.ReactNode; role?: string; }> = ({ children, role }) => {
+  const { isAuthenticated, loading,user } = useAuth();
   
   if (loading) {
     return (
@@ -31,7 +31,15 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
     );
   }
   
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
+  // Primero validar auth
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+  // Luego validar rol (solo si existe user)
+  if (role && user && user.role !== role) {
+    return <Navigate to="/" />;
+  }
+  return <>{children}</>;
 };
 
 // Componente que contiene las rutas con autenticación
@@ -71,7 +79,7 @@ const AppRoutes: React.FC = () => {
       <Route 
         path="/usuarios" 
         element={
-          <ProtectedRoute>
+          <ProtectedRoute role="super_admin">
             <Layout>
               <GestionUsuarios />
             </Layout>

@@ -6,7 +6,7 @@ import {
   UserCircleIcon
 } from '@heroicons/react/24/outline';
 import CambiarPlanModal from '../../components/GestionPlanes/CambiarPlanModal';
-
+import IconButton from '../../components/ui/IconButton';
 // --- INTERFACES ---
 interface HistorialPlan {
   plan: string;
@@ -134,9 +134,13 @@ const GestionPlanes: React.FC = () => {
         </div>
 
         <div className="flex gap-3 w-full md:w-auto">
-           <button className="flex-1 md:flex-none p-4 bg-white dark:bg-[#161b22] border border-gray-200 dark:border-gray-800 rounded-2xl text-gray-500 hover:text-blue-500 transition-all shadow-sm">
-              <ArrowPathIcon className="w-5 h-5" />
-           </button>
+            <IconButton
+              onClick={() => console.log('Actualizar lista')}
+              icon={<ArrowPathIcon className="w-5 h-5" />}
+              variant="secondary"
+              size="lg"
+              title="Actualizar lista"
+            />
            <button className="flex-[3] md:flex-none flex items-center justify-center gap-3 px-8 py-4 bg-gray-900 dark:bg-blue-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:shadow-2xl shadow-blue-500/20 transition-all active:scale-95">
               <CheckBadgeIcon className="w-4 h-4" />
               Sincronizar

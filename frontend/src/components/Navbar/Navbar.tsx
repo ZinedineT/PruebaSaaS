@@ -8,7 +8,6 @@ import {
   ArrowRightOnRectangleIcon,
   UserIcon,
   Cog6ToothIcon,
-  ShieldCheckIcon
 } from '@heroicons/react/24/outline';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
@@ -64,11 +63,17 @@ const Navbar: React.FC<NavbarProps> = ({ sidebarOpen, setSidebarOpen }) => {
 
   // Obtener rol del usuario
   const getUserRole = () => {
+    if (user?.role === 'super_admin') {
+      return 'Super Administrador';
+    }
     if (user?.role === 'admin') {
       return 'Administrador';
     }
-    if (user?.role === 'user') {
-      return 'Usuario';
+    if(user?.role === 'suport1') {
+      return 'Soporte N1';
+    }
+    if(user?.role === 'suport2') {
+      return 'Soporte N2';
     }
     return 'Usuario';
   };

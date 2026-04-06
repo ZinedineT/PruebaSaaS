@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext'; // Importamos el contexto
 import { 
   HomeIcon, CreditCardIcon, CalculatorIcon, Cog6ToothIcon,CloudArrowUpIcon, InformationCircleIcon,
-  DocumentTextIcon, UsersIcon, ChevronLeftIcon, ChevronRightIcon,Square3Stack3DIcon, ArrowRightOnRectangleIcon, RocketLaunchIcon // Icono de Logout
+  DocumentTextIcon, UsersIcon, ChevronLeftIcon, ChevronRightIcon, ArrowRightOnRectangleIcon, RocketLaunchIcon // Icono de Logout
 } from '@heroicons/react/24/outline';
 
 interface SidebarProps {
@@ -12,7 +12,8 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
-  const { user, logout } = useAuth(); // Obtenemos user y logout
+  const { user, logout } = useAuth(); 
+  const isSuperAdmin = user?.role === 'super_admin';
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -29,7 +30,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
       label: 'Principal',
       items: [
         { path: '/', name: 'Dashboard', icon: HomeIcon },
-        { path: '/usuarios', name: 'Usuarios', icon: UsersIcon },
+        ...(isSuperAdmin 
+          ? [{ path: '/usuarios', name: 'Usuarios', icon: UsersIcon }]
+          : []
+        ),
         { path: '/gestion-planes', name: 'Suscripciones', icon: RocketLaunchIcon },
       ]
     },

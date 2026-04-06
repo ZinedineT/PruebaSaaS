@@ -1,12 +1,15 @@
+// D:\proyecto_prueba\frontend\src\components\GestionUsuarios\UsuarioModal.tsx
 import React, { useState, useEffect } from 'react';
 import { 
   XMarkIcon, 
   UserIcon, 
   EnvelopeIcon, 
   PhoneIcon, 
-  BriefcaseIcon,
   IdentificationIcon,
-  CheckCircleIcon
+  CheckCircleIcon,
+  KeyIcon,
+  EyeIcon,
+  EyeSlashIcon
 } from '@heroicons/react/24/outline';
 
 interface Usuario {
@@ -17,26 +20,45 @@ interface Usuario {
   rol: string;
   estado: 'activo' | 'inactivo';
   ultimoLogin: string;
-  cargo?: string;
+  deleted_at?: string | null;
 }
 
 interface UsuarioModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (usuario: Omit<Usuario, 'id' | 'ultimoLogin'>) => void;
+  onSave: (usuario: Omit<Usuario, 'id' | 'ultimoLogin' | 'deleted_at'>, password?: string) => void;
   usuario?: Usuario | null;
   mode: 'create' | 'edit';
+  showPasswordField: boolean;
+  setShowPasswordField: (show: boolean) => void;
+  passwordValue: string;
+  setPasswordValue: (value: string) => void;
+  confirmPassword: string;
+  setConfirmPassword: (value: string) => void;
 }
 
-const UsuarioModal: React.FC<UsuarioModalProps> = ({ isOpen, onClose, onSave, usuario, mode }) => {
+const UsuarioModal: React.FC<UsuarioModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  onSave, 
+  usuario, 
+  mode,
+  showPasswordField,
+  setShowPasswordField,
+  passwordValue,
+  setPasswordValue,
+  confirmPassword,
+  setConfirmPassword
+}) => {
   const [formData, setFormData] = useState({
     nombre: '',
     email: '',
     telefono: '',
-    rol: 'usuario',
+    rol: 'suport1',
     estado: 'activo' as 'activo' | 'inactivo',
-    cargo: ''
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     if (usuario && mode === 'edit') {
@@ -46,36 +68,78 @@ const UsuarioModal: React.FC<UsuarioModalProps> = ({ isOpen, onClose, onSave, us
         telefono: usuario.telefono,
         rol: usuario.rol,
         estado: usuario.estado,
-        cargo: usuario.cargo || ''
       });
     } else {
       setFormData({
-        nombre: '', email: '', telefono: '', rol: 'usuario', estado: 'activo', cargo: ''
+        nombre: '', 
+        email: '', 
+        telefono: '', 
+        rol: 'suport1', 
+        estado: 'activo'
       });
     }
-  }, [usuario, mode, isOpen]);
+    // Resetear campos de contraseña al abrir modal
+    if (mode === 'create') {
+      setShowPasswordField(true);
+    } else {
+      setShowPasswordField(false);
+    }
+    setPasswordValue('');
+    setConfirmPassword('');
+  }, [usuario, mode, isOpen, setShowPasswordField, setPasswordValue, setConfirmPassword]);
 
+  // En UsuarioModal.tsx - Modifica handleSubmit
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    
+    // Validar contraseñas
+    if (mode === 'create') {
+      if (!passwordValue) {
+        alert('La contraseña es obligatoria');
+        return;
+      }
+      if (passwordValue !== confirmPassword) {
+        alert('Las contraseñas no coinciden');
+        return;
+      }
+    }
+    
+    if (mode === 'edit' && showPasswordField) {
+      if (passwordValue !== confirmPassword) {
+        alert('Las contraseñas no coinciden');
+        return;
+      }
+    }
+    
+    // Llamar a onSave con los datos y la contraseña si es necesario
+    if ((mode === 'edit' && showPasswordField && passwordValue) || mode === 'create') {
+      onSave(formData, passwordValue);
+    } else {
+      onSave(formData);
+    }
   };
+
+  // const getRoleLabel = (role: string) => {
+  //   const labels: Record<string, string> = {
+  //     admin: 'Administrador',
+  //     suport1: 'Soporte Nivel 1',
+  //     suport2: 'Soporte Nivel 2',
+  //     super_admin: 'Super Administrador',
+  //   };
+  //   return labels[role] || role;
+  // };
 
   if (!isOpen) return null;
 
-return (
-    // CAMBIO CLAVE: z-[100] y fixed inset-0 fuera de cualquier contenedor relativo
+  return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden">
-      
-      {/* Overlay con desenfoque real a pantalla completa */}
       <div 
         className="fixed inset-0 bg-gray-900/70 backdrop-blur-md transition-opacity duration-300" 
         onClick={onClose} 
       />
 
-      {/* Contenedor del Modal - Con animación de zoom y centrado forzado */}
       <div className="relative bg-white dark:bg-[#0f1115] w-[95%] max-w-2xl rounded-[3rem] shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/10 overflow-hidden transform transition-all animate-in zoom-in-95 duration-200 flex flex-col my-auto">
         
-        {/* Header con Decoración */}
         <div className="relative px-8 py-8 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#0f1115] shrink-0">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
@@ -100,13 +164,13 @@ return (
           </div>
         </div>
 
-        {/* Formulario con Scroll Interno si es necesario */}
         <form onSubmit={handleSubmit} className="p-8 space-y-6 overflow-y-auto max-h-[70vh] custom-scrollbar">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             
-            {/* Nombre */}
             <div className="space-y-2">
-              <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Nombre Completo</label>
+              <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">
+                Nombre Completo <span className="text-red-500">*</span>
+              </label>
               <div className="relative group">
                 <IdentificationIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
                 <input
@@ -120,24 +184,24 @@ return (
               </div>
             </div>
 
-            {/* Cargo */}
             <div className="space-y-2">
-              <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Cargo / Puesto</label>
-              <div className="relative group">
-                <BriefcaseIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
-                <input
-                  type="text"
-                  value={formData.cargo}
-                  onChange={(e) => setFormData({ ...formData, cargo: e.target.value })}
-                  className="w-full pl-12 pr-4 py-3.5 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 outline-none dark:text-white font-bold transition-all"
-                  placeholder="Ej. Desarrollador Senior"
-                />
-              </div>
+              <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Rol</label>
+              <select
+                value={formData.rol}
+                onChange={(e) => setFormData({ ...formData, rol: e.target.value })}
+                className="w-full px-5 py-3.5 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl focus:ring-4 focus:ring-blue-500/10 outline-none dark:text-white font-bold transition-all appearance-none cursor-pointer"
+              >
+                <option value="super_admin">Super Administrador</option>
+                <option value="admin">Administrador</option>
+                <option value="suport2">Soporte Nivel 2</option>
+                <option value="suport1">Soporte Nivel 1</option>
+              </select>
             </div>
 
-            {/* Email */}
             <div className="space-y-2">
-              <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Correo Electrónico</label>
+              <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">
+                Correo Electrónico <span className="text-red-500">*</span>
+              </label>
               <div className="relative group">
                 <EnvelopeIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
                 <input
@@ -151,9 +215,10 @@ return (
               </div>
             </div>
 
-            {/* Teléfono */}
             <div className="space-y-2">
-              <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Teléfono Móvil</label>
+              <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">
+                Teléfono Móvil
+              </label>
               <div className="relative group">
                 <PhoneIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
                 <input
@@ -166,22 +231,6 @@ return (
               </div>
             </div>
 
-            {/* Rol Select */}
-            <div className="space-y-2">
-              <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Nivel de Acceso</label>
-              <select
-                value={formData.rol}
-                onChange={(e) => setFormData({ ...formData, rol: e.target.value })}
-                className="w-full px-5 py-3.5 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl focus:ring-4 focus:ring-blue-500/10 outline-none dark:text-white font-bold transition-all appearance-none cursor-pointer"
-              >
-                <option value="admin">Administrador</option>
-                <option value="supervisor">Supervisor</option>
-                <option value="usuario">Usuario Estándar</option>
-                <option value="contador">Contador</option>
-              </select>
-            </div>
-
-            {/* Estado Select */}
             <div className="space-y-2">
               <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">Estado</label>
               <select
@@ -197,10 +246,95 @@ return (
                 <option value="inactivo">○ Suspendido</option>
               </select>
             </div>
+
+            {/* Botón para cambiar contraseña en modo edición */}
+            {mode === 'edit' && !showPasswordField && (
+              <div className="space-y-2">
+                <button
+                  type="button"
+                  onClick={() => setShowPasswordField(true)}
+                  className="w-full flex items-center justify-center gap-2 px-5 py-3.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-2xl font-bold hover:bg-gray-200 dark:hover:bg-gray-700 transition-all text-sm"
+                >
+                  <KeyIcon className="w-5 h-5" />
+                  Cambiar Contraseña
+                </button>
+              </div>
+            )}
+
+            {/* Campos de contraseña */}
+            {(showPasswordField || mode === 'create') && (
+              <>
+                <div className="space-y-2">
+                  <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">
+                    Contraseña {mode === 'create' && <span className="text-red-500">*</span>}
+                  </label>
+                  <div className="relative group">
+                    <KeyIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required={mode === 'create'}
+                      value={passwordValue}
+                      onChange={(e) => setPasswordValue(e.target.value)}
+                      className="w-full pl-12 pr-12 py-3.5 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 outline-none dark:text-white font-bold transition-all"
+                      placeholder="••••••••"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1">
+                    Confirmar Contraseña {mode === 'create' && <span className="text-red-500">*</span>}
+                  </label>
+                  <div className="relative group">
+                    <KeyIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+                    <input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      required={mode === 'create'}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full pl-12 pr-12 py-3.5 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 outline-none dark:text-white font-bold transition-all"
+                      placeholder="••••••••"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showConfirmPassword ? <EyeSlashIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
+                    </button>
+                  </div>
+                  {passwordValue !== confirmPassword && confirmPassword && (
+                    <p className="text-[10px] text-red-500 font-bold ml-1">Las contraseñas no coinciden</p>
+                  )}
+                </div>
+
+                {mode === 'edit' && (
+                  <div className="space-y-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowPasswordField(false);
+                        setPasswordValue('');
+                        setConfirmPassword('');
+                      }}
+                      className="text-xs text-gray-400 hover:text-red-500 transition-colors"
+                    >
+                      Cancelar cambio de contraseña
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </form>
 
-        {/* Footer de Acciones */}
         <div className="p-8 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-[#0f1115] flex justify-end gap-3 shrink-0">
           <button
             type="button"
@@ -210,7 +344,7 @@ return (
             Cancelar
           </button>
           <button
-            onClick={handleSubmit} // Usamos handleSubmit aquí también por si acaso
+            onClick={handleSubmit}
             className="flex items-center gap-2 px-8 py-2.5 bg-blue-600 text-white rounded-xl font-black shadow-lg shadow-blue-500/20 hover:scale-105 active:scale-95 transition-all text-sm"
           >
             <CheckCircleIcon className="w-5 h-5" />
