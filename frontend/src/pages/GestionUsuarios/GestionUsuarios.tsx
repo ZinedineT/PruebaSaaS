@@ -5,6 +5,7 @@ import {
 } from "@heroicons/react/24/outline";
 import IconButton from '../../components/ui/IconButton';
 import UsuarioModal from "../../components/GestionUsuarios/UsuarioModal";
+import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import { Users } from "lucide-react";
 import { useUsuarios } from "../../hooks/useUsuarios";
 import { UsuarioUI } from "../../types/usuario.types";
@@ -221,7 +222,7 @@ const GestionUsuarios: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 sm:gap-6">
           <div className="space-y-1">
             <div className="flex items-center gap-3">
-              <Users className="text-blue-500" size={24} />
+              <Users className="text-blue-500" w-8 h-8 />
               <h1 className="text-2xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight">
                 Usuarios
               </h1>
@@ -310,10 +311,7 @@ const GestionUsuarios: React.FC = () => {
         {/* TABLA ESTILO DASHBOARD */}
         <div className="bg-white dark:bg-[#161b22] rounded-2xl sm:rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
           {loading ? (
-            <div className="py-20 text-center">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
-              <p className="mt-4 text-gray-500">Cargando usuarios...</p>
-            </div>
+            <LoadingSpinner message="Cargando usuarios..." fullScreen={false} size="sm" />
           ) : (
             <>
               <div className="overflow-x-auto">

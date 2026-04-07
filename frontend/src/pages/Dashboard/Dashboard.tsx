@@ -9,13 +9,15 @@ import {
   XCircleIcon,
   ArrowPathIcon,
   EyeIcon,
-  RocketLaunchIcon
+  HomeIcon
 } from '@heroicons/react/24/outline';
+import {useNavigate} from 'react-router-dom';
+import LoadingSpinner from '../../components/ui/LoadingSpinner';
 
 // --- TIPOS Y ROLES ---
 type Role = 'super_admin' | 'administrativo' | 'soporte_n1' | 'soporte_n2' | 'ti_mantenimiento';
 
-const userRole: Role = 'super_admin'; // ← cambiar para probar permisos
+const userRole: Role = 'super_admin'; 
 
 // --- MOCK DATA CON PERIODOS ---
 const mockDataByPeriod = {
@@ -105,6 +107,7 @@ const Dashboard: React.FC = () => {
   const [lastUpdate, setLastUpdate] = useState('10:42 a. m.');
   const [data, setData] = useState(mockDataByPeriod['Este mes']);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setLoading(true);
@@ -136,14 +139,7 @@ const Dashboard: React.FC = () => {
   const hasBlock = (block: string) => blockPermissions[userRole].includes(block);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-[#0f1115]">
-        <div className="text-center">
-          <ArrowPathIcon className="w-10 h-10 text-blue-500 animate-spin mx-auto mb-4" />
-          <p className="text-gray-500 dark:text-gray-400 font-bold">Cargando dashboard...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner message="Cargando dashboard..." fullScreen={true} size="md" />;
   }
 
   return (
@@ -151,13 +147,15 @@ const Dashboard: React.FC = () => {
       
       {/* HEADER */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-gray-200 dark:border-gray-800 pb-8">
-        <div className="flex items-center gap-3 text-blue-600 dark:text-blue-500">
-          <RocketLaunchIcon className="w-10 h-10" />
-          <h1 className="text-2xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight">
-            Dashboard Admin 
-          </h1>
-          <p className="text-gray-500 dark:text-gray-400 font-medium ">
-            Centro de control de cartera, cobranza, alertas y operación
+        <div>
+          <div className="flex items-center gap-3">
+            <HomeIcon className="w-8 h-8 text-blue-500" /> 
+            <h1 className="text-2xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight">
+              Dashboard
+            </h1>
+          </div>
+          <p className="text-gray-500 dark:text-gray-400 font-medium mt-2">
+            Centro general de cartera, cobranza, alertas y operación
           </p>
         </div>
         
@@ -202,7 +200,10 @@ const Dashboard: React.FC = () => {
                 <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">Estado de clientes por plan</h2>
                 <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Distribución actual por tipo de plan</p>
               </div>
-              <button className="text-[10px] font-black text-blue-600 uppercase border-b-2 border-blue-600/20 hover:border-blue-600 flex items-center gap-1">
+              <button 
+                className="text-[10px] font-black text-blue-600 uppercase border-b-2 border-blue-600/20 hover:border-blue-600 flex items-center gap-1"
+                onClick={() => navigate('/usuarios')}
+              >
                 <EyeIcon className="w-3 h-3" /> Ver clientes
               </button>
             </div>
@@ -287,7 +288,9 @@ const Dashboard: React.FC = () => {
                 <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">Cobranza del periodo por plan</h2>
                 <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Monto esperado, pagado y pendiente</p>
               </div>
-                <button className="text-[10px] font-black text-blue-600 uppercase border-b-2 border-blue-600/20 hover:border-blue-600 inline-flex items-center gap-1">
+                <button 
+                  onClick={() => navigate('/gestion-planes')}
+                  className="text-[10px] font-black text-blue-600 uppercase border-b-2 border-blue-600/20 hover:border-blue-600 inline-flex items-center gap-1">
                   <EyeIcon className="w-3 h-3" /> Ver cobranza
                 </button>
             </div>
@@ -357,8 +360,16 @@ const Dashboard: React.FC = () => {
         {hasBlock('comprobantes') && (
           <div className="bg-white dark:bg-[#161b22] rounded-[2.5rem] p-8 border border-gray-100 dark:border-gray-800">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">Salud de comprobantes</h2>
-              <button className="text-[10px] font-black text-blue-600 uppercase border-b-2 border-blue-600/20 hover:border-blue-600">
+              <div>
+                <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight mb-1">Salud de comprobantes</h2>
+                <p className="text-gray-900 dark:text-gray-400 text-[9px] font-bold mb-6">
+                  ⚠️ Comprobantes pendientes de envío, rechazo o anulación
+                </p>
+              </div>
+              <button 
+                onClick={() => navigate('/comprobantes')}
+                className="text-[10px] font-black text-blue-600 uppercase border-b-2 border-blue-600/20 hover:border-blue-600"
+              >
                 Ver comprobantes
               </button>
             </div>
@@ -384,14 +395,24 @@ const Dashboard: React.FC = () => {
         {/* Alertas de vencimiento - CON REGLA DE NEGOCIO */}
         {hasBlock('alertas') && (
           <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-[2.5rem] p-8 text-white shadow-xl shadow-blue-500/20">
-            <h2 className="text-xl font-black tracking-tight mb-1">Alertas de vencimiento</h2>
-            <p className="text-blue-100 text-[9px] font-bold uppercase tracking-widest mb-6">
-              ⚠️ Solo clientes anuales (no aplica a corte mensual)
-            </p>
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-xl font-black tracking-tight mb-1">Alertas de vencimiento</h2>
+                <p className="text-blue-100 text-[9px] font-bold mb-6">
+                  ⚠️ Solo clientes anuales (no aplica a corte mensual)
+                </p>
+              </div>
+              <button 
+                onClick={() => navigate('/vencimientos')}
+                className="text-[10px] font-black text-white/80 uppercase border-b-2 border-white/30 hover:border-white"
+              >
+                Ver vencimientos
+              </button>
+            </div>
             
             <div className="space-y-4">
               <div className="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/10">
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex justify-between items-center gap-3 mb-4">
                   <UsersIcon className="w-5 h-5 text-blue-200" />
                   <span className="text-[11px] font-black uppercase">Clientes anuales por vencer</span>
                 </div>
@@ -414,9 +435,7 @@ const Dashboard: React.FC = () => {
             </div>
 
             <div className="mt-6 text-center">
-              <button className="text-[10px] font-black text-white/80 uppercase border-b-2 border-white/30 hover:border-white">
-                Ver vencimientos
-              </button>
+
             </div>
           </div>
         )}
@@ -430,7 +449,10 @@ const Dashboard: React.FC = () => {
               <h2 className="text-xl font-black text-gray-900 dark:text-white tracking-tight uppercase">Clientes cerca de su límite</h2>
               <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">uso vs límite de comprobantes</p>
             </div>
-            <button className="text-[10px] font-black text-blue-600 uppercase border-b-2 border-blue-600/20 hover:border-blue-600">
+            <button 
+              onClick={() => navigate('/limites')}
+              className="text-[10px] font-black text-blue-600 uppercase border-b-2 border-blue-600/20 hover:border-blue-600"
+            >
               Ver todos
             </button>
           </div>
@@ -442,7 +464,6 @@ const Dashboard: React.FC = () => {
                   <th className="pb-4">Cliente</th>
                   <th className="pb-4">Plan</th>
                   <th className="pb-4">Uso</th>
-                  <th className="pb-4">%</th>
                   <th className="pb-4">Estado</th>
                   <th className="pb-4">Progreso</th>
                  </tr>
@@ -457,7 +478,6 @@ const Dashboard: React.FC = () => {
                       <td className="py-4 font-bold text-xs text-gray-900 dark:text-white">{item.cliente}</td>
                       <td className="py-4 font-bold text-xs text-gray-600 dark:text-gray-400 text-xs">{item.plan}</td>
                       <td className="py-4 font-bold text-xs text-gray-900 dark:text-white">{item.uso.toLocaleString()} / {item.limite.toLocaleString()}</td>
-                      <td className="py-4 font-bold text-xs text-gray-900 dark:text-gray-400">{porcentaje.toFixed(0)}%</td>
                       <td className="py-4">
                         <span className={`text-[9px] font-black uppercase px-2 py-1 rounded-full ${status.color} ${status.bg}`}>
                           {status.label}
@@ -468,7 +488,7 @@ const Dashboard: React.FC = () => {
                           <div className="w-24 h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                             <div className={`h-full ${barColor} rounded-full transition-all duration-500`} style={{ width: `${Math.min(porcentaje, 100)}%` }} />
                           </div>
-                          <span className="text-[9px] font-bold text-gray-900 dark:text-white">{Math.round(porcentaje)}%</span>
+                          <span className="font-bold text-[12px] text-gray-900 dark:text-white">{Math.round(porcentaje)}%</span>
                         </div>
                       </td>
                      </tr>

@@ -7,6 +7,7 @@ import {
 } from '@heroicons/react/24/outline';
 import CambiarPlanModal from '../../components/GestionPlanes/CambiarPlanModal';
 import IconButton from '../../components/ui/IconButton';
+import { LoadingSpinner } from '../../components/ui/LoadingSkeleton';
 // --- INTERFACES ---
 interface HistorialPlan {
   plan: string;
@@ -48,6 +49,7 @@ const GestionPlanes: React.FC = () => {
   const [clientes, setClientes] = useState<ClientePlan[]>(initialData);
   const [selectedClienteId, setSelectedClienteId] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'todos' | 'activo' | 'suspendido' | 'cancelado'>('todos');
 
@@ -119,6 +121,9 @@ const GestionPlanes: React.FC = () => {
     // Opcional: Feedback visual
     console.log(`Plan de ${selectedCliente?.empresa} actualizado a ${data.nuevoPlan}`);
   };
+  if (loading) {
+    return <LoadingSpinner message="Cargando gestión de planes..." fullScreen={true} size="md" />;
+  }
 
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-10 space-y-6 sm:space-y-8 bg-gray-50/50 dark:bg-[#0f1115] min-h-screen transition-colors duration-300">

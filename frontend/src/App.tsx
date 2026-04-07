@@ -18,6 +18,7 @@ import Informacion from './pages/Informacion/Informacion';
 import Logs from './pages/Logs/Logs';
 // import Reportes from './pages/Reportes/Reportes';
 import Perfil from './pages/Perfil/Perfil';
+import LoadingSpinner from './components/ui/LoadingSpinner';
 
 // Componente para rutas protegidas
 const ProtectedRoute: React.FC<{ children: React.ReactNode; role?: string; }> = ({ children, role }) => {
@@ -25,9 +26,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; role?: string; }> = 
   
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-gray-600 dark:text-gray-400">Cargando...</div>
-      </div>
+      <LoadingSpinner message="Cargando vista principal..." fullScreen={true} />
     );
   }
   

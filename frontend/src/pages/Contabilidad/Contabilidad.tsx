@@ -7,10 +7,12 @@ import {
   IdentificationIcon
 } from '@heroicons/react/24/outline';
 import { ChartBarIcon } from 'lucide-react';
+import { LoadingSpinner } from '../../components/ui/LoadingSkeleton';
 
 const Contabilidad: React.FC = () => {
   const [selectedPeriodo, setSelectedPeriodo] = useState('2024-01');
   const [selectedFormato, setSelectedFormato] = useState('CONCAR');
+  const [loading, setLoading] = useState(false);
 
   const clientes = [
     { dominio: 'fushi.cistcorfact.test', nombre: 'TOJI FUSHI', ruc: '12112211212', correo: 'fushi@gmail.com' },
@@ -19,6 +21,9 @@ const Contabilidad: React.FC = () => {
   ];
 
   const formatos = ['CONCAR', 'SISCONT', 'FOXCONT', 'CONTASIS'];
+  if (loading) {
+    return <LoadingSpinner message="Cargando contabilidad..." fullScreen={true} />;
+  }
 
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 bg-gray-50 dark:bg-[#0f1115] min-h-screen transition-colors duration-300">
