@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { 
-  RocketLaunchIcon, ClockIcon, ChevronRightIcon, MagnifyingGlassIcon,
+  RocketLaunchIcon, ClockIcon, MagnifyingGlassIcon,
   ArrowPathIcon, CheckBadgeIcon, CalendarDaysIcon,
   PencilSquareIcon, PauseCircleIcon, PlayCircleIcon, NoSymbolIcon,
   UserCircleIcon
@@ -128,9 +128,9 @@ const GestionPlanes: React.FC = () => {
         <div className="space-y-1">
           <div className="flex items-center gap-3 text-blue-600 dark:text-blue-500">
             <RocketLaunchIcon className="w-10 h-10" />
-            <h1 className="text-2xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight uppercase">Suscripciones</h1>
+            <h1 className="text-2xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight">Suscripciones</h1>
           </div>
-          <p className="text-gray-500 dark:text-gray-400 font-medium italic">Gestión de facturación y ciclos de vida</p>
+          <p className="text-gray-500 dark:text-gray-400 font-medium ">Gestión de facturación y ciclos de vida</p>
         </div>
 
         <div className="flex gap-3 w-full md:w-auto">

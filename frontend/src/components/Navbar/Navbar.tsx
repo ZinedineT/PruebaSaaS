@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Bars3Icon, 
   SunIcon, 
   MoonIcon, 
   BellIcon, 
@@ -84,12 +83,12 @@ const Navbar: React.FC<NavbarProps> = ({ sidebarOpen, setSidebarOpen }) => {
         
         {/* LADO IZQUIERDO: Control y Saludo */}
         <div className="flex items-center gap-6">
-          <button
+          {/* <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-500/10 dark:hover:text-blue-400 transition-all duration-200"
           >
             <Bars3Icon className="w-5 h-5" />
-          </button>
+          </button> */}
 
           <div className="hidden lg:block">
             <h2 className="text-lg font-bold text-gray-900 dark:text-white leading-tight">
