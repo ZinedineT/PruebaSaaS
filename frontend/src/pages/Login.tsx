@@ -1,17 +1,17 @@
 // src/pages/Login/Login.tsx
-import React, { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { 
-  EnvelopeIcon, 
-  LockClosedIcon, 
+import React, { useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import {
+  EnvelopeIcon,
+  LockClosedIcon,
   ArrowRightIcon,
-  ShieldCheckIcon 
-} from '@heroicons/react/24/outline';
+  ShieldCheckIcon,
+} from "@heroicons/react/24/outline";
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const { login, loading, error } = useAuth();
   const navigate = useNavigate();
 
@@ -19,7 +19,7 @@ const Login: React.FC = () => {
     e.preventDefault();
     try {
       await login({ email, password });
-      navigate('/');
+      navigate("/");
     } catch (err) {
       // Error manejado por el contexto
     }
@@ -39,8 +39,12 @@ const Login: React.FC = () => {
           <div className="p-4 bg-white dark:bg-blue-600 rounded-[2rem] shadow-2xl shadow-blue-500/20 mb-4">
             <ShieldCheckIcon className="w-10 h-10 text-blue-600 dark:text-white" />
           </div>
-          <h1 className="text-4xl font-black text-gray-900 dark:text-white tracking-tight">Bienvenido</h1>
-          <p className="text-gray-500 dark:text-gray-400 font-bold uppercase text-[10px] tracking-[0.2em] mt-2">Acceso al Sistema Maestro</p>
+          <h1 className="text-4xl font-black text-gray-900 dark:text-white tracking-tight">
+            Bienvenido
+          </h1>
+          <p className="text-gray-500 dark:text-gray-400 font-bold uppercase text-[10px] tracking-[0.2em] mt-2">
+            Acceso al Sistema Maestro
+          </p>
         </div>
 
         {/* Tarjeta de Login */}
@@ -48,14 +52,18 @@ const Login: React.FC = () => {
           {error && (
             <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-2xl flex items-center gap-3 animate-shake">
               <div className="w-2 h-2 rounded-full bg-red-500" />
-              <p className="text-xs font-black text-red-600 dark:text-red-400 uppercase tracking-tight">{error}</p>
+              <p className="text-xs font-black text-red-600 dark:text-red-400 uppercase tracking-tight">
+                {error}
+              </p>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Input Email */}
             <div className="space-y-2">
-              <label className="ml-2 text-[11px] font-black text-gray-400 uppercase tracking-widest">Correo Electrónico</label>
+              <label className="ml-2 text-[11px] font-black text-gray-400 uppercase tracking-widest">
+                Correo Electrónico
+              </label>
               <div className="relative group">
                 <EnvelopeIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
                 <input
@@ -72,8 +80,15 @@ const Login: React.FC = () => {
             {/* Input Password */}
             <div className="space-y-2">
               <div className="flex justify-between items-center px-2">
-                <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest">Contraseña</label>
-                <a href="#" className="text-[10px] font-black text-blue-600 uppercase hover:underline">Olvide mi clave</a>
+                <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest">
+                  Contraseña
+                </label>
+                <a
+                  href="#"
+                  className="text-[10px] font-black text-blue-600 uppercase hover:underline"
+                >
+                  Olvide mi clave
+                </a>
               </div>
               <div className="relative group">
                 <LockClosedIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
@@ -108,7 +123,10 @@ const Login: React.FC = () => {
 
         {/* Footer del Login */}
         <p className="mt-8 text-center text-[11px] font-bold text-gray-400 uppercase tracking-[0.1em]">
-          ¿No tienes acceso? <span className="text-blue-600 dark:text-blue-400 cursor-pointer">Contacta al administrador</span>
+          ¿No tienes acceso?{" "}
+          <span className="text-blue-600 dark:text-blue-400 cursor-pointer">
+            Contacta al administrador
+          </span>
         </p>
       </div>
     </div>

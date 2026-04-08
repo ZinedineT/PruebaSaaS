@@ -1,14 +1,25 @@
 // D:\proyecto_prueba\frontend\src\pages\GestionUsuarios\GestionUsuarios.tsx
 import React, { useState, useEffect } from "react";
 import {
-  PencilIcon,UserMinusIcon,TrashIcon,ArrowPathIcon,MagnifyingGlassIcon,UserPlusIcon,ShieldCheckIcon,PhoneIcon,EnvelopeIcon,ClockIcon,NoSymbolIcon,ExclamationTriangleIcon,
+  PencilIcon,
+  UserMinusIcon,
+  TrashIcon,
+  ArrowPathIcon,
+  MagnifyingGlassIcon,
+  UserPlusIcon,
+  ShieldCheckIcon,
+  PhoneIcon,
+  EnvelopeIcon,
+  ClockIcon,
+  NoSymbolIcon,
+  ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
-import IconButton from '../../components/ui/IconButton';
-import UsuarioModal from "../../components/GestionUsuarios/UsuarioModal";
-import LoadingSpinner from "../../components/ui/LoadingSpinner";
+import IconButton from "../components/ui/IconButton";
+import UsuarioModal from "../components/GestionUsuarios/UsuarioModal";
+import LoadingSpinner from "../components/ui/LoadingSpinner";
 import { Users } from "lucide-react";
-import { useUsuarios } from "../../hooks/useUsuarios";
-import { UsuarioUI } from "../../types/usuario.types";
+import { useUsuarios } from "../hooks/useUsuarios";
+import { UsuarioUI } from "../types/usuario.types";
 
 // Mapeo de roles para mostrar bonito
 const roleDisplayNames: Record<string, string> = {
@@ -98,11 +109,11 @@ const GestionUsuarios: React.FC = () => {
 
   const handleGuardarUsuario = async (
     usuarioData: Omit<UsuarioUI, "id" | "ultimoLogin" | "deleted_at">,
-    modalPassword?: string  // <-- Este es el password que viene del modal
+    modalPassword?: string, // <-- Este es el password que viene del modal
   ) => {
-      console.log("🔑 Modal password recibido:", modalPassword);
-      console.log("📝 Modo:", modalMode);
-      console.log("👤 Usuario editando:", usuarioEditando?.id);
+    console.log("🔑 Modal password recibido:", modalPassword);
+    console.log("📝 Modo:", modalMode);
+    console.log("👤 Usuario editando:", usuarioEditando?.id);
     try {
       if (modalMode === "create") {
         // Para crear, usamos la contraseña del modal
@@ -123,13 +134,17 @@ const GestionUsuarios: React.FC = () => {
             alert("Las contraseñas no coinciden");
             return;
           }
-          await actualizarUsuario(usuarioEditando.id, usuarioData, modalPassword);
+          await actualizarUsuario(
+            usuarioEditando.id,
+            usuarioData,
+            modalPassword,
+          );
         } else {
           // Solo actualizar datos, sin cambiar contraseña
           await actualizarUsuario(usuarioEditando.id, usuarioData);
         }
       }
-      
+
       setModalOpen(false);
       setShowPasswordField(false);
       setPasswordValue("");
@@ -222,7 +237,7 @@ const GestionUsuarios: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 sm:gap-6">
           <div className="space-y-1">
             <div className="flex items-center gap-3">
-              <Users className="text-blue-500" w-8 h-8 />
+              <Users className="text-blue-500" size={32} />
               <h1 className="text-2xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight">
                 Usuarios
               </h1>
@@ -232,29 +247,29 @@ const GestionUsuarios: React.FC = () => {
             </p>
           </div>
           <div className="flex gap-3">
-              {/* Botón de actualizar - Solo icono */}
-              <IconButton
-                onClick={recargar}
-                icon={<ArrowPathIcon className="w-5 h-5" />}
-                variant="secondary"
-                size="lg"
-                loading={loading}
-                title="Actualizar lista"
-              />
-              {/* Botón de sincronizar/nuevo usuario */}
-              <button
-                onClick={() => {
-                  setModalMode("create");
-                  setUsuarioEditando(null);
-                  setShowPasswordField(true);
-                  setModalOpen(true);
-                }}
-                className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3.5 bg-gray-900 dark:bg-blue-600 text-white rounded-xl sm:rounded-2xl font-bold hover:scale-105 active:scale-95 transition-all shadow-xl shadow-gray-900/10 dark:shadow-blue-500/10 text-sm sm:text-base"
-              >
-                <UserPlusIcon className="w-4 sm:w-5 h-4 sm:h-5" />
-                Nuevo Miembro
-              </button>
-            </div>
+            {/* Botón de actualizar - Solo icono */}
+            <IconButton
+              onClick={recargar}
+              icon={<ArrowPathIcon className="w-5 h-5" />}
+              variant="secondary"
+              size="lg"
+              loading={loading}
+              title="Actualizar lista"
+            />
+            {/* Botón de sincronizar/nuevo usuario */}
+            <button
+              onClick={() => {
+                setModalMode("create");
+                setUsuarioEditando(null);
+                setShowPasswordField(true);
+                setModalOpen(true);
+              }}
+              className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3.5 bg-gray-900 dark:bg-blue-600 text-white rounded-xl sm:rounded-2xl font-bold hover:scale-105 active:scale-95 transition-all shadow-xl shadow-gray-900/10 dark:shadow-blue-500/10 text-sm sm:text-base"
+            >
+              <UserPlusIcon className="w-4 sm:w-5 h-4 sm:h-5" />
+              Nuevo Miembro
+            </button>
+          </div>
         </div>
 
         {/* CONTROLES: TABS + BUSCADOR */}
@@ -311,7 +326,11 @@ const GestionUsuarios: React.FC = () => {
         {/* TABLA ESTILO DASHBOARD */}
         <div className="bg-white dark:bg-[#161b22] rounded-2xl sm:rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
           {loading ? (
-            <LoadingSpinner message="Cargando usuarios..." fullScreen={false} size="sm" />
+            <LoadingSpinner
+              message="Cargando usuarios..."
+              fullScreen={false}
+              size="sm"
+            />
           ) : (
             <>
               <div className="overflow-x-auto">

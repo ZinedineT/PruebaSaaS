@@ -1,35 +1,40 @@
 // src/App.tsx
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider } from './contexts/ThemeContext';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import Layout from './components/Layout/Layout';
-import Login from './pages/Login/Login';
-import Dashboard from './pages/Dashboard/Dashboard';
-import GestionUsuarios from './pages/GestionUsuarios/GestionUsuarios'; 
-import GestionPlanes from './pages/GestionPlanes/GestionPlanes';
-import Planes from './pages/Planes/Planes';
-import Contabilidad from './pages/Contabilidad/Contabilidad';
-import Configuracion from './pages/Configuracion/Configuracion';
-import Actualizacion from './pages/Actualizacion/Actualizacion';
-import Backup from './pages/Backup/Backup';
-import Informacion from './pages/Informacion/Informacion';
-// import Wiki from './pages/Wiki/Wiki';
-import Logs from './pages/Logs/Logs';
-// import Reportes from './pages/Reportes/Reportes';
-import Perfil from './pages/Perfil/Perfil';
-import LoadingSpinner from './components/ui/LoadingSpinner';
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { ThemeProvider } from "./contexts/ThemeContext";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import Layout from "./components/Layout/Layout";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import GestionUsuarios from "./pages/GestionUsuarios";
+import GestionPlanes from "./pages/GestionPlanes";
+import Planes from "./pages/Planes";
+import Contabilidad from "./pages/Contabilidad";
+import Configuracion from "./pages/Configuracion";
+import Backup from "./pages/Backup";
+import Informacion from "./pages/Informacion";
+import Logs from "./pages/Logs";
+import Perfil from "./pages/Perfil";
+import LoadingSpinner from "./components/ui/LoadingSpinner";
 
 // Componente para rutas protegidas
-const ProtectedRoute: React.FC<{ children: React.ReactNode; role?: string; }> = ({ children, role }) => {
-  const { isAuthenticated, loading,user } = useAuth();
-  
+const ProtectedRoute: React.FC<{
+  children: React.ReactNode;
+  role?: string;
+}> = ({ children, role }) => {
+  const { isAuthenticated, loading, user } = useAuth();
+
   if (loading) {
     return (
       <LoadingSpinner message="Cargando vista principal..." fullScreen={true} />
     );
   }
-  
+
   // Primero validar auth
   if (!isAuthenticated) {
     return <Navigate to="/login" />;
@@ -48,89 +53,89 @@ const AppRoutes: React.FC = () => {
   return (
     <Routes>
       {/* Ruta pública */}
-      <Route 
-        path="/login" 
-        element={isAuthenticated ? <Navigate to="/" /> : <Login />} 
+      <Route
+        path="/login"
+        element={isAuthenticated ? <Navigate to="/" /> : <Login />}
       />
-      
+
       {/* Rutas protegidas con Layout */}
-      <Route 
-        path="/" 
+      <Route
+        path="/"
         element={
           <ProtectedRoute>
             <Layout>
               <Dashboard />
             </Layout>
           </ProtectedRoute>
-        } 
+        }
       />
-      <Route 
-        path="/perfil" 
+      <Route
+        path="/perfil"
         element={
           <ProtectedRoute>
             <Layout>
               <Perfil />
             </Layout>
           </ProtectedRoute>
-        } 
+        }
       />
-      
-      <Route 
-        path="/usuarios" 
+
+      <Route
+        path="/usuarios"
         element={
           <ProtectedRoute role="super_admin">
             <Layout>
               <GestionUsuarios />
             </Layout>
           </ProtectedRoute>
-        } 
+        }
       />
-      
-      <Route 
-        path="/planes" 
+
+      <Route
+        path="/planes"
         element={
           <ProtectedRoute>
             <Layout>
               <Planes />
             </Layout>
           </ProtectedRoute>
-        } 
+        }
       />
 
-      <Route 
-        path="/gestion-planes" 
+      <Route
+        path="/gestion-planes"
         element={
           <ProtectedRoute>
             <Layout>
               <GestionPlanes />
             </Layout>
           </ProtectedRoute>
-        } 
+        }
       />
-      
-      <Route 
-        path="/contabilidad" 
+
+      <Route
+        path="/contabilidad"
         element={
           <ProtectedRoute>
             <Layout>
               <Contabilidad />
             </Layout>
           </ProtectedRoute>
-        } 
+        }
       />
-      
-      <Route 
-        path="/configuracion" 
+
+      <Route
+        path="/configuracion"
         element={
           <ProtectedRoute>
             <Layout>
               <Configuracion />
             </Layout>
           </ProtectedRoute>
-        } 
+        }
       />
-      
-      <Route 
+
+      {/* <Route 
         path="/actualizacion" 
         element={
           <ProtectedRoute>
@@ -139,30 +144,30 @@ const AppRoutes: React.FC = () => {
             </Layout>
           </ProtectedRoute>
         } 
-      />
-      
-      <Route 
-        path="/backup" 
+      /> */}
+
+      <Route
+        path="/backup"
         element={
           <ProtectedRoute>
             <Layout>
               <Backup />
             </Layout>
           </ProtectedRoute>
-        } 
+        }
       />
-      
-      <Route 
-        path="/informacion" 
+
+      <Route
+        path="/informacion"
         element={
           <ProtectedRoute>
             <Layout>
               <Informacion />
             </Layout>
           </ProtectedRoute>
-        } 
+        }
       />
-      
+
       {/* <Route 
         path="/wiki" 
         element={
@@ -173,18 +178,18 @@ const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         } 
       /> */}
-      
-      <Route 
-        path="/logs" 
+
+      <Route
+        path="/logs"
         element={
           <ProtectedRoute>
             <Layout>
               <Logs />
             </Layout>
           </ProtectedRoute>
-        } 
+        }
       />
-      
+
       {/* <Route 
         path="/reportes" 
         element={
