@@ -7,7 +7,7 @@ import {
   InformationCircleIcon, ChevronLeftIcon, ChevronRightIcon, 
   ArrowRightOnRectangleIcon, CreditCardIcon, CalculatorIcon,
   ShieldCheckIcon, FolderIcon, ServerIcon, ClipboardDocumentListIcon,
-  ChartBarIcon // Para Operaciones
+  ChartBarIcon
 } from '@heroicons/react/24/outline';
 
 interface SidebarProps {
@@ -15,10 +15,11 @@ interface SidebarProps {
   setIsOpen: (open: boolean) => void;
 }
 
+type Rol = 'super_admin' | 'admin' | 'suport1' | 'suport2' | 'ti_n1' | 'ti_n2';
+
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const { user, logout } = useAuth();
-  const isSuperAdmin = user?.role === 'super_admin';
-  const isAdmin = user?.role === 'administrativo' || user?.role === 'super_admin';
+  const userRole = user?.role as Rol;
   const navigate = useNavigate();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
@@ -35,61 +36,145 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
     setOpenDropdown(openDropdown === name ? null : name);
   };
 
-  // Definición de secciones con submenús
-  const menuSections = [
-    {
+  // ========== FUNCIONES DE PERMISOS ==========
+  
+  const canSeeDashboard = () => {
+    return ['super_admin', 'admin', 'suport1', 'suport2'].includes(userRole);
+  };
+
+  const canSeeClientes = () => {
+    return ['super_admin', 'admin', 'suport1', 'suport2', 'ti_n1', 'ti_n2'].includes(userRole);
+  };
+
+  const canSeeSuscripciones = () => {
+    return ['super_admin', 'admin', 'suport2', 'ti_n1', 'ti_n2'].includes(userRole);
+  };
+
+  const canSeeOnboarding = () => {
+    return ['super_admin', 'admin', 'suport2'].includes(userRole);
+  };
+
+  const canSeeOperaciones = () => {
+    return ['super_admin', 'admin', 'suport1', 'suport2', 'ti_n1', 'ti_n2'].includes(userRole);
+  };
+
+  const canSeeContabilidad = () => {
+    return ['super_admin', 'admin'].includes(userRole);
+  };
+
+  const canSeeConfiguracionComercial = () => {
+    return ['super_admin', 'admin'].includes(userRole);
+  };
+
+  const canSeeConfiguracionGlobal = () => {
+    return ['super_admin', 'admin', 'ti_n1', 'ti_n2'].includes(userRole);
+  };
+
+  const canEditConfiguracionGlobal = () => {
+    return ['super_admin', 'admin', 'ti_n2'].includes(userRole);
+  };
+
+  const canSeeSeguridad = () => {
+    return userRole === 'super_admin';
+  };
+
+  const canSeeUsuarios = () => {
+    return userRole === 'super_admin';
+  };
+
+  const canSeeAuditoria = () => {
+    return ['super_admin', 'admin', 'suport2', 'ti_n1', 'ti_n2'].includes(userRole);
+  };
+
+  const canSeePlataforma = () => {
+    return ['super_admin', 'ti_n1', 'ti_n2'].includes(userRole);
+  };
+
+  const canSeeLogs = () => {
+    return ['super_admin', 'ti_n1', 'ti_n2'].includes(userRole);
+  };
+
+  // ========== CONSTRUCCIÓN DE MENÚ DINÁMICO ==========
+
+  const menuSections = [];
+
+  // 1. Principal / Dashboard
+  if (canSeeDashboard()) {
+    menuSections.push({
       label: 'Principal',
-      items: [
-        { path: '/', name: 'Dashboard', icon: HomeIcon },
-      ]
-    },
-    {
+      items: [{ path: '/', name: 'Dashboard', icon: HomeIcon }]
+    });
+  }
+
+  // 2. Clientes
+  const clientesItems = [];
+  if (canSeeClientes()) clientesItems.push({ path: '/clientes', name: 'Clientes', icon: UsersIcon });
+  if (canSeeSuscripciones()) clientesItems.push({ path: '/suscripciones', name: 'Suscripciones', icon: RocketLaunchIcon });
+  if (canSeeOnboarding()) clientesItems.push({ path: '/onboarding', name: 'Onboarding', icon: UserPlusIcon });
+  
+  if (clientesItems.length > 0) {
+    menuSections.push({
       label: 'Clientes',
-      items: [
-        { path: '/clientes', name: 'Clientes', icon: UsersIcon },
-        { path: '/suscripciones', name: 'Suscripciones', icon: RocketLaunchIcon },
-        { path: '/onboarding', name: 'Onboarding', icon: UserPlusIcon },
-      ]
-    },
-    {
+      items: clientesItems
+    });
+  }
+
+  // 3. Operaciones
+  const operacionesItems = [];
+  if (canSeeOperaciones()) operacionesItems.push({ path: '/operaciones', name: 'Operaciones', icon: ChartBarIcon });
+  if (canSeeContabilidad()) operacionesItems.push({ path: '/contabilidad', name: 'Contabilidad', icon: CalculatorIcon });
+  
+  if (operacionesItems.length > 0) {
+    menuSections.push({
       label: 'Operaciones',
-      items: [
-        { path: '/operaciones', name: 'Operaciones', icon: ChartBarIcon },
-        { path: '/contabilidad', name: 'Contabilidad', icon: CalculatorIcon },
-      ]
-    },
-    {
+      items: operacionesItems
+    });
+  }
+
+  // 4. Configuración (dropdown)
+  const configuracionItems = [];
+  if (canSeeConfiguracionComercial()) configuracionItems.push({ path: '/configuracion/planes', name: 'Comercial', icon: CreditCardIcon });
+  if (canSeeConfiguracionGlobal()) configuracionItems.push({ path: '/configuracion/global', name: 'Global', icon: FolderIcon });
+  if (canSeeUsuarios()) configuracionItems.push({ path: '/usuarios', name: 'Usuarios', icon: ShieldCheckIcon });
+  
+  if (configuracionItems.length > 0) {
+    menuSections.push({
       label: 'Configuración',
       isDropdown: true,
       icon: Cog6ToothIcon,
       dropdownName: 'configuracion',
-      items: [
-        { path: '/configuracion/planes', name: 'Comercial', icon: CreditCardIcon },
-        { path: '/configuracion/global', name: 'Global', icon: FolderIcon },
-        ...(isSuperAdmin ? [{ path: '/usuarios', name: 'Usuarios', icon: ShieldCheckIcon }] : []),
-      ]
-    },
-    {
+      items: configuracionItems
+    });
+  }
+
+  // 5. Auditoría
+  if (canSeeAuditoria()) {
+    menuSections.push({
       label: 'Auditoría',
-      items: [
-        { path: '/auditoria', name: 'Auditoría', icon: ClipboardDocumentListIcon },
-      ]
-    },
-    {
+      items: [{ path: '/auditoria', name: 'Auditoría', icon: ClipboardDocumentListIcon }]
+    });
+  }
+
+  // 6. Plataforma (dropdown)
+  if (canSeePlataforma()) {
+    const plataformaItems = [
+      { path: '/plataforma/procesos', name: 'Procesos', icon: Cog6ToothIcon },
+      { path: '/plataforma/mantenimiento', name: 'Mantenimiento', icon: CloudArrowUpIcon },
+      { path: '/plataforma/herramientas', name: 'Herramientas', icon: InformationCircleIcon },
+    ];
+    if (canSeeLogs()) plataformaItems.push({ path: '/logs', name: 'Logs', icon: DocumentTextIcon });
+    
+    menuSections.push({
       label: 'Plataforma',
       isDropdown: true,
       icon: ServerIcon,
       dropdownName: 'plataforma',
-      items: [
-        { path: '/plataforma/procesos', name: 'Procesos', icon: Cog6ToothIcon },
-        { path: '/plataforma/mantenimiento', name: 'Mantenimiento', icon: CloudArrowUpIcon },
-        { path: '/plataforma/herramientas', name: 'Herramientas', icon:  InformationCircleIcon },
-        { path: '/logs', name: 'Logs', icon: DocumentTextIcon },
-      ]
-    },
-  ];
+      items: plataformaItems
+    });
+  }
 
-  // Renderizar item normal o dropdown
+  // ========== RENDERIZADO ==========
+
   const renderNavItem = (item: any, idx: number) => {
     if (item.isDropdown) {
       return (
@@ -116,7 +201,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
             )}
           </button>
           
-          {/* Submenú */}
           {isOpen && openDropdown === item.dropdownName && (
             <div className="ml-8 mt-1 space-y-1 border-l-2 border-gray-100 dark:border-gray-800 pl-3 animate-in slide-in-from-left-2 fade-in duration-200">
               {item.items.map((subItem: any, subIdx: number) => (
