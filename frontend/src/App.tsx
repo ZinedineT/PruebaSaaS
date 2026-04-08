@@ -11,15 +11,34 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import Layout from "./components/Layout/Layout";
 import Login from "./pages/auth/Login";
 import Dashboard from "./pages/dashboard/Dashboard";
-import GestionUsuarios from "./pages/configuracion/GestionUsuarios";
+
+// Clientes
+import Clientes from "./pages/clientes/Clientes";
 import GestionPlanes from "./pages/clientes/GestionPlanes";
-import Planes from "./pages/configuracion/Planes";
+import Onboarding from "./pages/clientes/Onboarding";
+
+// Operaciones
+import Operaciones from "./pages/operaciones/Operaciones";
 import Contabilidad from "./pages/operaciones/Contabilidad";
+
+// Configuración
 import Configuracion from "./pages/configuracion/Configuracion";
+import GestionUsuarios from "./pages/configuracion/GestionUsuarios";
+import Planes from "./pages/configuracion/Planes";
+
+// Auditoría
+import Auditoria from "./pages/auditoria/Auditoria";
+
+// Plataforma
 import Backup from "./pages/plataforma/Backup";
 import Informacion from "./pages/plataforma/Informacion";
 import Logs from "./pages/plataforma/Logs";
+import Procesos from "./pages/plataforma/Procesos";
+
+// Auth
 import Perfil from "./pages/auth/Perfil";
+
+// UI
 import LoadingSpinner from "./components/ui/LoadingSpinner";
 
 // Componente para rutas protegidas
@@ -35,18 +54,18 @@ const ProtectedRoute: React.FC<{
     );
   }
 
-  // Primero validar auth
   if (!isAuthenticated) {
     return <Navigate to="/login" />;
   }
-  // Luego validar rol (solo si existe user)
+
   if (role && user && user.role !== role) {
     return <Navigate to="/" />;
   }
+
   return <>{children}</>;
 };
 
-// Componente que contiene las rutas con autenticación
+// Componente principal de rutas
 const AppRoutes: React.FC = () => {
   const { isAuthenticated } = useAuth();
 
@@ -58,7 +77,7 @@ const AppRoutes: React.FC = () => {
         element={isAuthenticated ? <Navigate to="/" /> : <Login />}
       />
 
-      {/* Rutas protegidas con Layout */}
+      {/* Dashboard */}
       <Route
         path="/"
         element={
@@ -69,39 +88,18 @@ const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         }
       />
+
+      {/* Clientes */}
       <Route
-        path="/perfil"
+        path="/clientes"
         element={
           <ProtectedRoute>
             <Layout>
-              <Perfil />
+              <Clientes />
             </Layout>
           </ProtectedRoute>
         }
       />
-
-      <Route
-        path="/usuarios"
-        element={
-          <ProtectedRoute role="super_admin">
-            <Layout>
-              <GestionUsuarios />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/planes"
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <Planes />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-
       <Route
         path="/suscripciones"
         element={
@@ -112,7 +110,28 @@ const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/onboarding"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Onboarding />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
 
+      {/* Operaciones */}
+      <Route
+        path="/operaciones"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Operaciones />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/contabilidad"
         element={
@@ -124,8 +143,19 @@ const AppRoutes: React.FC = () => {
         }
       />
 
+      {/* Configuración */}
       <Route
-        path="/configuracion"
+        path="/configuracion/planes"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Planes />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/configuracion/global"
         element={
           <ProtectedRoute>
             <Layout>
@@ -134,7 +164,92 @@ const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/configuracion/seguridad"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Configuracion />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/planes"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Planes />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/usuarios"
+        element={
+          <ProtectedRoute role="super_admin">
+            <Layout>
+              <GestionUsuarios />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
 
+      {/* Auditoría */}
+      <Route
+        path="/auditoria"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Auditoria />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Plataforma */}
+      <Route
+        path="/plataforma/procesos"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Procesos />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/plataforma/mantenimiento"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Backup />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/plataforma/herramientas"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Informacion />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/logs"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <Logs />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Sistema */}
       <Route
         path="/backup"
         element={
@@ -145,7 +260,6 @@ const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         }
       />
-
       <Route
         path="/informacion"
         element={
@@ -157,12 +271,13 @@ const AppRoutes: React.FC = () => {
         }
       />
 
+      {/* Perfil */}
       <Route
-        path="/logs"
+        path="/perfil"
         element={
           <ProtectedRoute>
             <Layout>
-              <Logs />
+              <Perfil />
             </Layout>
           </ProtectedRoute>
         }
