@@ -12,7 +12,7 @@ import {
   HomeIcon,
 } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
-import LoadingSpinner from "../components/ui/LoadingSpinner";
+import LoadingSpinner from "../../components/ui/LoadingSpinner";
 
 // --- TIPOS Y ROLES ---
 type Role =

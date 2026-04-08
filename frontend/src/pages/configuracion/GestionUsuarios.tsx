@@ -14,12 +14,12 @@ import {
   NoSymbolIcon,
   ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
-import IconButton from "../components/ui/IconButton";
-import UsuarioModal from "../components/GestionUsuarios/UsuarioModal";
-import LoadingSpinner from "../components/ui/LoadingSpinner";
+import IconButton from "../../components/ui/IconButton";
+import UsuarioModal from "../../components/GestionUsuarios/UsuarioModal";
+import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import { Users } from "lucide-react";
-import { useUsuarios } from "../hooks/useUsuarios";
-import { UsuarioUI } from "../types/usuario.types";
+import { useUsuarios } from "../../hooks/useUsuarios";
+import { UsuarioUI } from "../../types/usuario.types";
 
 // Mapeo de roles para mostrar bonito
 const roleDisplayNames: Record<string, string> = {

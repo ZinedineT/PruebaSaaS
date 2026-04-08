@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useProfile } from "../hooks/useProfile";
+import { useProfile } from "../../hooks/useProfile";
 import {
   UserIcon,
   EnvelopeIcon,

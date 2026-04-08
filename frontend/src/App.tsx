@@ -9,17 +9,17 @@ import {
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import Layout from "./components/Layout/Layout";
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import GestionUsuarios from "./pages/GestionUsuarios";
-import GestionPlanes from "./pages/GestionPlanes";
-import Planes from "./pages/Planes";
-import Contabilidad from "./pages/Contabilidad";
-import Configuracion from "./pages/Configuracion";
-import Backup from "./pages/Backup";
-import Informacion from "./pages/Informacion";
-import Logs from "./pages/Logs";
-import Perfil from "./pages/Perfil";
+import Login from "./pages/auth/Login";
+import Dashboard from "./pages/dashboard/Dashboard";
+import GestionUsuarios from "./pages/configuracion/GestionUsuarios";
+import GestionPlanes from "./pages/clientes/GestionPlanes";
+import Planes from "./pages/configuracion/Planes";
+import Contabilidad from "./pages/operaciones/Contabilidad";
+import Configuracion from "./pages/configuracion/Configuracion";
+import Backup from "./pages/plataforma/Backup";
+import Informacion from "./pages/plataforma/Informacion";
+import Logs from "./pages/plataforma/Logs";
+import Perfil from "./pages/auth/Perfil";
 import LoadingSpinner from "./components/ui/LoadingSpinner";
 
 // Componente para rutas protegidas
@@ -103,7 +103,7 @@ const AppRoutes: React.FC = () => {
       />
 
       <Route
-        path="/gestion-planes"
+        path="/suscripciones"
         element={
           <ProtectedRoute>
             <Layout>
@@ -135,17 +135,6 @@ const AppRoutes: React.FC = () => {
         }
       />
 
-      {/* <Route 
-        path="/actualizacion" 
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <Actualizacion />
-            </Layout>
-          </ProtectedRoute>
-        } 
-      /> */}
-
       <Route
         path="/backup"
         element={
@@ -168,17 +157,6 @@ const AppRoutes: React.FC = () => {
         }
       />
 
-      {/* <Route 
-        path="/wiki" 
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <Wiki />
-            </Layout>
-          </ProtectedRoute>
-        } 
-      /> */}
-
       <Route
         path="/logs"
         element={
@@ -189,17 +167,6 @@ const AppRoutes: React.FC = () => {
           </ProtectedRoute>
         }
       />
-
-      {/* <Route 
-        path="/reportes" 
-        element={
-          <ProtectedRoute>
-            <Layout>
-              <Reportes />
-            </Layout>
-          </ProtectedRoute>
-        } 
-      /> */}
     </Routes>
   );
 };

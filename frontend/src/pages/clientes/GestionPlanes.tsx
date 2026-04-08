@@ -12,9 +12,9 @@ import {
   NoSymbolIcon,
   UserCircleIcon,
 } from "@heroicons/react/24/outline";
-import CambiarPlanModal from "../components/GestionPlanes/CambiarPlanModal";
-import IconButton from "../components/ui/IconButton";
-import { LoadingSpinner } from "../components/ui/LoadingSkeleton";
+import CambiarPlanModal from "../../components/GestionPlanes/CambiarPlanModal";
+import IconButton from "../../components/ui/IconButton";
+import { LoadingSpinner } from "../../components/ui/LoadingSkeleton";
 // --- INTERFACES ---
 interface HistorialPlan {
   plan: string;

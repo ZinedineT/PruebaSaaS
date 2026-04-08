@@ -34,7 +34,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
           ? [{ path: '/usuarios', name: 'Usuarios', icon: UsersIcon }]
           : []
         ),
-        { path: '/gestion-planes', name: 'Suscripciones', icon: RocketLaunchIcon },
+        { path: '/suscripciones', name: 'Suscripciones', icon: RocketLaunchIcon },
       ]
     },
     {
@@ -42,7 +42,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
       items: [
         { path: '/planes', name: 'Planes', icon: CreditCardIcon },
         { path: '/contabilidad', name: 'Contabilidad', icon: CalculatorIcon },
-        // { path: '/reportes', name: 'Reportes', icon: Square3Stack3DIcon },
       ]
     },
     {
@@ -52,7 +51,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
         { path: '/backup', name: 'Backup', icon: CloudArrowUpIcon },
         { path: '/informacion', name: 'Estado', icon: InformationCircleIcon },
         { path: '/logs', name: 'Logs', icon: DocumentTextIcon },
-        // { path: '/wiki', name: 'Wiki', icon: BookOpenIcon },
       ]
     }
   ];

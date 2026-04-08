@@ -7,7 +7,7 @@ import {
   IdentificationIcon,
 } from "@heroicons/react/24/outline";
 import { ChartBarIcon } from "lucide-react";
-import { LoadingSpinner } from "../components/ui/LoadingSkeleton";
+import { LoadingSpinner } from "../../components/ui/LoadingSkeleton";
 
 const Contabilidad: React.FC = () => {
   const [selectedPeriodo, setSelectedPeriodo] = useState("2024-01");
