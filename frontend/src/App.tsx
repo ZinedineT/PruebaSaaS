@@ -6,6 +6,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import { Toaster } from 'sonner';
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import Layout from "./components/Layout/Layout";
@@ -54,13 +55,8 @@ const ProtectedRoute: React.FC<{
     );
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" />;
-  }
-
-  if (role && user && user.role !== role) {
-    return <Navigate to="/" />;
-  }
+  if (!isAuthenticated) return <Navigate to="/login" />;
+  if (role && user && user.role !== role) return <Navigate to="/" />;
 
   return <>{children}</>;
 };
@@ -291,6 +287,16 @@ function App() {
     <ThemeProvider>
       <AuthProvider>
         <Router>
+          {/* TOASTER: Configuramos para que sea responsivo y use tu tema */}
+          <Toaster 
+            position="top-right" 
+            richColors 
+            closeButton
+            // "expand" hace que se vean las alertas apiladas en móvil
+            expand={false} 
+            // Esto asegura que en Dark Mode se vea bien
+            theme={document.documentElement.classList.contains('dark') ? 'dark' : 'light'}
+          />
           <AppRoutes />
         </Router>
       </AuthProvider>

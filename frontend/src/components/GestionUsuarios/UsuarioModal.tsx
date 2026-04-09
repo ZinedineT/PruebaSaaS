@@ -11,6 +11,7 @@ import {
   EyeIcon,
   EyeSlashIcon
 } from '@heroicons/react/24/outline';
+import { ActionButton } from '../ui/ActionButton';
 
 interface Usuario {
   id: number;
@@ -35,6 +36,7 @@ interface UsuarioModalProps {
   setPasswordValue: (value: string) => void;
   confirmPassword: string;
   setConfirmPassword: (value: string) => void;
+  isLoading?: boolean;
 }
 
 const UsuarioModal: React.FC<UsuarioModalProps> = ({ 
@@ -48,7 +50,8 @@ const UsuarioModal: React.FC<UsuarioModalProps> = ({
   passwordValue,
   setPasswordValue,
   confirmPassword,
-  setConfirmPassword
+  setConfirmPassword,
+  isLoading = false
 }) => {
   const [formData, setFormData] = useState({
     nombre: '',
@@ -88,13 +91,13 @@ const UsuarioModal: React.FC<UsuarioModalProps> = ({
     setConfirmPassword('');
   }, [usuario, mode, isOpen, setShowPasswordField, setPasswordValue, setConfirmPassword]);
 
-  // En UsuarioModal.tsx - Modifica handleSubmit
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validar contraseñas
     if (mode === 'create') {
       if (!passwordValue) {
+        // Usamos toast aquí o alert? Prefiero toast pero necesitarías importar
         alert('La contraseña es obligatoria');
         return;
       }
@@ -118,16 +121,6 @@ const UsuarioModal: React.FC<UsuarioModalProps> = ({
       onSave(formData);
     }
   };
-
-  // const getRoleLabel = (role: string) => {
-  //   const labels: Record<string, string> = {
-  //     admin: 'Administrador',
-  //     suport1: 'Soporte Nivel 1',
-  //     suport2: 'Soporte Nivel 2',
-  //     super_admin: 'Super Administrador',
-  //   };
-  //   return labels[role] || role;
-  // };
 
   if (!isOpen) return null;
 
@@ -338,20 +331,25 @@ const UsuarioModal: React.FC<UsuarioModalProps> = ({
         </form>
 
         <div className="p-8 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-[#0f1115] flex justify-end gap-3 shrink-0">
-          <button
+          <ActionButton
             type="button"
             onClick={onClose}
-            className="px-6 py-2.5 rounded-xl font-bold text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-800 transition-all text-sm"
+            actionType="cancel"
+            variant="outline"
+            size="md"
           >
             Cancelar
-          </button>
-          <button
+          </ActionButton>
+          <ActionButton
             onClick={handleSubmit}
-            className="flex items-center gap-2 px-8 py-2.5 bg-blue-600 text-white rounded-xl font-black shadow-lg shadow-blue-500/20 hover:scale-105 active:scale-95 transition-all text-sm"
+            actionType={mode === 'create' ? 'create' : 'update'}
+            variant="primary"
+            size="md"
+            loading={isLoading}
+            icon={<CheckCircleIcon className="w-5 h-5" />}
           >
-            <CheckCircleIcon className="w-5 h-5" />
             {mode === 'create' ? 'Crear Usuario' : 'Guardar Cambios'}
-          </button>
+          </ActionButton>
         </div>
       </div>
     </div>

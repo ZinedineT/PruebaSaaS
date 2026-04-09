@@ -1,5 +1,6 @@
 // D:\proyecto_prueba\frontend\src\pages\GestionUsuarios\GestionUsuarios.tsx
 import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
 import {
   PencilIcon,
   UserMinusIcon,
@@ -15,11 +16,14 @@ import {
   ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
 import IconButton from "../../components/ui/IconButton";
+import { ActionButton } from "../../components/ui/ActionButton";
 import UsuarioModal from "../../components/GestionUsuarios/UsuarioModal";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import { Users } from "lucide-react";
 import { useUsuarios } from "../../hooks/useUsuarios";
 import { UsuarioUI } from "../../types/usuario.types";
+import { useConfirm } from "../../hooks/useConfirm";
+import ConfirmDialog from "../../components/ui/ConfirmDialog";
 
 // Mapeo de roles para mostrar bonito
 const roleDisplayNames: Record<string, string> = {
@@ -30,6 +34,7 @@ const roleDisplayNames: Record<string, string> = {
 };
 
 const GestionUsuarios: React.FC = () => {
+  const { ask, confirmProps } = useConfirm();
   const {
     usuariosActivos,
     usuariosInactivos,
@@ -57,6 +62,29 @@ const GestionUsuarios: React.FC = () => {
   const [showPasswordField, setShowPasswordField] = useState(false);
   const [passwordValue, setPasswordValue] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [confirmConfig, setConfirmConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: string;
+    onConfirm: () => void;
+    variant: 'danger' | 'warning' | 'info';
+  }>({
+    isOpen: false,
+    title: "",
+    description: "",
+    onConfirm: () => {},
+    variant: 'danger'
+  });
+  const openConfirm = (title: string, description: string, onConfirm: () => void, variant: 'danger' | 'warning' | 'info' = 'danger') => {
+    setConfirmConfig({ isOpen: true, title, description, onConfirm, variant });
+  };
+  // Estados de carga para acciones específicas
+  const [isCreating, setIsCreating] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState<number | null>(null);
+  const [isRestoring, setIsRestoring] = useState<number | null>(null);
+  const [isToggling, setIsToggling] = useState<number | null>(null);
+  const [isDeletingPermanent, setIsDeletingPermanent] = useState<number | null>(null);
 
   // Controlar scroll del body cuando el modal está abierto
   useEffect(() => {
@@ -109,29 +137,29 @@ const GestionUsuarios: React.FC = () => {
 
   const handleGuardarUsuario = async (
     usuarioData: Omit<UsuarioUI, "id" | "ultimoLogin" | "deleted_at">,
-    modalPassword?: string, // <-- Este es el password que viene del modal
+    modalPassword?: string,
   ) => {
-    console.log("🔑 Modal password recibido:", modalPassword);
-    console.log("📝 Modo:", modalMode);
-    console.log("👤 Usuario editando:", usuarioEditando?.id);
     try {
       if (modalMode === "create") {
-        // Para crear, usamos la contraseña del modal
+        setIsCreating(true);
         if (!modalPassword) {
-          alert("La contraseña es obligatoria");
+          toast.error("❌ La contraseña es obligatoria");
+          setIsCreating(false);
           return;
         }
         if (modalPassword !== confirmPassword) {
-          alert("Las contraseñas no coinciden");
+          toast.error("❌ Las contraseñas no coinciden");
+          setIsCreating(false);
           return;
         }
         await crearUsuario(usuarioData, modalPassword);
+        toast.success("✅ Usuario creado correctamente");
       } else if (usuarioEditando) {
-        // Para editar, verificamos si hay contraseña nueva
+        setIsUpdating(true);
         if (modalPassword) {
-          // Hay contraseña nueva para cambiar
           if (modalPassword !== confirmPassword) {
-            alert("Las contraseñas no coinciden");
+            toast.error("❌ Las contraseñas no coinciden");
+            setIsUpdating(false);
             return;
           }
           await actualizarUsuario(
@@ -139,9 +167,10 @@ const GestionUsuarios: React.FC = () => {
             usuarioData,
             modalPassword,
           );
+          toast.success("✅ Usuario actualizado con nueva contraseña");
         } else {
-          // Solo actualizar datos, sin cambiar contraseña
           await actualizarUsuario(usuarioEditando.id, usuarioData);
+          toast.success("✅ Usuario actualizado correctamente");
         }
       }
 
@@ -151,49 +180,97 @@ const GestionUsuarios: React.FC = () => {
       setConfirmPassword("");
     } catch (err) {
       console.error("Error al guardar usuario:", err);
-      alert("Ocurrió un error al guardar el usuario");
+      toast.error("❌ Ocurrió un error al guardar el usuario");
+    } finally {
+      setIsCreating(false);
+      setIsUpdating(false);
     }
   };
 
   const handleEliminarClick = (usuario: UsuarioUI) => {
-    if (
-      window.confirm(
-        `¿Estás seguro de eliminar a ${usuario.nombre}? Se moverá a la papelera.`,
-      )
-    ) {
-      eliminarUsuario(usuario.id);
-    }
-  };
+      ask({
+        title: "¿Mover a la papelera?",
+        description: `El usuario ${usuario.nombre} será desactivado pero podrás recuperarlo después.`,
+        confirmText: "Mover a papelera",
+        variant: "danger",
+        onConfirm: async () => {
+          setIsDeleting(usuario.id);
+          try {
+            await eliminarUsuario(usuario.id);
+            toast.success("Usuario movido a la papelera");
+          } catch {
+            toast.error("Error al eliminar");
+          } finally {
+            setIsDeleting(null);
+          }
+        }
+      });
+    };
 
   const handleEliminarPermanenteClick = (usuario: UsuarioUI) => {
-    if (
-      window.confirm(
-        `⚠️ ACCIÓN PERMANENTE ⚠️\n\n¿Estás seguro de eliminar DEFINITIVAMENTE a ${usuario.nombre}? Esta acción NO se puede deshacer.`,
-      )
-    ) {
-      eliminarPermanentemente(usuario.id);
-    }
+    ask({
+      title: "⚠️ Acción Permanente",
+      description: `¿Deseas eliminar definitivamente a ${usuario.nombre}? Esta acción no se puede deshacer.`,
+      variant: 'danger',
+      confirmText: 'Eliminar Permanentemente',
+      cancelText: 'Cancelar',
+      onConfirm: async () => {
+        setIsDeletingPermanent(usuario.id);
+        try {
+          await eliminarPermanentemente(usuario.id);
+          toast.success("🗑️ Usuario borrado permanentemente");
+        } catch {
+          toast.error("❌ Error al eliminar");
+        } finally {
+          setIsDeletingPermanent(null);
+        }
+      }
+    });
   };
 
   const handleRestaurarClick = (usuario: UsuarioUI) => {
-    if (
-      window.confirm(
-        `¿Restaurar a ${usuario.nombre}? Volverá a la lista de usuarios activos.`,
-      )
-    ) {
-      restaurarUsuario(usuario.id);
-    }
+    ask({
+      title: "¿Restaurar usuario?",
+      description: `El usuario ${usuario.nombre} volverá a aparecer en la lista de usuarios activos.`,
+      variant: 'info',
+      confirmText: 'Restaurar',
+      cancelText: 'Cancelar',
+      onConfirm: async () => {
+        setIsRestoring(usuario.id);
+        try {
+          await restaurarUsuario(usuario.id);
+          toast.success(`✅ ${usuario.nombre} restaurado`);
+        } catch {
+          toast.error("❌ Error al restaurar");
+        } finally {
+          setIsRestoring(null);
+        }
+      }
+    });
   };
 
   const handleSuspenderClick = (usuario: UsuarioUI) => {
-    const accion = usuario.estado === "activo" ? "suspender" : "activar";
-    if (
-      window.confirm(
-        `¿${accion === "suspender" ? "Suspender" : "Activar"} a ${usuario.nombre}?`,
-      )
-    ) {
-      toggleEstado(usuario.id, usuario.estado);
-    }
+    const esActivo = usuario.estado === "activo";
+    const accion = esActivo ? "Suspender" : "Activar";
+    
+    ask({
+      title: `¿${accion} usuario?`,
+      description: `¿Estás seguro de que deseas ${accion.toLowerCase()} a ${usuario.nombre}?`,
+      variant: esActivo ? 'warning' : 'info',
+      confirmText: accion,
+      cancelText: 'Cancelar',
+      onConfirm: async () => {
+        setIsToggling(usuario.id);
+        try {
+          await toggleEstado(usuario.id, usuario.estado);
+          toast.success(`✅ Usuario ${accion.toLowerCase()} correctamente`);
+        } catch {
+          toast.error(`❌ Error al ${accion.toLowerCase()}`);
+        } finally {
+          setIsToggling(null);
+        }
+      }
+    });
   };
 
   const getRolStyles = (rol: string) => {
@@ -256,19 +333,22 @@ const GestionUsuarios: React.FC = () => {
               loading={loading}
               title="Actualizar lista"
             />
-            {/* Botón de sincronizar/nuevo usuario */}
-            <button
+            
+            {/* Botón de nuevo usuario con ActionButton */}
+            <ActionButton
               onClick={() => {
                 setModalMode("create");
                 setUsuarioEditando(null);
                 setShowPasswordField(true);
                 setModalOpen(true);
               }}
-              className="flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3.5 bg-gray-900 dark:bg-blue-600 text-white rounded-xl sm:rounded-2xl font-bold hover:scale-105 active:scale-95 transition-all shadow-xl shadow-gray-900/10 dark:shadow-blue-500/10 text-sm sm:text-base"
+              actionType="create"
+              variant="primary"
+              size="md"
+              icon={<UserPlusIcon className="w-5 h-5" />}
             >
-              <UserPlusIcon className="w-4 sm:w-5 h-4 sm:h-5" />
               Nuevo Miembro
-            </button>
+            </ActionButton>
           </div>
         </div>
 
@@ -502,6 +582,17 @@ const GestionUsuarios: React.FC = () => {
         </div>
       </div>
 
+      <ConfirmDialog
+        isOpen={confirmProps.isOpen}
+        title={confirmProps.title}
+        description={confirmProps.description}
+        variant={confirmProps.variant}
+        confirmText={confirmProps.confirmText}
+        cancelText={confirmProps.cancelText}
+        onClose={confirmProps.onClose}
+        onConfirm={confirmProps.onConfirm}
+        isLoading={confirmProps.isLoading}
+      />
       <UsuarioModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
@@ -514,6 +605,7 @@ const GestionUsuarios: React.FC = () => {
         setPasswordValue={setPasswordValue}
         confirmPassword={confirmPassword}
         setConfirmPassword={setConfirmPassword}
+        isLoading={isCreating || isUpdating}
       />
     </>
   );

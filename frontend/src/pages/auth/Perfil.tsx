@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { useProfile } from "../../hooks/useProfile";
+import { ActionButton } from "../../components/ui/ActionButton";
 import {
   UserIcon,
   EnvelopeIcon,
@@ -16,13 +18,13 @@ const Perfil: React.FC = () => {
   const {
     user,
     loading,
-    message,
     updateProfile,
     changePassword,
-    clearMessages,
   } = useProfile();
   const [isEditing, setIsEditing] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   const [formData, setFormData] = useState({
     name: user?.name || "",
@@ -45,20 +47,14 @@ const Perfil: React.FC = () => {
     }
   }, [user]);
 
-  // Auto-cerrar mensajes después de 5 segundos
-  useEffect(() => {
-    if (message) {
-      const timer = setTimeout(() => clearMessages(), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [message, clearMessages]);
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsUpdatingProfile(true);
+    
     const result = await updateProfile({
       name: formData.name,
       email: formData.email,
@@ -67,22 +63,33 @@ const Perfil: React.FC = () => {
 
     if (result.success) {
       setIsEditing(false);
+      toast.success("Perfil actualizado correctamente");
+    } else if (result.error) {
+      toast.error(result.error || "Error al actualizar el perfil");
     }
+    
+    setIsUpdatingProfile(false);
   };
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (formData.newPassword !== formData.newPasswordConfirmation) {
-      // Podrías usar el hook para mostrar errores también
-      alert("Las contraseñas no coinciden");
+      toast.error("Las contraseñas no coinciden");
       return;
     }
 
     if (formData.newPassword.length < 6) {
-      alert("La contraseña debe tener al menos 6 caracteres");
+      toast.error("La contraseña debe tener al menos 6 caracteres");
       return;
     }
+
+    if (!formData.currentPassword) {
+      toast.error("Debes ingresar tu contraseña actual");
+      return;
+    }
+
+    setIsChangingPassword(true);
 
     const result = await changePassword({
       current_password: formData.currentPassword,
@@ -91,14 +98,18 @@ const Perfil: React.FC = () => {
     });
 
     if (result.success) {
-      // Limpiar campos de contraseña
       setFormData((prev) => ({
         ...prev,
         currentPassword: "",
         newPassword: "",
         newPasswordConfirmation: "",
       }));
+      toast.success("Contraseña actualizada correctamente");
+    } else if (result.error) {
+      toast.error(result.error || "Error al cambiar la contraseña");
     }
+    
+    setIsChangingPassword(false);
   };
 
   const cancelEdit = () => {
@@ -127,28 +138,6 @@ const Perfil: React.FC = () => {
             </p>
           </div>
         </header>
-
-        {/* Floating Alert System */}
-        {message && (
-          <div
-            className={`fixed top-5 right-5 z-50 flex items-center p-4 rounded-xl shadow-2xl border animate-in slide-in-from-right-10 ${
-              message.type === "success"
-                ? "bg-white dark:bg-gray-800 border-green-500 text-green-600"
-                : "bg-white dark:bg-gray-800 border-red-500 text-red-600"
-            }`}
-          >
-            <div
-              className={`p-2 rounded-full mr-3 ${message.type === "success" ? "bg-green-100" : "bg-red-100"}`}
-            >
-              {message.type === "success" ? (
-                <CheckIcon className="w-5 h-5" />
-              ) : (
-                <XMarkIcon className="w-5 h-5" />
-              )}
-            </div>
-            <span className="font-medium">{message.text}</span>
-          </div>
-        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Left Column: User Card & Stats */}
@@ -282,19 +271,16 @@ const Perfil: React.FC = () => {
 
                 {isEditing && (
                   <div className="flex justify-end animate-in fade-in zoom-in-95">
-                    <button
+                    <ActionButton
                       type="submit"
-                      disabled={loading}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-xl font-bold shadow-lg shadow-blue-500/30 transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2"
+                      loading={isUpdatingProfile}
+                      actionType="update"
+                      variant="primary"
+                      size="md"
+                      icon={<CheckIcon className="w-5 h-5" />}
                     >
-                      {loading ? (
-                        "Guardando..."
-                      ) : (
-                        <>
-                          <CheckIcon className="w-5 h-5" /> Guardar Cambios
-                        </>
-                      )}
-                    </button>
+                      Guardar Cambios
+                    </ActionButton>
                   </div>
                 )}
               </form>
@@ -354,13 +340,15 @@ const Perfil: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex justify-end pt-2">
-                  <button
+                  <ActionButton
                     type="submit"
-                    disabled={loading}
-                    className="text-white bg-gray-900 dark:bg-blue-600 dark:hover:bg-blue-700 hover:bg-black px-6 py-2.5 rounded-xl font-bold transition-all disabled:opacity-50"
+                    loading={isChangingPassword}
+                    actionType="update"
+                    variant="secondary"
+                    size="md"
                   >
-                    {loading ? "Actualizando..." : "Actualizar Contraseña"}
-                  </button>
+                    Actualizar Contraseña
+                  </ActionButton>
                 </div>
               </form>
             </div>
