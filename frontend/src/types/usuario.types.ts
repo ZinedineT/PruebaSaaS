@@ -1,7 +1,7 @@
 // D:\proyecto_prueba\frontend\src\types\usuario.types.ts
 
 // Roles disponibles en la API
-export type UserRole = 'admin' | 'suport1' | 'suport2' | 'super_admin';
+export type UserRole = 'admin' | 'suport_n1' | 'suport_n2' | 'super_admin' | 'ti_n1' | 'ti_n2';
 
 // Usuario según API
 export interface UsuarioAPI {

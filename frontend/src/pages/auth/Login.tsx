@@ -83,12 +83,12 @@ const Login: React.FC = () => {
                 <label className="text-[11px] font-black text-gray-400 uppercase tracking-widest">
                   Contraseña
                 </label>
-                <a
+                {/* <a
                   href="#"
                   className="text-[10px] font-black text-blue-600 uppercase hover:underline"
                 >
                   Olvide mi clave
-                </a>
+                </a> */}
               </div>
               <div className="relative group">
                 <LockClosedIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />

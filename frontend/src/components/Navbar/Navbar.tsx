@@ -68,11 +68,17 @@ const Navbar: React.FC<NavbarProps> = ({ sidebarOpen, setSidebarOpen }) => {
     if (user?.role === 'admin') {
       return 'Administrador';
     }
-    if(user?.role === 'suport1') {
+    if(user?.role === 'suport_n1') {
       return 'Soporte N1';
     }
-    if(user?.role === 'suport2') {
+    if(user?.role === 'suport_n2') {
       return 'Soporte N2';
+    }
+    if(user?.role === 'ti_n1') {
+      return 'Técnico N1';
+    }
+    if(user?.role === 'ti_n2') {
+      return 'Técnico N2';
     }
     return 'Usuario';
   };

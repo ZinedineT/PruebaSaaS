@@ -15,7 +15,7 @@ interface SidebarProps {
   setIsOpen: (open: boolean) => void;
 }
 
-type Rol = 'super_admin' | 'admin' | 'suport1' | 'suport2' | 'ti_n1' | 'ti_n2';
+type Rol = 'super_admin' | 'admin' | 'suport_n1' | 'suport_n2' | 'ti_n1' | 'ti_n2';
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const { user, logout } = useAuth();
@@ -39,23 +39,23 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   // ========== FUNCIONES DE PERMISOS ==========
   
   const canSeeDashboard = () => {
-    return ['super_admin', 'admin', 'suport1', 'suport2'].includes(userRole);
+    return ['super_admin', 'admin', 'suport_n1', 'suport_n2'].includes(userRole);
   };
 
   const canSeeClientes = () => {
-    return ['super_admin', 'admin', 'suport1', 'suport2', 'ti_n1', 'ti_n2'].includes(userRole);
+    return ['super_admin', 'admin', 'suport_n1', 'suport_n2', 'ti_n1', 'ti_n2'].includes(userRole);
   };
 
   const canSeeSuscripciones = () => {
-    return ['super_admin', 'admin', 'suport2', 'ti_n1', 'ti_n2'].includes(userRole);
+    return ['super_admin', 'admin', 'suport_n2', 'ti_n1', 'ti_n2'].includes(userRole);
   };
 
   const canSeeOnboarding = () => {
-    return ['super_admin', 'admin', 'suport2'].includes(userRole);
+    return ['super_admin', 'admin', 'suport_n2'].includes(userRole);
   };
 
   const canSeeOperaciones = () => {
-    return ['super_admin', 'admin', 'suport1', 'suport2', 'ti_n1', 'ti_n2'].includes(userRole);
+    return ['super_admin', 'admin', 'suport_n1', 'suport_n2', 'ti_n1', 'ti_n2'].includes(userRole);
   };
 
   const canSeeContabilidad = () => {
@@ -83,7 +83,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   };
 
   const canSeeAuditoria = () => {
-    return ['super_admin', 'admin', 'suport2', 'ti_n1', 'ti_n2'].includes(userRole);
+    return ['super_admin', 'admin', 'suport_n2', 'ti_n1', 'ti_n2'].includes(userRole);
   };
 
   const canSeePlataforma = () => {

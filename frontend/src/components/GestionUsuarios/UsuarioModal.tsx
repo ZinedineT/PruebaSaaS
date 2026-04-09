@@ -54,7 +54,7 @@ const UsuarioModal: React.FC<UsuarioModalProps> = ({
     nombre: '',
     email: '',
     telefono: '',
-    rol: 'suport1',
+    rol: 'suport_n1',
     estado: 'activo' as 'activo' | 'inactivo',
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -74,7 +74,7 @@ const UsuarioModal: React.FC<UsuarioModalProps> = ({
         nombre: '', 
         email: '', 
         telefono: '', 
-        rol: 'suport1', 
+        rol: 'suport_n1', 
         estado: 'activo'
       });
     }
@@ -193,8 +193,10 @@ const UsuarioModal: React.FC<UsuarioModalProps> = ({
               >
                 <option value="super_admin">Super Administrador</option>
                 <option value="admin">Administrador</option>
-                <option value="suport2">Soporte Nivel 2</option>
-                <option value="suport1">Soporte Nivel 1</option>
+                <option value="suport_n2">Soporte Nivel 2</option>
+                <option value="suport_n1">Soporte Nivel 1</option>
+                <option value="ti_n1">Técnico Nivel 1</option>
+                <option value="ti_n2">Técnico Nivel 2</option>
               </select>
             </div>
 
