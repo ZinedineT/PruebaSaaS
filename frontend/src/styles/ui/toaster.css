@@ -1,0 +1,87 @@
+/* src/styles/toaster.css */
+
+.my-custom-toast {
+  font-family: inherit;
+  border-radius: 1.5rem !important; /* Más redondeado, estilo Bento */
+  padding: 14px 18px !important;
+  backdrop-filter: blur(10px); /* Efecto cristal */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* MODO OSCURO: Profundidad y brillo sutil */
+.dark .my-custom-toast {
+  background-color: rgba(22, 27, 34, 0.9) !important; /* Tu color con transparencia */
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Tipografía: Títulos con más impacto */
+.my-custom-toast [data-title] {
+  font-weight: 900 !important;
+  font-size: 0.85rem !important;
+  letter-spacing: -0.01em !important;
+  margin-bottom: 2px !important;
+}
+
+.my-custom-toast [data-description] {
+  font-weight: 500 !important;
+  font-size: 0.8rem !important;
+  opacity: 0.8;
+}
+
+/* Iconos más grandes y estilizados */
+.my-custom-toast [data-icon] {
+  transform: scale(1.2);
+  margin-right: 12px !important;
+}
+
+/* ----- VARIANTES PREMIUM (RICH COLORS) ----- */
+
+/* ÉXITO: Verde Esmeralda */
+[data-sonner-toast][data-rich-colors="true"][data-type="success"] {
+  background: linear-gradient(to right, #f0fdf4, #ffffff) !important;
+  border-left: 5px solid #22c55e !important;
+}
+
+.dark [data-sonner-toast][data-rich-colors="true"][data-type="success"] {
+  background: linear-gradient(to right, #064e3b, #161b22) !important;
+  border-left: 5px solid #4ade80 !important;
+  color: #ecfdf5 !important;
+}
+
+/* ERROR: Rojo Vibrante */
+[data-sonner-toast][data-rich-colors="true"][data-type="error"] {
+  background: linear-gradient(to right, #fef2f2, #ffffff) !important;
+  border-left: 5px solid #ef4444 !important;
+}
+
+.dark [data-sonner-toast][data-rich-colors="true"][data-type="error"] {
+  background: linear-gradient(to right, #451a1a, #161b22) !important;
+  border-left: 5px solid #f87171 !important;
+  color: #fef2f2 !important;
+}
+
+/* INFO: Azul (como tu botón primary) */
+[data-sonner-toast][data-rich-colors="true"][data-type="info"] {
+  background: linear-gradient(to right, #eff6ff, #ffffff) !important;
+  border-left: 5px solid #3b82f6 !important;
+}
+
+.dark [data-sonner-toast][data-rich-colors="true"][data-type="info"] {
+  background: linear-gradient(to right, #1e3a8a, #161b22) !important;
+  border-left: 5px solid #60a5fa !important;
+  color: #eff6ff !important;
+}
+
+/* Botón de cerrar */
+.my-custom-toast [data-close-button] {
+  background: rgba(0, 0, 0, 0.05) !important;
+  border: none !important;
+  transition: background 0.2s !important;
+}
+
+.dark .my-custom-toast [data-close-button] {
+  background: rgba(255, 255, 255, 0.1) !important;
+}

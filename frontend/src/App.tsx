@@ -1,13 +1,9 @@
 // src/App.tsx
 import React from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import { BrowserRouter as Router,Routes,Route,Navigate} from "react-router-dom";
 import { Toaster } from 'sonner';
-import { ThemeProvider } from "./contexts/ThemeContext";
+import './styles/ui/toaster.css';
+import { ThemeProvider, useTheme} from "./contexts/ThemeContext";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import Layout from "./components/Layout/Layout";
 import Login from "./pages/auth/Login";
@@ -64,8 +60,23 @@ const ProtectedRoute: React.FC<{
 // Componente principal de rutas
 const AppRoutes: React.FC = () => {
   const { isAuthenticated } = useAuth();
+  const { theme } = useTheme();
 
   return (
+   <>  
+      <Toaster 
+        position="top-right" 
+        richColors 
+        closeButton
+        expand={false} 
+        theme={theme}
+        toastOptions={{
+          className: 'my-custom-toast',
+          style: {
+            borderRadius: '1.25rem', // Equivale a rounded-2xl
+          },
+        }}
+      />
     <Routes>
       {/* Ruta pública */}
       <Route
@@ -279,6 +290,7 @@ const AppRoutes: React.FC = () => {
         }
       />
     </Routes>
+    </> 
   );
 };
 
@@ -287,16 +299,6 @@ function App() {
     <ThemeProvider>
       <AuthProvider>
         <Router>
-          {/* TOASTER: Configuramos para que sea responsivo y use tu tema */}
-          <Toaster 
-            position="top-right" 
-            richColors 
-            closeButton
-            // "expand" hace que se vean las alertas apiladas en móvil
-            expand={false} 
-            // Esto asegura que en Dark Mode se vea bien
-            theme={document.documentElement.classList.contains('dark') ? 'dark' : 'light'}
-          />
           <AppRoutes />
         </Router>
       </AuthProvider>

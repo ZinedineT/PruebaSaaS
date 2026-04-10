@@ -2,18 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import {
-  PencilIcon,
-  UserMinusIcon,
-  TrashIcon,
-  ArrowPathIcon,
-  MagnifyingGlassIcon,
-  UserPlusIcon,
-  ShieldCheckIcon,
-  PhoneIcon,
-  EnvelopeIcon,
-  ClockIcon,
-  NoSymbolIcon,
-  ExclamationTriangleIcon,
+  PencilIcon,UserMinusIcon,TrashIcon,ArrowPathIcon,MagnifyingGlassIcon,UserPlusIcon,ShieldCheckIcon,PhoneIcon,EnvelopeIcon,ClockIcon,NoSymbolIcon,ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
 import IconButton from "../../components/ui/IconButton";
 import { ActionButton } from "../../components/ui/ActionButton";
@@ -143,22 +132,22 @@ const GestionUsuarios: React.FC = () => {
       if (modalMode === "create") {
         setIsCreating(true);
         if (!modalPassword) {
-          toast.error("❌ La contraseña es obligatoria");
+          toast.error("La contraseña es obligatoria");
           setIsCreating(false);
           return;
         }
         if (modalPassword !== confirmPassword) {
-          toast.error("❌ Las contraseñas no coinciden");
+          toast.error("Las contraseñas no coinciden");
           setIsCreating(false);
           return;
         }
         await crearUsuario(usuarioData, modalPassword);
-        toast.success("✅ Usuario creado correctamente");
+        toast.success("Usuario creado correctamente");
       } else if (usuarioEditando) {
         setIsUpdating(true);
         if (modalPassword) {
           if (modalPassword !== confirmPassword) {
-            toast.error("❌ Las contraseñas no coinciden");
+            toast.error("Las contraseñas no coinciden");
             setIsUpdating(false);
             return;
           }
@@ -167,10 +156,10 @@ const GestionUsuarios: React.FC = () => {
             usuarioData,
             modalPassword,
           );
-          toast.success("✅ Usuario actualizado con nueva contraseña");
+          toast.success("Usuario actualizado con nueva contraseña");
         } else {
           await actualizarUsuario(usuarioEditando.id, usuarioData);
-          toast.success("✅ Usuario actualizado correctamente");
+          toast.success("Usuario actualizado correctamente");
         }
       }
 
@@ -180,7 +169,7 @@ const GestionUsuarios: React.FC = () => {
       setConfirmPassword("");
     } catch (err) {
       console.error("Error al guardar usuario:", err);
-      toast.error("❌ Ocurrió un error al guardar el usuario");
+      toast.error("Ocurrió un error al guardar el usuario");
     } finally {
       setIsCreating(false);
       setIsUpdating(false);
@@ -263,9 +252,9 @@ const GestionUsuarios: React.FC = () => {
         setIsToggling(usuario.id);
         try {
           await toggleEstado(usuario.id, usuario.estado);
-          toast.success(`✅ Usuario ${accion.toLowerCase()} correctamente`);
+          toast.success(`Usuario ${accion.toLowerCase()} correctamente`);
         } catch {
-          toast.error(`❌ Error al ${accion.toLowerCase()}`);
+          toast.error(`Error al ${accion.toLowerCase()}`);
         } finally {
           setIsToggling(null);
         }
