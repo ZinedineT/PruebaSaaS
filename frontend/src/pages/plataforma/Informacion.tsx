@@ -128,7 +128,7 @@ const Informacion: React.FC = () => {
         <div className="flex items-center gap-3 sm:gap-4">
             <ServerIcon className="text-blue-500" size={24} />
           <div>
-            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <h1 className="text-3xl lg:text-4xl font-black text-gray-900 dark:text-white flex items-center tracking-tight">
               Panel de Control del Sistema
               <span className="relative flex h-2 w-2 sm:h-3 sm:w-3">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>

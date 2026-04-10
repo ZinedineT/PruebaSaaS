@@ -33,9 +33,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   };
 
   const toggleDropdown = (name: string) => {
-    setOpenDropdown(openDropdown === name ? null : name);
+    // Si el sidebar está cerrado, lo abrimos primero
+    if (!isOpen) {
+      setIsOpen(true);
+      // Forzamos que se abra el dropdown específico
+      setOpenDropdown(name);
+    } else {
+      // Si ya está abierto, funciona como un toggle normal
+      setOpenDropdown(openDropdown === name ? null : name);
+    }
   };
-
   // ========== FUNCIONES DE PERMISOS ==========
   
   const canSeeDashboard = () => {
@@ -172,9 +179,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
       items: plataformaItems
     });
   }
-
   // ========== RENDERIZADO ==========
-
   const renderNavItem = (item: any, idx: number) => {
     if (item.isDropdown) {
       return (
@@ -188,21 +193,24 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
               }
             `}
           >
+            {/* El icono siempre centrado si está cerrado, o con margen si está abierto */}
             <item.icon className={`w-6 h-6 transition-transform group-hover:scale-110 flex-shrink-0 ${isOpen ? 'mr-3' : 'mx-auto'}`} />
+            
             {isOpen && (
-              <span className="text-sm font-semibold truncate flex-1 text-left animate-in fade-in slide-in-from-left-2 duration-300">
-                {item.label}
-              </span>
-            )}
-            {isOpen && (
-              <ChevronRightIcon 
-                className={`w-4 h-4 transition-transform duration-200 ${openDropdown === item.dropdownName ? 'rotate-90' : ''}`}
-              />
+              <>
+                <span className="text-sm font-semibold truncate flex-1 text-left animate-in fade-in slide-in-from-left-2 duration-300">
+                  {item.label}
+                </span>
+                <ChevronRightIcon 
+                  className={`w-4 h-4 transition-transform duration-200 ${openDropdown === item.dropdownName ? 'rotate-90' : ''}`}
+                />
+              </>
             )}
           </button>
           
+          {/* Submenú: Solo se muestra si el sidebar está abierto */}
           {isOpen && openDropdown === item.dropdownName && (
-            <div className="ml-8 mt-1 space-y-1 border-l-2 border-gray-100 dark:border-gray-800 pl-3 animate-in slide-in-from-left-2 fade-in duration-200">
+            <div className="ml-8 mt-1 space-y-1 border-l-2 border-gray-100 dark:border-gray-800 pl-3 animate-in slide-in-from-left-2 fade-in duration-300">
               {item.items.map((subItem: any, subIdx: number) => (
                 <NavLink
                   key={subIdx}
@@ -216,7 +224,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
                   `}
                 >
                   <subItem.icon className="w-4 h-4 mr-3 flex-shrink-0" />
-                  <span className="text-xs font-medium truncate">
+                  <span className="text-xs font-medium truncate tracking-tight">
                     {subItem.name}
                   </span>
                 </NavLink>

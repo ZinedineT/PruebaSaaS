@@ -285,7 +285,7 @@ const Dashboard: React.FC = () => {
         <div>
           <div className="flex items-center gap-3">
             <HomeIcon className="w-8 h-8 text-blue-500" />
-            <h1 className="text-2xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight">
+            <h1 className="text-3xl lg:text-4xl font-black text-gray-900 dark:text-white tracking-tight">
               Dashboard
             </h1>
           </div>

@@ -192,11 +192,11 @@ const GestionPlanes: React.FC = () => {
         <div className="space-y-1">
           <div className="flex items-center gap-3 text-blue-600 dark:text-blue-500">
             <RocketLaunchIcon className="w-10 h-10" />
-            <h1 className="text-2xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight">
+            <h1 className="text-3xl lg:text-4xl font-black text-gray-900 dark:text-white tracking-tight">
               Suscripciones
             </h1>
           </div>
-          <p className="text-gray-500 dark:text-gray-400 font-medium ">
+          <p className="text-gray-500 dark:text-gray-400 font-medium mt-2">
             Gestión de facturación y ciclos de vida
           </p>
         </div>
