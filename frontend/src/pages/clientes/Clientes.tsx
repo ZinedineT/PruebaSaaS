@@ -17,16 +17,24 @@ import {
 } from 'lucide-react';
 import IconButton from '../../components/ui/IconButton';
 import DetallesCliente from '../../components/Clientes/DetallesCliente';
+import GestionAcceso from '../../components/Clientes/GestionAcceso';
 
 const Clientes = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
-  // 2. Crea el estado para el modal
+  // detalles modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
+  //Acceso gestion
+  const [isAccesoModalOpen, setIsAccesoModalOpen] = useState(false);
+  const [clienteAcceso, setClienteAcceso] = useState(null);
   // 3. Función para abrir
   const verDetalle = (cliente: any) => {
     setClienteSeleccionado(cliente);
     setIsModalOpen(true);
+  };
+  const abrirGestionAcceso = (cliente: any) => {
+    setClienteAcceso(cliente);
+    setIsAccesoModalOpen(true);
   };
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -177,7 +185,10 @@ const Clientes = () => {
                     >
                       <Eye size={18}/>
                     </button>
-                    <button className="p-2 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-emerald-500 rounded-xl transition-all">
+                    <button 
+                      onClick={() => abrirGestionAcceso({ nombre: 'AB COMERCIAL SAC', ruc: '20123456789',    nombreComercial: 'ABC Tienda',alias: 'ABC',subdominio: 'minegocio',estadoAcceso: 'ACTIVO'  })}
+                      className="p-2 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-emerald-500 rounded-xl transition-all"
+                    >
                       <Unlock size={18}/>
                     </button>
                     
@@ -203,7 +214,7 @@ const Clientes = () => {
                 </td>
                 <td className="py-6">
                   <div className="flex items-center gap-2 group/copy cursor-pointer">
-                   <span className="text-xs font-bold dark:text-gray-400 underline decoration-blue-500/30">20123456789</span> 
+                   <span className="text-xs font-bold dark:text-gray-400 underline decoration-blue-500/30">20987654321</span> 
                    <Copy size={12} className="text-gray-300 group-hover/copy:text-blue-500 transition-colors" />
                   </div>
                 </td>
@@ -228,13 +239,16 @@ const Clientes = () => {
                 <td className="py-6">
                   <div className="flex items-center justify-center gap-2">
                     <button 
-                      onClick={() => verDetalle({ nombre: 'INVERSIONES XYZ SAC', ruc: '20123456789', subdominio: 'xyz' })} 
+                      onClick={() => verDetalle({ nombre: 'INVERSIONES XYZ SAC', ruc: '20987654321', subdominio: 'xyz' })} 
                       className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-500 rounded-xl transition-all"
                     >
                       <Eye size={18}/>
                     </button>
-                    <button className="p-2 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-emerald-500 rounded-xl transition-all">
-                      <Unlock size={18}/>
+                    <button 
+                      onClick={() => abrirGestionAcceso({ nombre: 'AB COMERCIAL SAC', ruc: '20987654321',nombreComercial: 'XYZ Store',alias: 'XYZ',subdominio: 'xyzstore',estadoAcceso: 'BLOQUEADO_PAGO',  periodoAdeudado: 'Marzo 2026' })}
+                      className="p-2 hover:bg-rose-50 dark:hover:bg-rose-900/20 text-rose-500 rounded-xl transition-all"
+                    >
+                      <Lock size={18}/>
                     </button>
                     
                     {/* Menú de 3 puntos */}
@@ -254,13 +268,17 @@ const Clientes = () => {
         </div>
       </div>
     </div>
-      {isModalOpen && (
-        <DetallesCliente 
-          isOpen={isModalOpen} 
-          onClose={() => setIsModalOpen(false)} 
-          cliente={clienteSeleccionado} 
-        />
-      )}
+      {/* Modales de detalles y acceso */}
+      <DetallesCliente 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        cliente={clienteSeleccionado} 
+      />
+      <GestionAcceso 
+        isOpen={isAccesoModalOpen} 
+        onClose={() => setIsAccesoModalOpen(false)} 
+        cliente={clienteAcceso} 
+      />
     </>
   );
 };
