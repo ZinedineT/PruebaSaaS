@@ -12,17 +12,28 @@ import {
   UserX,
   UserCog,
   Rocket,
-  AlertTriangle
+  AlertTriangle,
+  MoreHorizontal
 } from 'lucide-react';
 import IconButton from '../../components/ui/IconButton';
+import DetallesCliente from '../../components/Clientes/DetallesCliente';
 
 const Clientes = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
+  // 2. Crea el estado para el modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
+  // 3. Función para abrir
+  const verDetalle = (cliente: any) => {
+    setClienteSeleccionado(cliente);
+    setIsModalOpen(true);
+  };
   const handleRefresh = () => {
     setIsRefreshing(true);
     window.location.reload();
   };
   return (
+    <>
     <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8 bg-gray-50 dark:bg-[#0f1115] min-h-screen transition-colors duration-300">
       
       {/* 1. ENCABEZADO SUPERIOR Y 2. SUBTÍTULO */}
@@ -133,7 +144,13 @@ const Clientes = () => {
                   <p className="text-[10px] text-gray-400 font-bold italic">ABC Tienda</p>
                   <p className="text-[10px] text-gray-400 font-bold italic">Alias: ABC</p>
                 </td>
-                <td className="py-6 font-bold text-xs dark:text-gray-300">20123456789</td>
+                <td className="py-6">
+                  <div className="flex items-center gap-2 group/copy cursor-pointer">
+                   <span className="text-xs font-bold dark:text-gray-400 underline decoration-blue-500/30">20123456789</span> 
+                   <Copy size={12} className="text-gray-300 group-hover/copy:text-blue-500 transition-colors" />
+                  </div>
+                </td>
+                
                 <td className="py-6 font-black text-[10px] text-blue-600 uppercase">Pro</td>
                 <td className="py-6">
                   <span className="px-2 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded-md text-[9px] font-black uppercase">Vigente</span>
@@ -154,53 +171,42 @@ const Clientes = () => {
                 </td>
                 <td className="py-6">
                   <div className="flex items-center justify-center gap-2">
-                    <button className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-500 rounded-xl transition-all" title="Ver detalle"><Eye size={18}/></button>
-                    <button className="p-2 hover:bg-rose-50 dark:hover:bg-rose-900/20 text-rose-500 rounded-xl transition-all" title="Bloquear"><Lock size={18}/></button>
+                    <button 
+                      onClick={() => verDetalle({ nombre: 'AB COMERCIAL SAC', ruc: '20123456789', subdominio: 'minegocio' })} 
+                      className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-500 rounded-xl transition-all"
+                    >
+                      <Eye size={18}/>
+                    </button>
+                    <button className="p-2 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-emerald-500 rounded-xl transition-all">
+                      <Unlock size={18}/>
+                    </button>
+                    
+                    {/* Menú de 3 puntos */}
+                    <div className="relative">
+                      <button 
+                        className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 rounded-xl transition-all"
+                      >
+                        <MoreHorizontal size={18}/>
+                      </button>
+                      
+                    </div>
                   </div>
                 </td>
               </tr>
 
-              {/* Cliente 2 (Alias + Copiar) */}
-              <tr className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-all">
-                <td className="py-6 pl-4">
-                  <p className="font-black text-sm dark:text-white">ABC TIENDA</p>
-                  <p className="text-[10px] text-blue-500 font-black italic">Alias: ABC</p>
-                </td>
-                <td className="py-6">
-                   <button className="flex items-center gap-1.5 text-[10px] font-black text-gray-400 hover:text-blue-500 transition-colors">
-                      <Copy size={12} /> COPIAR
-                   </button>
-                </td>
-                <td className="py-6 font-black text-[10px] text-purple-600 uppercase">Mensual</td>
-                <td className="py-6">
-                  <p className="text-[9px] text-gray-400 font-bold uppercase">Inicio: 15/03/2026</p>
-                  <p className="text-[9px] text-gray-400 font-bold uppercase">Vence: 14/03/2027</p>
-                </td>
-                <td className="py-6 px-2">
-                  <div className="flex items-center justify-start">
-                    <span className="font-black text-[10px] uppercase text-gray-400">—</span>
-                  </div>
-                </td>
-                <td className="py-6">
-                  <button className="flex items-center gap-1.5 text-[10px] font-black text-gray-400 hover:text-blue-500 transition-colors uppercase">
-                    <Copy size={12} /> Copiar
-                  </button>
-                </td>
-                <td className="py-6">
-                  <div className="flex items-center justify-center gap-2">
-                    <button className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-500 rounded-xl transition-all"><Eye size={18}/></button>
-                    <button className="p-2 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-emerald-500 rounded-xl transition-all"><Unlock size={18}/></button>
-                  </div>
-                </td>
-              </tr>
-
-              {/* Cliente 3 (Bloqueado por pago) */}
+              {/* Cliente 2 (Bloqueado por pago) */}
               <tr className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-all">
                 <td className="py-6 pl-4">
                   <p className="font-black text-sm dark:text-white">INVERSIONES XYZ SAC</p>
-                  <p className="text-[10px] text-gray-400 font-bold italic">Alias: —</p>
+                  <p className="text-[10px] text-gray-400 font-bold italic">ABC Tienda</p>
+                  <p className="text-[10px] text-gray-400 font-bold italic">Alias: ABC</p>
                 </td>
-                <td className="py-6 font-bold text-xs dark:text-gray-300">20999888777</td>
+                <td className="py-6">
+                  <div className="flex items-center gap-2 group/copy cursor-pointer">
+                   <span className="text-xs font-bold dark:text-gray-400 underline decoration-blue-500/30">20123456789</span> 
+                   <Copy size={12} className="text-gray-300 group-hover/copy:text-blue-500 transition-colors" />
+                  </div>
+                </td>
                 <td className="py-6 font-black text-[10px] text-amber-600 uppercase">Emprendedor</td>
                 <td className="py-6">
                   <span className="px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-600 rounded-md text-[9px] font-black uppercase">Por vencer</span>
@@ -221,18 +227,41 @@ const Clientes = () => {
                 </td>
                 <td className="py-6">
                   <div className="flex items-center justify-center gap-2">
-                    <button className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-500 rounded-xl transition-all"><Eye size={18}/></button>
-                    <button className="p-2 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-emerald-500 rounded-xl transition-all"><Unlock size={18}/></button>
+                    <button 
+                      onClick={() => verDetalle({ nombre: 'INVERSIONES XYZ SAC', ruc: '20123456789', subdominio: 'xyz' })} 
+                      className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-500 rounded-xl transition-all"
+                    >
+                      <Eye size={18}/>
+                    </button>
+                    <button className="p-2 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-emerald-500 rounded-xl transition-all">
+                      <Unlock size={18}/>
+                    </button>
+                    
+                    {/* Menú de 3 puntos */}
+                    <div className="relative">
+                      <button 
+                        className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 rounded-xl transition-all"
+                      >
+                        <MoreHorizontal size={18}/>
+                      </button>
+                      
+                    </div>
                   </div>
                 </td>
               </tr>
-
             </tbody>
           </table>
         </div>
       </div>
-
     </div>
+      {isModalOpen && (
+        <DetallesCliente 
+          isOpen={isModalOpen} 
+          onClose={() => setIsModalOpen(false)} 
+          cliente={clienteSeleccionado} 
+        />
+      )}
+    </>
   );
 };
 
