@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { 
   Users, 
   UserPlus, 
+  History,
   Search, 
   FilterX, 
   Eye, 
@@ -13,11 +14,13 @@ import {
   UserCog,
   Rocket,
   AlertTriangle,
-  MoreHorizontal
+  MoreHorizontal,
+  ShieldCheck
 } from 'lucide-react';
 import IconButton from '../../components/ui/IconButton';
 import DetallesCliente from '../../components/Clientes/DetallesCliente';
 import GestionAcceso from '../../components/Clientes/GestionAcceso';
+import EditarCliente from '../../components/Clientes/EditarCliente';
 
 const Clientes = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -27,6 +30,16 @@ const Clientes = () => {
   //Acceso gestion
   const [isAccesoModalOpen, setIsAccesoModalOpen] = useState(false);
   const [clienteAcceso, setClienteAcceso] = useState(null);
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [menuAbiertoId, setMenuAbiertoId] = useState<string | null>(null);
+
+  // Función para abrir el modal de edición
+  const abrirEditar = (c: any) => {
+    setClienteSeleccionado(c);
+    setIsEditModalOpen(true);
+    setMenuAbiertoId(null);
+  };
   // 3. Función para abrir
   const verDetalle = (cliente: any) => {
     setClienteSeleccionado(cliente);
@@ -195,11 +208,40 @@ const Clientes = () => {
                     {/* Menú de 3 puntos */}
                     <div className="relative">
                       <button 
+                        onClick={() => setMenuAbiertoId(menuAbiertoId === '20123456789' ? null : '20123456789')}
                         className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 rounded-xl transition-all"
                       >
                         <MoreHorizontal size={18}/>
                       </button>
                       
+                      {menuAbiertoId === '20123456789' && (
+                        <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-[#1c2128] rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 z-[100] py-2 overflow-hidden animate-in fade-in zoom-in duration-200">
+                          <button 
+                            onClick={() => abrirEditar({ 
+                              nombre: 'AB COMERCIAL SAC', 
+                              ruc: '20123456789', 
+                              nombreComercial: 'ABC Tienda', 
+                              alias: 'ABC', 
+                              subdominio: 'minegocio' 
+                            })} 
+                            className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-500/10 hover:text-blue-600 transition-colors flex items-center gap-3"
+                          >
+                            <UserCog size={16} /> Editar Información
+                          </button>
+                          <button className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-gray-600 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-amber-500/10 hover:text-amber-600 transition-colors flex items-center gap-3">
+                            <ShieldCheck size={16} /> Cambiar Estado
+                          </button>
+                          <button 
+                            className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-gray-600 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-500/10 hover:text-purple-600 transition-colors flex items-center gap-3"
+                          >
+                            <History size={16} /> Ver Historial
+                          </button>
+                          <div className="h-[1px] bg-gray-100 dark:bg-gray-800 my-1"></div>
+                          <button className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors flex items-center gap-3">
+                            <UserX size={16} /> Eliminar Cliente
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </td>
@@ -252,14 +294,41 @@ const Clientes = () => {
                     </button>
                     
                     {/* Menú de 3 puntos */}
-                    <div className="relative">
-                      <button 
-                        className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 rounded-xl transition-all"
-                      >
-                        <MoreHorizontal size={18}/>
-                      </button>
-                      
-                    </div>
+                  <div className="relative">
+                    <button 
+                      onClick={() => setMenuAbiertoId(menuAbiertoId === '20987654321' ? null : '20987654321')}
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 rounded-xl transition-all"
+                    >
+                      <MoreHorizontal size={18}/>
+                    </button>
+
+                    {menuAbiertoId === '20987654321' && (
+                      <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-[#1c2128] rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 z-[100] py-2 overflow-hidden animate-in fade-in zoom-in duration-200">
+                        <button 
+                          onClick={() => abrirEditar({ 
+                            nombre: 'INVERSIONES XYZ SAC', 
+                            ruc: '20987654321', 
+                            nombreComercial: 'XYZ Store', 
+                            alias: 'XYZ', 
+                            subdominio: 'xyzstore' 
+                          })} 
+                          className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-500/10 hover:text-blue-600 transition-colors flex items-center gap-3"
+                        >
+                          <UserCog size={16} /> Editar Información
+                        </button>
+                        <button className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-gray-600 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-amber-500/10 hover:text-amber-600 transition-colors flex items-center gap-3">
+                          <ShieldCheck size={16} /> Cambiar Estado
+                        </button>
+                        <button className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-gray-600 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-500/10 hover:text-purple-600 transition-colors flex items-center gap-3">
+                          <History size={16} /> Ver Historial
+                        </button>
+                        <div className="h-[1px] bg-gray-100 dark:bg-gray-800 my-1"></div>
+                        <button className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors flex items-center gap-3">
+                          <UserX size={16} /> Eliminar Cliente
+                        </button>
+                      </div>
+                    )}
+                  </div>
                   </div>
                 </td>
               </tr>
@@ -278,6 +347,11 @@ const Clientes = () => {
         isOpen={isAccesoModalOpen} 
         onClose={() => setIsAccesoModalOpen(false)} 
         cliente={clienteAcceso} 
+      />
+      <EditarCliente 
+        isOpen={isEditModalOpen} 
+        onClose={() => setIsEditModalOpen(false)} 
+        cliente={clienteSeleccionado} 
       />
     </>
   );
