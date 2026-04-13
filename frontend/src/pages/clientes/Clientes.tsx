@@ -22,6 +22,7 @@ import DetallesCliente from '../../components/Clientes/DetallesCliente';
 import GestionAcceso from '../../components/Clientes/GestionAcceso';
 import EditarCliente from '../../components/Clientes/EditarCliente';
 import ActualizarEstado from '../../components/Clientes/ActualizarEstado';
+import HistorialCliente from '../../components/Clientes/HistorialCliente';
 
 const Clientes = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -36,6 +37,8 @@ const Clientes = () => {
   const [menuAbiertoId, setMenuAbiertoId] = useState<string | null>(null);
   // Actualizar estado
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  // Historial cliente
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   // Función para abrir el modal de edición
   const abrirEditar = (c: any) => {
     setClienteSeleccionado(c);
@@ -54,6 +57,11 @@ const Clientes = () => {
   const abrirEstado = (c: any) => {
     setClienteSeleccionado(c);
     setIsStatusModalOpen(true);
+    setMenuAbiertoId(null);
+  };
+  const abrirHistorial = (c: any) => {
+    setClienteSeleccionado(c);
+    setIsHistoryModalOpen(true);
     setMenuAbiertoId(null);
   };
   const handleRefresh = () => {
@@ -235,14 +243,19 @@ const Clientes = () => {
                           >
                             <UserCog size={16} /> Editar Información
                           </button>
-                          <button className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-gray-600 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-amber-500/10 hover:text-amber-600 transition-colors flex items-center gap-3">
+                          <button 
+                            onClick={() => abrirEstado({ nombre: 'AB COMERCIAL SAC', ruc: '20123456789' })}
+                            className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-gray-600 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-amber-500/10 hover:text-amber-600 transition-colors flex items-center gap-3"
+                          >
                             <ShieldCheck size={16} /> Cambiar Estado
                           </button>
-                          <button 
-                            className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-gray-600 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-500/10 hover:text-purple-600 transition-colors flex items-center gap-3"
-                          >
-                            <History size={16} /> Ver Historial
-                          </button>
+                        <button 
+                          onClick={() => abrirHistorial({ nombre: 'AB COMERCIAL SAC', ruc: '20123456789', nombreComercial: 'ABC Tienda', alias: 'ABC', subdominio: 'minegocio' 
+                          })}
+                          className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-blue-600 transition-colors flex items-center gap-3"
+                        >
+                          <History size={16} /> Ver Historial
+                        </button>
                           <div className="h-[1px] bg-gray-100 dark:bg-gray-800 my-1"></div>
                           <button className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors flex items-center gap-3">
                             <UserX size={16} /> Eliminar Cliente
@@ -329,7 +342,11 @@ const Clientes = () => {
                         >
                           <ShieldCheck size={16} /> Cambiar Estado
                         </button>
-                        <button className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-gray-600 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-500/10 hover:text-purple-600 transition-colors flex items-center gap-3">
+                        <button 
+                          onClick={() => abrirHistorial({ nombre: 'INVERSIONES XYZ SAC', ruc: '20987654321', nombreComercial: 'XYZ Store', alias: 'XYZ', subdominio: 'xyzstore' 
+                          })}
+                          className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-blue-600 transition-colors flex items-center gap-3"
+                        >
                           <History size={16} /> Ver Historial
                         </button>
                         <div className="h-[1px] bg-gray-100 dark:bg-gray-800 my-1"></div>
@@ -366,6 +383,11 @@ const Clientes = () => {
       <ActualizarEstado 
         isOpen={isStatusModalOpen} 
         onClose={() => setIsStatusModalOpen(false)} 
+        cliente={clienteSeleccionado} 
+      />
+      <HistorialCliente 
+        isOpen={isHistoryModalOpen} 
+        onClose={() => setIsHistoryModalOpen(false)} 
         cliente={clienteSeleccionado} 
       />
     </>
