@@ -23,7 +23,7 @@ import GestionAcceso from '../../components/Clientes/GestionAcceso';
 import EditarCliente from '../../components/Clientes/EditarCliente';
 import ActualizarEstado from '../../components/Clientes/ActualizarEstado';
 import HistorialCliente from '../../components/Clientes/HistorialCliente';
-
+import NuevoClienteModal from '../../components/Clientes/NuevoClienteModal';
 const Clientes = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   // detalles modal
@@ -39,6 +39,8 @@ const Clientes = () => {
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   // Historial cliente
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  // Función para abrir el modal de nuevo cliente
+  const [isNuevoModalOpen, setIsNuevoModalOpen] = useState(false);
   // Función para abrir el modal de edición
   const abrirEditar = (c: any) => {
     setClienteSeleccionado(c);
@@ -91,10 +93,13 @@ const Clientes = () => {
             size="lg"
             title="Actualizar lista"
           />
-          <button className="flex items-center justify-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black shadow-xl shadow-blue-500/25 transition-all hover:-translate-y-1 active:scale-95 text-sm uppercase">
-            <UserPlus size={20} />
-            Nuevo cliente
-          </button>
+        <button 
+          onClick={() => setIsNuevoModalOpen(true)}
+          className="flex items-center justify-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black shadow-xl shadow-blue-500/25 transition-all hover:-translate-y-1 active:scale-95 text-sm uppercase"
+        >
+          <UserPlus size={20} />
+          Nuevo cliente
+        </button>
         </div>
       </div>
 
@@ -389,6 +394,10 @@ const Clientes = () => {
         isOpen={isHistoryModalOpen} 
         onClose={() => setIsHistoryModalOpen(false)} 
         cliente={clienteSeleccionado} 
+      />
+      <NuevoClienteModal 
+        isOpen={isNuevoModalOpen} 
+        onClose={() => setIsNuevoModalOpen(false)} 
       />
     </>
   );
