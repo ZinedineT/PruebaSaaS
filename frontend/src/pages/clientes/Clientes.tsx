@@ -21,6 +21,7 @@ import IconButton from '../../components/ui/IconButton';
 import DetallesCliente from '../../components/Clientes/DetallesCliente';
 import GestionAcceso from '../../components/Clientes/GestionAcceso';
 import EditarCliente from '../../components/Clientes/EditarCliente';
+import ActualizarEstado from '../../components/Clientes/ActualizarEstado';
 
 const Clientes = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -30,17 +31,18 @@ const Clientes = () => {
   //Acceso gestion
   const [isAccesoModalOpen, setIsAccesoModalOpen] = useState(false);
   const [clienteAcceso, setClienteAcceso] = useState(null);
-
+  // Editar cliente
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [menuAbiertoId, setMenuAbiertoId] = useState<string | null>(null);
-
+  // Actualizar estado
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   // Función para abrir el modal de edición
   const abrirEditar = (c: any) => {
     setClienteSeleccionado(c);
     setIsEditModalOpen(true);
     setMenuAbiertoId(null);
   };
-  // 3. Función para abrir
+  // 3. Función detalle
   const verDetalle = (cliente: any) => {
     setClienteSeleccionado(cliente);
     setIsModalOpen(true);
@@ -48,6 +50,11 @@ const Clientes = () => {
   const abrirGestionAcceso = (cliente: any) => {
     setClienteAcceso(cliente);
     setIsAccesoModalOpen(true);
+  };
+  const abrirEstado = (c: any) => {
+    setClienteSeleccionado(c);
+    setIsStatusModalOpen(true);
+    setMenuAbiertoId(null);
   };
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -316,7 +323,10 @@ const Clientes = () => {
                         >
                           <UserCog size={16} /> Editar Información
                         </button>
-                        <button className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-gray-600 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-amber-500/10 hover:text-amber-600 transition-colors flex items-center gap-3">
+                        <button 
+                          onClick={() => abrirEstado({ nombre: 'INVERSIONES XYZ SAC', ruc: '20987654321' })}
+                          className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-gray-600 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-amber-500/10 hover:text-amber-600 transition-colors flex items-center gap-3"
+                        >
                           <ShieldCheck size={16} /> Cambiar Estado
                         </button>
                         <button className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-gray-600 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-500/10 hover:text-purple-600 transition-colors flex items-center gap-3">
@@ -351,6 +361,11 @@ const Clientes = () => {
       <EditarCliente 
         isOpen={isEditModalOpen} 
         onClose={() => setIsEditModalOpen(false)} 
+        cliente={clienteSeleccionado} 
+      />
+      <ActualizarEstado 
+        isOpen={isStatusModalOpen} 
+        onClose={() => setIsStatusModalOpen(false)} 
         cliente={clienteSeleccionado} 
       />
     </>
