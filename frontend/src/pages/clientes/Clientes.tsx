@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   Users, 
   Settings,
@@ -40,7 +40,14 @@ const Clientes = () => {
       plan: 'Pro',
       suscripcion: 'Vigente',
       fechaInicio: '15/03/2026',
-      fechaVence: '14/03/2027'
+      fechaVence: '14/03/2027',
+      ciclo: 'MENSUAL',
+      estadoSuscripcion: 'VIGENTE',
+      estadoOnboarding: 'COMPLETADO',
+      contactoPrincipal: 'María Torres',
+      telefono: '999 888 777',
+      emailAdmin: 'admin@abc.com',
+      observaciones: ''
     },
     {
       nombre: 'INVERSIONES XYZ SAC',
@@ -50,10 +57,17 @@ const Clientes = () => {
       subdominio: 'xyzstore',
       estado: 'SUSPENDIDO',
       estadoAcceso: 'BLOQUEADO_PAGO', 
-      plan: 'Emprendedor',
+      plan: 'Empresarial',
       suscripcion: 'Por vencer',
       fechaInicio: '22/05/2025',
-      fechaVence: '21/05/2026'
+      fechaVence: '21/05/2026',
+      ciclo: 'MENSUAL',
+      estadoSuscripcion: 'POR_VENCER',
+      estadoOnboarding: 'PENDIENTE',
+      contactoPrincipal: 'Carlos Ruiz',
+      telefono: '988 777 666',
+      emailAdmin: 'admin@xyz.com',
+      observaciones: 'Cliente con retraso en pagos'
     }
   ]);
   //refrescar
@@ -67,6 +81,42 @@ const Clientes = () => {
   // Editar cliente
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [menuAbiertoId, setMenuAbiertoId] = useState<string | null>(null);
+  // 🔄 FUNCIÓN PARA ACTUALIZAR DATOS DEL CLIENTE DESDE EDICIÓN
+  const actualizarDatosCliente = (ruc: string, datosActualizados: any) => {
+    setClientesData(prevClientes => 
+      prevClientes.map(cliente => 
+        cliente.ruc === ruc 
+          ? { 
+              ...cliente,  // Mantiene todos los campos existentes
+              // Datos del negocio
+              nombre: datosActualizados.razonSocial,
+              nombreComercial: datosActualizados.nombreComercial,
+              alias: datosActualizados.alias,
+              // Estados
+              estado: datosActualizados.estadoCliente,
+              estadoAcceso: datosActualizados.estadoAcceso,
+              estadoSuscripcion: datosActualizados.estadoSuscripcion,
+              estadoOnboarding: datosActualizados.estadoOnboarding,
+              // Plan y ciclo
+              plan: datosActualizados.plan,
+              ciclo: datosActualizados.ciclo,
+              // Contacto
+              contactoPrincipal: datosActualizados.contactoPrincipal,
+              telefono: datosActualizados.telefono,
+              emailAdmin: datosActualizados.emailAdmin,
+              // Subdominio
+              subdominio: datosActualizados.subdominio,
+              // Observaciones
+              observaciones: datosActualizados.observaciones,
+              // Convertir suscripción para mostrar en tabla
+              suscripcion: datosActualizados.estadoSuscripcion === 'VIGENTE' ? 'Vigente' : 
+                          datosActualizados.estadoSuscripcion === 'POR_VENCER' ? 'Por vencer' : 'Vencida'
+            }
+          : cliente
+      )
+    );
+    console.log(`✏️ Cliente actualizado: ${ruc}`, datosActualizados);
+  };
   // Actualizar estado
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   // Historial cliente
@@ -128,6 +178,22 @@ const Clientes = () => {
     setIsRefreshing(true);
     window.location.reload();
   };
+  useEffect(() => {
+  const handleClickOutside = (event: MouseEvent) => {
+    if (menuAbiertoId) {
+      const target = event.target as HTMLElement;
+      // Verificar si el clic no fue en el botón de menú ni en el menú
+      if (!target.closest('.relative') && !target.closest('button')) {
+        setMenuAbiertoId(null);
+      }
+    }
+  };
+
+  document.addEventListener('click', handleClickOutside);
+  return () => {
+    document.removeEventListener('click', handleClickOutside);
+  };
+}, [menuAbiertoId]);
   return (
     <>
     <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8 bg-gray-50 dark:bg-[#0f1115] min-h-screen transition-colors duration-300">
@@ -248,12 +314,24 @@ const Clientes = () => {
                       <Copy size={12} className="text-gray-300 group-hover/copy:text-blue-500 transition-colors" />
                     </div>
                   </td>
-                  <td className="py-6 font-black text-[10px] text-blue-600 uppercase">{cliente.plan}</td>
+                  <td className="py-6">
+                    <span className={`font-black text-[9px] uppercase px-2 py-1 rounded-md ${
+                      {
+                        'Pro': 'text-blue-600 bg-blue-50 dark:bg-blue-500/10',
+                        'Emprendedor': 'text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10',
+                        'Empresarial': 'text-purple-600 bg-purple-50 dark:bg-purple-500/10'
+                      }[cliente.plan] 
+                    }`}>
+                      {cliente.plan}
+                    </span>
+                  </td>                  
                   <td className="py-6">
                     <span className={`px-2 py-1 rounded-md text-[9px] font-black uppercase ${
                       cliente.suscripcion === 'Vigente' 
                         ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600'
-                        : 'bg-amber-100 dark:bg-amber-900/30 text-amber-600'
+                        : cliente.suscripcion === 'Por vencer'
+                        ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600'
+                        : 'bg-rose-100 dark:bg-rose-900/30 text-rose-600'  
                     }`}>
                       {cliente.suscripcion}
                     </span>
@@ -396,6 +474,7 @@ const Clientes = () => {
         isOpen={isEditModalOpen} 
         onClose={() => setIsEditModalOpen(false)} 
         cliente={clienteSeleccionado} 
+        onClienteActualizado={actualizarDatosCliente}  
       />
       <ActualizarEstado 
         isOpen={isStatusModalOpen} 

@@ -7,9 +7,10 @@ interface EditarClienteProps {
   isOpen: boolean;
   onClose: () => void;
   cliente: any;
+  onClienteActualizado?: (ruc: string, datosActualizados: any) => void; 
 }
 
-const EditarCliente: React.FC<EditarClienteProps> = ({ isOpen, onClose, cliente }) => {
+const EditarCliente: React.FC<EditarClienteProps> = ({ isOpen, onClose, cliente, onClienteActualizado }) => {
   const [formData, setFormData] = useState({
     // Datos del negocio
     ruc: '',
@@ -41,9 +42,9 @@ const EditarCliente: React.FC<EditarClienteProps> = ({ isOpen, onClose, cliente 
         razonSocial: cliente.nombre || '',
         nombreComercial: cliente.nombreComercial || '',
         alias: cliente.alias || '',
-        estadoCliente: cliente.estadoCliente || 'HABILITADO',
+        estadoCliente: cliente.estado || 'HABILITADO',
         estadoAcceso: cliente.estadoAcceso || 'ACTIVO',
-        estadoSuscripcion: cliente.estadoSuscripcion || 'VIGENTE',
+        estadoSuscripcion: cliente.suscripcion === 'Vigente' ? 'VIGENTE' : 'POR_VENCER',
         estadoOnboarding: cliente.estadoOnboarding || 'COMPLETADO',
         plan: cliente.plan || 'PRO',
         ciclo: cliente.ciclo || 'MENSUAL',
@@ -55,6 +56,12 @@ const EditarCliente: React.FC<EditarClienteProps> = ({ isOpen, onClose, cliente 
       });
     }
   }, [cliente]);
+  const handleGuardar = () => {
+    if (onClienteActualizado && cliente?.ruc) {
+      onClienteActualizado(cliente.ruc, formData);
+    }
+    onClose();
+  };
 
   if (!isOpen || !cliente) return null;
 
@@ -62,14 +69,15 @@ const EditarCliente: React.FC<EditarClienteProps> = ({ isOpen, onClose, cliente 
   const estadosCliente = [
     { value: 'HABILITADO', label: 'Habilitado', icon: CheckCircle, color: 'emerald' },
     { value: 'SUSPENDIDO', label: 'Suspendido', icon: AlertCircle, color: 'amber' },
-    { value: 'BLOQUEADO', label: 'Bloqueado', icon: Lock, color: 'rose' }
+    { value: 'CANCELADO', label: 'Cancelado', icon: Lock, color: 'rose' }
   ];
 
   const estadosAcceso = [
     { value: 'ACTIVO', label: 'Activo', icon: CheckCircle, color: 'emerald' },
     { value: 'BLOQUEADO_PAGO', label: 'Bloqueado por pago', icon: Lock, color: 'rose' },
     { value: 'BLOQUEADO_MANUAL', label: 'Bloqueado manual', icon: Lock, color: 'orange' },
-    { value: 'CORTE_TECNICO', label: 'Corte técnico', icon: AlertCircle, color: 'purple' }
+    { value: 'CORTE_TECNICO', label: 'Corte técnico', icon: AlertCircle, color: 'purple' },
+    { value: 'DESACTIVADO', label: 'Desactivado por baja', icon: Lock, color: 'gray' }  
   ];
 
   const estadosSuscripcion = [
@@ -85,9 +93,9 @@ const EditarCliente: React.FC<EditarClienteProps> = ({ isOpen, onClose, cliente 
   ];
 
   const planes = [
-    { value: 'BASICO', label: 'Plan Básico' },
-    { value: 'PRO', label: 'Plan Pro' },
-    { value: 'EMPRESARIAL', label: 'Plan Empresarial' }
+    { value: 'Pro', label: 'Pro', color: 'blue' },           // ← 'Pro' no 'PRO'
+    { value: 'Emprendedor', label: 'Emprendedor', color: 'emerald' },  // ← 'Emprendedor'
+    { value: 'Empresarial', label: 'Empresarial', color: 'purple' }     // ← 'Empresarial'
   ];
 
   const ciclos = [
@@ -363,6 +371,7 @@ const EditarCliente: React.FC<EditarClienteProps> = ({ isOpen, onClose, cliente 
             Cancelar
           </button>
           <button 
+            onClick={handleGuardar}  // ← CONECTADO
             className="px-8 py-3 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/25 flex items-center gap-2"
           >
             <Save size={16} />
