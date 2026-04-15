@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Users, 
+  Settings,
   UserPlus, 
   History,
   Search, 
@@ -15,7 +16,8 @@ import {
   Rocket,
   AlertTriangle,
   MoreHorizontal,
-  ShieldCheck
+  ShieldCheck,
+  Ban
 } from 'lucide-react';
 import IconButton from '../../components/ui/IconButton';
 import DetallesCliente from '../../components/Clientes/DetallesCliente';
@@ -25,6 +27,36 @@ import ActualizarEstado from '../../components/Clientes/ActualizarEstado';
 import HistorialCliente from '../../components/Clientes/HistorialCliente';
 import NuevoClienteModal from '../../components/Clientes/NuevoClienteModal';
 const Clientes = () => {
+  //Estado de clientes (simulado)
+    const [clientesData, setClientesData] = useState([
+    {
+      nombre: 'AB COMERCIAL SAC',
+      ruc: '20123456789',
+      nombreComercial: 'ABC Tienda',
+      alias: 'ABC',
+      subdominio: 'minegocio',
+      estado: 'HABILITADO',
+      estadoAcceso: 'ACTIVO',
+      plan: 'Pro',
+      suscripcion: 'Vigente',
+      fechaInicio: '15/03/2026',
+      fechaVence: '14/03/2027'
+    },
+    {
+      nombre: 'INVERSIONES XYZ SAC',
+      ruc: '20987654321',
+      nombreComercial: 'XYZ Store',
+      alias: 'XYZ',
+      subdominio: 'xyzstore',
+      estado: 'SUSPENDIDO',
+      estadoAcceso: 'BLOQUEADO_PAGO', 
+      plan: 'Emprendedor',
+      suscripcion: 'Por vencer',
+      fechaInicio: '22/05/2025',
+      fechaVence: '21/05/2026'
+    }
+  ]);
+  //refrescar
   const [isRefreshing, setIsRefreshing] = useState(false);
   // detalles modal
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -52,12 +84,38 @@ const Clientes = () => {
     setClienteSeleccionado(cliente);
     setIsModalOpen(true);
   };
+  // 🔄 FUNCIÓN PARA ACTUALIZAR ESTADO DE ACCESO
+  const actualizarAccesoCliente = (ruc: string, nuevoEstadoAcceso: string, detalles: any) => {
+    setClientesData(prevClientes => 
+      prevClientes.map(cliente => 
+        cliente.ruc === ruc 
+          ? { ...cliente, estadoAcceso: nuevoEstadoAcceso as any }
+          : cliente
+      )
+    );
+    console.log(`🔓 Acceso actualizado: ${ruc} → ${nuevoEstadoAcceso}`, detalles);
+  };
   const abrirGestionAcceso = (cliente: any) => {
     setClienteAcceso(cliente);
     setIsAccesoModalOpen(true);
   };
+  // 🔄 FUNCIÓN PARA ACTUALIZAR ESTADO
+  const actualizarEstadoCliente = (ruc: string, nuevoEstado: string) => {
+    setClientesData(prevClientes => 
+      prevClientes.map(cliente => 
+        cliente.ruc === ruc 
+          ? { ...cliente, estado: nuevoEstado }
+          : cliente
+      )
+    );
+    // Feedback visual opcional
+    console.log(`🔄 Estado actualizado: ${ruc} → ${nuevoEstado}`);
+  };
+  // Función para abrir el modal (pasa el callback)
   const abrirEstado = (c: any) => {
-    setClienteSeleccionado(c);
+    // Buscar el cliente actualizado con su estado real
+    const clienteActualizado = clientesData.find(cli => cli.ruc === c.ruc);
+    setClienteSeleccionado(clienteActualizado || c);
     setIsStatusModalOpen(true);
     setMenuAbiertoId(null);
   };
@@ -177,193 +235,146 @@ const Clientes = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
-              
-              {/* Cliente 1 */}
-              <tr className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-all">
-                <td className="py-6 pl-4">
-                  <p className="font-black text-sm dark:text-white">AB COMERCIAL SAC</p>
-                  <p className="text-[10px] text-gray-400 font-bold italic">ABC Tienda</p>
-                  <p className="text-[10px] text-gray-400 font-bold italic">Alias: ABC</p>
-                </td>
-                <td className="py-6">
-                  <div className="flex items-center gap-2 group/copy cursor-pointer">
-                   <span className="text-xs font-bold dark:text-gray-400 underline decoration-blue-500/30">20123456789</span> 
-                   <Copy size={12} className="text-gray-300 group-hover/copy:text-blue-500 transition-colors" />
-                  </div>
-                </td>
-                
-                <td className="py-6 font-black text-[10px] text-blue-600 uppercase">Pro</td>
-                <td className="py-6">
-                  <span className="px-2 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded-md text-[9px] font-black uppercase">Vigente</span>
-                  <p className="text-[9px] text-gray-400 font-bold mt-1 uppercase">Inicio: 15/03/2026</p>
-                  <p className="text-[9px] text-gray-400 font-bold uppercase">Vence: 14/03/2027</p>
-                </td>
-                <td className="py-6 px-2">
-                  <div className="flex items-center justify-start gap-1.5">
-                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                    <span className="font-black text-[10px] uppercase text-emerald-500">Activo</span>
-                  </div>
-                </td>
-                <td className="py-6">
-                  <div className="flex items-center gap-2 group/copy cursor-pointer">
-                    <span className="text-xs font-bold dark:text-gray-400 underline decoration-blue-500/30">minegocio</span>
-                    <Copy size={12} className="text-gray-300 group-hover/copy:text-blue-500 transition-colors" />
-                  </div>
-                </td>
-                <td className="py-6">
-                  <div className="flex items-center justify-center gap-2">
-                    <button 
-                      onClick={() => verDetalle({ nombre: 'AB COMERCIAL SAC', ruc: '20123456789', subdominio: 'minegocio' })} 
-                      className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-500 rounded-xl transition-all"
-                    >
-                      <Eye size={18}/>
-                    </button>
-                    <button 
-                      onClick={() => abrirGestionAcceso({ nombre: 'AB COMERCIAL SAC', ruc: '20123456789',    nombreComercial: 'ABC Tienda',alias: 'ABC',subdominio: 'minegocio',estadoAcceso: 'ACTIVO'  })}
-                      className="p-2 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-emerald-500 rounded-xl transition-all"
-                    >
-                      <Unlock size={18}/>
-                    </button>
-                    
-                    {/* Menú de 3 puntos */}
-                    <div className="relative">
-                      <button 
-                        onClick={() => setMenuAbiertoId(menuAbiertoId === '20123456789' ? null : '20123456789')}
-                        className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 rounded-xl transition-all"
-                      >
-                        <MoreHorizontal size={18}/>
-                      </button>
-                      
-                      {menuAbiertoId === '20123456789' && (
-                        <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-[#1c2128] rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 z-[100] py-2 overflow-hidden animate-in fade-in zoom-in duration-200">
-                          <button 
-                            onClick={() => abrirEditar({ 
-                              nombre: 'AB COMERCIAL SAC', 
-                              ruc: '20123456789', 
-                              nombreComercial: 'ABC Tienda', 
-                              alias: 'ABC', 
-                              subdominio: 'minegocio' 
-                            })} 
-                            className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-500/10 hover:text-blue-600 transition-colors flex items-center gap-3"
-                          >
-                            <UserCog size={16} /> Editar Información
-                          </button>
-                          <button 
-                            onClick={() => abrirEstado({ nombre: 'AB COMERCIAL SAC', ruc: '20123456789' })}
-                            className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-gray-600 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-amber-500/10 hover:text-amber-600 transition-colors flex items-center gap-3"
-                          >
-                            <ShieldCheck size={16} /> Cambiar Estado
-                          </button>
-                        <button 
-                          onClick={() => abrirHistorial({ nombre: 'AB COMERCIAL SAC', ruc: '20123456789', nombreComercial: 'ABC Tienda', alias: 'ABC', subdominio: 'minegocio' 
-                          })}
-                          className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-blue-600 transition-colors flex items-center gap-3"
-                        >
-                          <History size={16} /> Ver Historial
-                        </button>
-                          <div className="h-[1px] bg-gray-100 dark:bg-gray-800 my-1"></div>
-                          <button className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors flex items-center gap-3">
-                            <UserX size={16} /> Eliminar Cliente
-                          </button>
-                        </div>
+              {clientesData.map((cliente) => (
+                <tr key={cliente.ruc} className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-all">
+                  <td className="py-6 pl-4">
+                    <p className="font-black text-sm dark:text-white">{cliente.nombre}</p>
+                    <p className="text-[10px] text-gray-400 font-bold italic">{cliente.nombreComercial}</p>
+                    <p className="text-[10px] text-gray-400 font-bold italic">Alias: {cliente.alias}</p>
+                  </td>
+                  <td className="py-6">
+                    <div className="flex items-center gap-2 group/copy cursor-pointer">
+                      <span className="text-xs font-bold dark:text-gray-400 underline decoration-blue-500/30">{cliente.ruc}</span>
+                      <Copy size={12} className="text-gray-300 group-hover/copy:text-blue-500 transition-colors" />
+                    </div>
+                  </td>
+                  <td className="py-6 font-black text-[10px] text-blue-600 uppercase">{cliente.plan}</td>
+                  <td className="py-6">
+                    <span className={`px-2 py-1 rounded-md text-[9px] font-black uppercase ${
+                      cliente.suscripcion === 'Vigente' 
+                        ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600'
+                        : 'bg-amber-100 dark:bg-amber-900/30 text-amber-600'
+                    }`}>
+                      {cliente.suscripcion}
+                    </span>
+                    <p className="text-[9px] text-gray-400 font-bold mt-1 uppercase">Inicio: {cliente.fechaInicio}</p>
+                    <p className="text-[9px] text-gray-400 font-bold uppercase">Vence: {cliente.fechaVence}</p>
+                  </td>
+                  <td className="py-6 px-2">
+                    <div className="flex items-center justify-start gap-1.5">
+                      {cliente.estadoAcceso === 'ACTIVO' && (
+                        <>
+                          <Unlock size={12} className="text-emerald-500" />
+                          <span className="font-black text-[10px] uppercase text-emerald-500">Activo</span>
+                        </>
+                      )}
+                      {cliente.estadoAcceso === 'BLOQUEADO_PAGO' && (
+                        <>
+                          <Lock size={12} className="text-rose-500" />
+                          <span className="font-black text-[10px] uppercase text-rose-500">Bloqueado pago</span>
+                        </>
+                      )}
+                      {cliente.estadoAcceso === 'BLOQUEADO_MANUAL' && (
+                        <>
+                          <Lock size={12} className="text-orange-500" />
+                          <span className="font-black text-[10px] uppercase text-orange-500">Bloqueado manual</span>
+                        </>
+                      )}
+                      {cliente.estadoAcceso === 'CORTE_TECNICO' && (
+                        <>
+                          <Settings size={12} className="text-purple-500" />
+                          <span className="font-black text-[10px] uppercase text-purple-500">Corte técnico</span>
+                        </>
+                      )}
+                          {cliente.estadoAcceso === 'DESACTIVADO' && (
+                        <>
+                          <Ban size={12} className="text-gray-500" />
+                          <span className="font-black text-[10px] uppercase text-gray-500">Desactivado</span>
+                        </>
                       )}
                     </div>
-                  </div>
-                </td>
-              </tr>
-
-              {/* Cliente 2 (Bloqueado por pago) */}
-              <tr className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-all">
-                <td className="py-6 pl-4">
-                  <p className="font-black text-sm dark:text-white">INVERSIONES XYZ SAC</p>
-                  <p className="text-[10px] text-gray-400 font-bold italic">ABC Tienda</p>
-                  <p className="text-[10px] text-gray-400 font-bold italic">Alias: ABC</p>
-                </td>
-                <td className="py-6">
-                  <div className="flex items-center gap-2 group/copy cursor-pointer">
-                   <span className="text-xs font-bold dark:text-gray-400 underline decoration-blue-500/30">20987654321</span> 
-                   <Copy size={12} className="text-gray-300 group-hover/copy:text-blue-500 transition-colors" />
-                  </div>
-                </td>
-                <td className="py-6 font-black text-[10px] text-amber-600 uppercase">Emprendedor</td>
-                <td className="py-6">
-                  <span className="px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-600 rounded-md text-[9px] font-black uppercase">Por vencer</span>
-                  <p className="text-[9px] text-gray-400 font-bold mt-1 uppercase">Inicio: 22/05/2025</p>
-                  <p className="text-[9px] text-gray-400 font-bold uppercase">Vence: 21/05/2026</p>
-                </td>
-                <td className="py-6 px-2">
-                  <div className="flex items-center justify-start gap-1.5">
-                    <Lock size={12} className="text-rose-500" />
-                    <span className="font-black text-[10px] uppercase text-rose-500">Bloqueado pago</span>
-                  </div>
-                </td>
-                <td className="py-6">
-                  <div className="flex items-center gap-2 group/copy cursor-pointer">
-                    <span className="text-xs font-bold dark:text-gray-400 underline decoration-blue-500/30">xyz</span>
-                    <Copy size={12} className="text-gray-300 group-hover/copy:text-blue-500 transition-colors" />
-                  </div>
-                </td>
-                <td className="py-6">
-                  <div className="flex items-center justify-center gap-2">
-                    <button 
-                      onClick={() => verDetalle({ nombre: 'INVERSIONES XYZ SAC', ruc: '20987654321', subdominio: 'xyz' })} 
-                      className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-500 rounded-xl transition-all"
-                    >
-                      <Eye size={18}/>
-                    </button>
-                    <button 
-                      onClick={() => abrirGestionAcceso({ nombre: 'AB COMERCIAL SAC', ruc: '20987654321',nombreComercial: 'XYZ Store',alias: 'XYZ',subdominio: 'xyzstore',estadoAcceso: 'BLOQUEADO_PAGO',  periodoAdeudado: 'Marzo 2026' })}
-                      className="p-2 hover:bg-rose-50 dark:hover:bg-rose-900/20 text-rose-500 rounded-xl transition-all"
-                    >
-                      <Lock size={18}/>
-                    </button>
-                    
-                    {/* Menú de 3 puntos */}
-                  <div className="relative">
-                    <button 
-                      onClick={() => setMenuAbiertoId(menuAbiertoId === '20987654321' ? null : '20987654321')}
-                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 rounded-xl transition-all"
-                    >
-                      <MoreHorizontal size={18}/>
-                    </button>
-
-                    {menuAbiertoId === '20987654321' && (
-                      <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-[#1c2128] rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 z-[100] py-2 overflow-hidden animate-in fade-in zoom-in duration-200">
+                  </td>
+                  <td className="py-6">
+                    <div className="flex items-center gap-2 group/copy cursor-pointer">
+                      <span className="text-xs font-bold dark:text-gray-400 underline decoration-blue-500/30">{cliente.subdominio}</span>
+                      <Copy size={12} className="text-gray-300 group-hover/copy:text-blue-500 transition-colors" />
+                    </div>
+                  </td>
+                  <td className="py-6">
+                    <div className="flex items-center justify-center gap-2">
+                      <button 
+                        onClick={() => verDetalle(cliente)} 
+                        className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-500 rounded-xl transition-all"
+                      >
+                        <Eye size={18}/>
+                      </button>
+                      <button 
+                        onClick={() => abrirGestionAcceso({
+                          nombre: cliente.nombre,
+                          ruc: cliente.ruc,
+                          nombreComercial: cliente.nombreComercial,
+                          alias: cliente.alias,
+                          subdominio: cliente.subdominio,
+                          estadoAcceso: cliente.estadoAcceso
+                        })}
+                        className={`p-2 rounded-xl transition-all ${
+                          cliente.estadoAcceso === 'ACTIVO' 
+                            ? 'hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-emerald-500' 
+                            : cliente.estadoAcceso === 'BLOQUEADO_PAGO'
+                            ? 'hover:bg-rose-50 dark:hover:bg-rose-900/20 text-rose-500'
+                            : cliente.estadoAcceso === 'BLOQUEADO_MANUAL'
+                            ? 'hover:bg-orange-50 dark:hover:bg-orange-900/20 text-orange-500'
+                            : cliente.estadoAcceso === 'CORTE_TECNICO'
+                            ? 'hover:bg-purple-50 dark:hover:bg-purple-900/20 text-purple-500'
+                            : 'hover:bg-gray-50 dark:hover:bg-gray-900/20 text-gray-500'
+                        }`}
+                      >
+                        {cliente.estadoAcceso === 'ACTIVO' 
+                          ? <Unlock size={18}/> 
+                          : <Lock size={18}/>
+                        }
+                      </button>
+                      
+                      {/* Menú de 3 puntos */}
+                      <div className="relative">
                         <button 
-                          onClick={() => abrirEditar({ 
-                            nombre: 'INVERSIONES XYZ SAC', 
-                            ruc: '20987654321', 
-                            nombreComercial: 'XYZ Store', 
-                            alias: 'XYZ', 
-                            subdominio: 'xyzstore' 
-                          })} 
-                          className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-500/10 hover:text-blue-600 transition-colors flex items-center gap-3"
+                          onClick={() => setMenuAbiertoId(menuAbiertoId === cliente.ruc ? null : cliente.ruc)}
+                          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 rounded-xl transition-all"
                         >
-                          <UserCog size={16} /> Editar Información
+                          <MoreHorizontal size={18}/>
                         </button>
-                        <button 
-                          onClick={() => abrirEstado({ nombre: 'INVERSIONES XYZ SAC', ruc: '20987654321' })}
-                          className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-gray-600 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-amber-500/10 hover:text-amber-600 transition-colors flex items-center gap-3"
-                        >
-                          <ShieldCheck size={16} /> Cambiar Estado
-                        </button>
-                        <button 
-                          onClick={() => abrirHistorial({ nombre: 'INVERSIONES XYZ SAC', ruc: '20987654321', nombreComercial: 'XYZ Store', alias: 'XYZ', subdominio: 'xyzstore' 
-                          })}
-                          className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-blue-600 transition-colors flex items-center gap-3"
-                        >
-                          <History size={16} /> Ver Historial
-                        </button>
-                        <div className="h-[1px] bg-gray-100 dark:bg-gray-800 my-1"></div>
-                        <button className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors flex items-center gap-3">
-                          <UserX size={16} /> Eliminar Cliente
-                        </button>
+                        
+                        {menuAbiertoId === cliente.ruc && (
+                          <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-[#1c2128] rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 z-[100] py-2 overflow-hidden animate-in fade-in zoom-in duration-200">
+                            <button 
+                              onClick={() => abrirEditar(cliente)} 
+                              className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-500/10 hover:text-blue-600 transition-colors flex items-center gap-3"
+                            >
+                              <UserCog size={16} /> Editar Información
+                            </button>
+                            <button 
+                              onClick={() => abrirEstado(cliente)}
+                              className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-gray-600 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-amber-500/10 hover:text-amber-600 transition-colors flex items-center gap-3"
+                            >
+                              <ShieldCheck size={16} /> Cambiar Estado
+                            </button>
+                            <button 
+                              onClick={() => abrirHistorial(cliente)}
+                              className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-blue-600 transition-colors flex items-center gap-3"
+                            >
+                              <History size={16} /> Ver Historial
+                            </button>
+                            <div className="h-[1px] bg-gray-100 dark:bg-gray-800 my-1"></div>
+                            <button className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors flex items-center gap-3">
+                              <UserX size={16} /> Eliminar Cliente
+                            </button>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                  </div>
-                </td>
-              </tr>
+                    </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -378,7 +389,8 @@ const Clientes = () => {
       <GestionAcceso 
         isOpen={isAccesoModalOpen} 
         onClose={() => setIsAccesoModalOpen(false)} 
-        cliente={clienteAcceso} 
+        cliente={clienteAcceso}
+        onAccesoActualizado={actualizarAccesoCliente} 
       />
       <EditarCliente 
         isOpen={isEditModalOpen} 
@@ -389,6 +401,7 @@ const Clientes = () => {
         isOpen={isStatusModalOpen} 
         onClose={() => setIsStatusModalOpen(false)} 
         cliente={clienteSeleccionado} 
+        onEstadoActualizado={actualizarEstadoCliente}
       />
       <HistorialCliente 
         isOpen={isHistoryModalOpen} 

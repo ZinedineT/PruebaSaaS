@@ -2,7 +2,7 @@ import React from 'react';
 import { 
   X, Pencil, Globe, Copy, Mail, Phone, User, Tag, 
   FileText, ShieldCheck, Activity, CreditCard, Rocket, 
-  Calendar, Info, History, MoreVertical, ExternalLink
+  Calendar, Info, History,
 } from 'lucide-react';
 
 interface DetallesClienteProps {
@@ -27,7 +27,7 @@ const DetallesCliente: React.FC<DetallesClienteProps> = ({ isOpen, onClose, clie
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-      <div className="bg-white dark:bg-[#161b22] w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-[3rem] shadow-2xl border border-gray-100 dark:border-gray-800 relative">
+      <div className="bg-white dark:bg-[#161b22] w-full max-w-5xl max-h-[90vh] overflow-hidden rounded-[3rem] shadow-2xl border border-gray-100 dark:border-gray-800 relative flex flex-col">
         
         {/* HEADER FIJO */}
         <div className="sticky top-0 bg-white/80 dark:bg-[#161b22]/80 backdrop-blur-md z-10 p-8 border-b border-gray-50 dark:border-gray-800 flex justify-between items-start">
@@ -59,8 +59,7 @@ const DetallesCliente: React.FC<DetallesClienteProps> = ({ isOpen, onClose, clie
             </button>
           </div>
         </div>
-
-        <div className="p-8 space-y-8">
+        <div className="p-8 space-y-8 overflow-y-auto">
           {/* SECCIÓN ESTADOS (Fila de 4) */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <StateBadge icon={ShieldCheck} label="Cliente" value="Habilitado" colorClass="text-emerald-500" />
@@ -205,7 +204,7 @@ const DetallesCliente: React.FC<DetallesClienteProps> = ({ isOpen, onClose, clie
             </div>
           </div>
         </div>
-        
+     
         {/* FOOTER */}
         <div className="p-6 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-100 dark:border-gray-800 flex justify-end gap-3 rounded-b-[3rem]">
           <button className="px-8 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-2xl text-[10px] font-black uppercase hover:scale-105 transition-all">

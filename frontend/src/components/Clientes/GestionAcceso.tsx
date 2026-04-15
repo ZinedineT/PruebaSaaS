@@ -2,44 +2,46 @@ import React, { useState, useEffect } from 'react';
 import { 
   X, Lock, Unlock, Clock, AlertTriangle, 
   Settings, CheckCircle2, FileText, CreditCard,
-  Shield, Power, Calendar, AlertCircle
+  Shield, Power, Calendar, AlertCircle, Ban
 } from 'lucide-react';
 
 interface GestionAccesoProps {
   isOpen: boolean;
   onClose: () => void;
+  onAccesoActualizado?: (ruc: string, nuevoEstadoAcceso: string, detalles: any) => void;
   cliente: {
     nombre: string;
     ruc: string;
     subdominio?: string;
     alias?: string;
     nombreComercial?: string;
-    estadoAcceso?: 'ACTIVO' | 'BLOQUEADO_PAGO' | 'BLOQUEADO_MANUAL' | 'CORTE_TECNICO';
+    estadoAcceso?: 'ACTIVO' | 'BLOQUEADO_PAGO' | 'BLOQUEADO_MANUAL' | 'CORTE_TECNICO' | 'DESACTIVADO';
     periodoAdeudado?: string;
   } | null;
 }
 
-// Tipos de estado de acceso
-type EstadoAcceso = 'ACTIVO' | 'BLOQUEADO_PAGO' | 'BLOQUEADO_MANUAL' | 'CORTE_TECNICO';
+type EstadoAcceso = 'ACTIVO' | 'BLOQUEADO_PAGO' | 'BLOQUEADO_MANUAL' | 'CORTE_TECNICO' | 'DESACTIVADO';
 
-const GestionAcceso: React.FC<GestionAccesoProps> = ({ isOpen, onClose, cliente }) => {
+const GestionAcceso: React.FC<GestionAccesoProps> = ({ 
+  isOpen, 
+  onClose, 
+  onAccesoActualizado, 
+  cliente 
+}) => {
   const [justificacion, setJustificacion] = useState('');
   const [prorrogaDias, setProrrogaDias] = useState('');
   const [voucher, setVoucher] = useState('');
   const [accionSeleccionada, setAccionSeleccionada] = useState<string | null>(null);
   const [estadoActual, setEstadoActual] = useState<EstadoAcceso>('ACTIVO');
 
-  // Simular estado del cliente (esto vendría de la API)
   useEffect(() => {
     if (cliente && cliente.estadoAcceso) {
-        // Usar el estado que viene del padre directamente
-        setEstadoActual(cliente.estadoAcceso);
+      setEstadoActual(cliente.estadoAcceso);
     }
   }, [cliente]);
 
   if (!isOpen || !cliente) return null;
 
-  // Resetear estado al abrir
   const handleClose = () => {
     setJustificacion('');
     setProrrogaDias('');
@@ -48,7 +50,6 @@ const GestionAcceso: React.FC<GestionAccesoProps> = ({ isOpen, onClose, cliente 
     onClose();
   };
 
-  // Configuración según el estado actual
   const getEstadoConfig = () => {
     switch (estadoActual) {
       case 'ACTIVO':
@@ -85,11 +86,21 @@ const GestionAcceso: React.FC<GestionAccesoProps> = ({ isOpen, onClose, cliente 
         return {
           icon: Settings,
           iconBg: 'bg-purple-500',
-          label: 'CORTE TÉCNICO',
+          label: 'BLOQUEADO TÉCNICO',
           labelClass: 'text-purple-600 dark:text-purple-400',
           bgClass: 'bg-purple-50 dark:bg-purple-500/5',
           borderClass: 'border-purple-100 dark:border-purple-500/10',
           mensaje: 'Acceso suspendido por mantenimiento o incidencias técnicas.'
+        };
+      case 'DESACTIVADO':
+        return {
+          icon: Ban,
+          iconBg: 'bg-gray-500',
+          label: 'DESACTIVADO POR BAJA',
+          labelClass: 'text-gray-600 dark:text-gray-400',
+          bgClass: 'bg-gray-50 dark:bg-gray-500/5',
+          borderClass: 'border-gray-100 dark:border-gray-500/10',
+          mensaje: 'Cliente dado de baja del sistema.'
         };
       default:
         return {
@@ -109,7 +120,6 @@ const GestionAcceso: React.FC<GestionAccesoProps> = ({ isOpen, onClose, cliente 
   const isBloqueadoPago = estadoActual === 'BLOQUEADO_PAGO';
   const isActivo = estadoActual === 'ACTIVO';
 
-  // Definir acciones disponibles según el estado
   const getAccionesDisponibles = () => {
     if (isActivo) {
       return [
@@ -120,7 +130,8 @@ const GestionAcceso: React.FC<GestionAccesoProps> = ({ isOpen, onClose, cliente 
           description: 'Confirmar pago - Abril',
           color: 'blue',
           requiereVoucher: true,
-          requiereDias: false
+          requiereDias: false,
+          nuevoEstado: 'ACTIVO'
         },
         { 
           id: 'dar_prorroga', 
@@ -130,7 +141,8 @@ const GestionAcceso: React.FC<GestionAccesoProps> = ({ isOpen, onClose, cliente 
           color: 'amber',
           requiereVoucher: false,
           requiereDias: true,
-          maxDias: 7
+          maxDias: 7,
+          nuevoEstado: 'ACTIVO'
         },
         { 
           id: 'bloqueo_manual', 
@@ -139,16 +151,28 @@ const GestionAcceso: React.FC<GestionAccesoProps> = ({ isOpen, onClose, cliente 
           description: 'Corte preventivo manual',
           color: 'rose',
           requiereVoucher: false,
-          requiereDias: false
+          requiereDias: false,
+          nuevoEstado: 'BLOQUEADO_MANUAL'
         },
         { 
           id: 'corte_tecnico', 
           icon: Settings, 
-          label: 'Corte técnico', 
+          label: 'Bloqueo técnico', 
           description: 'Mantenimiento o errores',
           color: 'purple',
           requiereVoucher: false,
-          requiereDias: false
+          requiereDias: false,
+          nuevoEstado: 'CORTE_TECNICO'
+        },
+        { 
+          id: 'desactivar', 
+          icon: Ban, 
+          label: 'Desactivar', 
+          description: 'Dar de baja al cliente',
+          color: 'gray',
+          requiereVoucher: false,
+          requiereDias: false,
+          nuevoEstado: 'DESACTIVADO'
         }
       ];
     }
@@ -162,7 +186,8 @@ const GestionAcceso: React.FC<GestionAccesoProps> = ({ isOpen, onClose, cliente 
           description: 'Restablece solo si se verificó el pago',
           color: 'green',
           requiereVoucher: true,
-          requiereDias: false
+          requiereDias: false,
+          nuevoEstado: 'ACTIVO'
         },
         { 
           id: 'dar_prorroga', 
@@ -172,7 +197,8 @@ const GestionAcceso: React.FC<GestionAccesoProps> = ({ isOpen, onClose, cliente 
           color: 'amber',
           requiereVoucher: false,
           requiereDias: true,
-          maxDias: 7
+          maxDias: 7,
+          nuevoEstado: 'ACTIVO'
         },
         { 
           id: 'bloqueo_manual', 
@@ -181,21 +207,23 @@ const GestionAcceso: React.FC<GestionAccesoProps> = ({ isOpen, onClose, cliente 
           description: 'Corte preventivo manual',
           color: 'rose',
           requiereVoucher: false,
-          requiereDias: false
+          requiereDias: false,
+          nuevoEstado: 'BLOQUEADO_MANUAL'
         },
         { 
           id: 'corte_tecnico', 
           icon: Settings, 
-          label: 'Corte técnico', 
+          label: 'Bloqueo técnico', 
           description: 'Mantenimiento o errores',
           color: 'purple',
           requiereVoucher: false,
-          requiereDias: false
+          requiereDias: false,
+          nuevoEstado: 'CORTE_TECNICO'
         }
       ];
     }
     
-    // Para otros estados
+    // Para otros estados (BLOQUEADO_MANUAL, CORTE_TECNICO, DESACTIVADO)
     return [
       { 
         id: 'restablecer_acceso', 
@@ -204,7 +232,8 @@ const GestionAcceso: React.FC<GestionAccesoProps> = ({ isOpen, onClose, cliente 
         description: 'Reactivar el acceso',
         color: 'green',
         requiereVoucher: false,
-        requiereDias: false
+        requiereDias: false,
+        nuevoEstado: 'ACTIVO'
       }
     ];
   };
@@ -212,7 +241,6 @@ const GestionAcceso: React.FC<GestionAccesoProps> = ({ isOpen, onClose, cliente 
   const accionesDisponibles = getAccionesDisponibles();
   const accionSeleccionadaData = accionesDisponibles.find(a => a.id === accionSeleccionada);
 
-  // Validar si el botón de aplicar debe estar habilitado
   const isAplicarDisabled = () => {
     if (!justificacion.trim()) return true;
     if (!accionSeleccionada) return true;
@@ -229,22 +257,32 @@ const GestionAcceso: React.FC<GestionAccesoProps> = ({ isOpen, onClose, cliente 
   const handleAplicarCambio = () => {
     if (isAplicarDisabled()) return;
     
-    // Aquí iría la llamada a la API
+    const nuevoEstadoAcceso = accionSeleccionadaData?.nuevoEstado || estadoActual;
+    
+    if (onAccesoActualizado && cliente.ruc) {
+      onAccesoActualizado(cliente.ruc, nuevoEstadoAcceso, {
+        accion: accionSeleccionada,
+        prorrogaDias: accionSeleccionadaData?.requiereDias ? prorrogaDias : null,
+        voucher: accionSeleccionadaData?.requiereVoucher ? voucher : null,
+        justificacion,
+        estadoAnterior: estadoActual,
+        timestamp: new Date().toISOString()
+      });
+    }
+    
     console.log('Aplicando cambio:', {
       cliente: cliente.nombre,
       estadoActual,
+      nuevoEstado: nuevoEstadoAcceso,
       accion: accionSeleccionada,
       prorrogaDias: accionSeleccionadaData?.requiereDias ? prorrogaDias : null,
       voucher: accionSeleccionadaData?.requiereVoucher ? voucher : null,
-      justificacion,
-      timestamp: new Date().toISOString()
+      justificacion
     });
     
-    // Cerrar modal después de aplicar
     handleClose();
   };
 
-  // Renderizar inputs dinámicos según acción seleccionada
   const renderDynamicInputs = () => {
     if (!accionSeleccionadaData) return null;
     
@@ -271,21 +309,19 @@ const GestionAcceso: React.FC<GestionAccesoProps> = ({ isOpen, onClose, cliente 
         {accionSeleccionadaData.requiereVoucher && (
           <div className="space-y-2">
             <label className="text-[10px] font-black text-gray-400 uppercase ml-2 tracking-widest flex items-center gap-2">
-              <FileText size={12} /> Voucher / Operación
+              <FileText size={12} /> Voucher N.°
             </label>
             <input 
               type="text" 
-              placeholder="N° de operación"
+              placeholder="123456"
               className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-800/50 border-none rounded-2xl text-sm font-bold dark:text-white focus:ring-4 focus:ring-blue-500/10 outline-none transition-all"
               value={voucher}
               onChange={(e) => setVoucher(e.target.value)}
             />
-            {isBloqueadoPago && accionSeleccionada === 'restablecer_acceso' && (
-              <p className="text-[9px] text-gray-400 ml-2">Confirmar solo si se verificó el pago</p>
-            )}
-            {isActivo && accionSeleccionada === 'confirmar_pago' && (
-              <p className="text-[9px] text-gray-400 ml-2">Confirmar solo si se verificó el pago</p>
-            )}
+            <p className="text-[9px] text-gray-400 ml-2">
+              {isBloqueadoPago && accionSeleccionada === 'restablecer_acceso' && "Restablece solo si se verificó el pago"}
+              {isActivo && accionSeleccionada === 'confirmar_pago' && "Confirmar solo si se verificó el pago"}
+            </p>
           </div>
         )}
       </div>
@@ -306,11 +342,11 @@ const GestionAcceso: React.FC<GestionAccesoProps> = ({ isOpen, onClose, cliente 
               </h2>
             </div>
             <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400">
-              {cliente.nombre} • <span className="text-blue-500">RUC: {cliente.ruc}</span>
+              CLIENTE: {cliente.nombre} • <span className="text-blue-500">RUC: {cliente.ruc}</span>
             </p>
             {cliente.nombreComercial && (
               <p className="text-[10px] text-gray-400 mt-1">
-                Nombre comercial: {cliente.nombreComercial} • Alias: {cliente.alias || cliente.nombreComercial?.split(' ')[0]} • Subdominio: {cliente.subdominio || 'minegocio'}
+                Nombre comercial: {cliente.nombreComercial} | Alias: {cliente.alias || cliente.nombreComercial?.split(' ')[0]} | Subdominio: {cliente.subdominio || 'minegocio'}
               </p>
             )}
           </div>
@@ -331,7 +367,7 @@ const GestionAcceso: React.FC<GestionAccesoProps> = ({ isOpen, onClose, cliente 
                 <EstadoIcon size={24} />
               </div>
               <div>
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Estado de Acceso Actual</p>
+                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Acceso actual</p>
                 <p className={`text-lg font-black uppercase ${estadoConfig.labelClass}`}>
                   {estadoConfig.label}
                 </p>
@@ -354,7 +390,7 @@ const GestionAcceso: React.FC<GestionAccesoProps> = ({ isOpen, onClose, cliente 
             <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-2">
               {isBloqueadoPago ? 'Acciones para desbloquear o gestionar acceso:' : 'Acciones de gestión de acceso:'}
             </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               {accionesDisponibles.map((accion) => {
                 const Icon = accion.icon;
                 const isActive = accionSeleccionada === accion.id;
@@ -363,7 +399,8 @@ const GestionAcceso: React.FC<GestionAccesoProps> = ({ isOpen, onClose, cliente 
                   amber: 'border-amber-500 bg-amber-50 dark:bg-amber-500/10 text-amber-600',
                   rose: 'border-rose-500 bg-rose-50 dark:bg-rose-500/10 text-rose-600',
                   purple: 'border-purple-500 bg-purple-50 dark:bg-purple-500/10 text-purple-600',
-                  green: 'border-green-500 bg-green-50 dark:bg-green-500/10 text-green-600'
+                  green: 'border-green-500 bg-green-50 dark:bg-green-500/10 text-green-600',
+                  gray: 'border-gray-500 bg-gray-50 dark:bg-gray-500/10 text-gray-600'
                 };
                 
                 return (
@@ -371,7 +408,6 @@ const GestionAcceso: React.FC<GestionAccesoProps> = ({ isOpen, onClose, cliente 
                     key={accion.id}
                     onClick={() => {
                       setAccionSeleccionada(accion.id);
-                      // Resetear campos específicos cuando cambia la acción
                       setProrrogaDias('');
                       setVoucher('');
                     }}
@@ -402,18 +438,18 @@ const GestionAcceso: React.FC<GestionAccesoProps> = ({ isOpen, onClose, cliente 
             </div>
           </div>
 
-          {/* INPUTS DINÁMICOS SEGÚN ACCIÓN SELECCIONADA */}
+          {/* INPUTS DINÁMICOS */}
           {renderDynamicInputs()}
 
-          {/* JUSTIFICACIÓN (OBLIGATORIA) */}
+          {/* JUSTIFICACIÓN OBLIGATORIA */}
           <div className="space-y-2 mt-4">
             <label className="text-[10px] font-black text-gray-400 uppercase ml-2 tracking-widest flex items-center gap-2">
               <AlertCircle size={12} />
-              Justificación del cambio <span className="text-rose-500">*</span>
+              JUSTIFICACIÓN DEL CAMBIO <span className="text-rose-500">(Obligatorio)</span>
             </label>
             <textarea 
               rows={3}
-              placeholder="Escriba aquí el motivo detallado del cambio de acceso..."
+              placeholder="Escriba aquí el motivo del cambio de acceso..."
               className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-800/50 border-none rounded-[1.5rem] text-sm font-medium dark:text-gray-200 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all resize-none"
               value={justificacion}
               onChange={(e) => setJustificacion(e.target.value)}
@@ -421,7 +457,7 @@ const GestionAcceso: React.FC<GestionAccesoProps> = ({ isOpen, onClose, cliente 
           </div>
         </div>
 
-        {/* FOOTER ACCIONES */}
+        {/* FOOTER */}
         <div className="p-6 sm:p-8 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row gap-4 sticky bottom-0">
           <div className="flex items-center gap-2 text-rose-500">
             <AlertTriangle size={16} />
