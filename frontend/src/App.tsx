@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import Layout from "./components/Layout/Layout";
 import Login from "./pages/auth/Login";
 import Dashboard from "./pages/dashboard/Dashboard";
+import DashboardWrapper from "./components/Dashboard/DashboardWrapper";
 
 // Clientes
 import Clientes from "./pages/clientes/Clientes";
@@ -73,7 +74,7 @@ const AppRoutes: React.FC = () => {
         toastOptions={{
           className: 'my-custom-toast',
           style: {
-            borderRadius: '1.25rem', // Equivale a rounded-2xl
+            borderRadius: '1.25rem', 
           },
         }}
       />
@@ -90,7 +91,7 @@ const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute>
             <Layout>
-              <Dashboard />
+              <DashboardWrapper />
             </Layout>
           </ProtectedRoute>
         }
