@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import { X, Search, FilterX, History, UserX, Copy, MoreHorizontal, UserCheck } from 'lucide-react';
-import HistorialCliente from './HistorialCliente'; // ← Importa el componente existente
+import HistorialCliente from './HistorialCliente'; 
+import HabilitarCliente from './HabilitarCliente';
 
 // INTERFACES (TIPADO)
 interface ClienteRegistrado {
@@ -43,25 +44,47 @@ const ModalRegistrados: React.FC<ModalRegistradosProps> = ({
   // Estado para el modal de historial
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [clienteHistorial, setClienteHistorial] = useState<ClienteRegistrado | null>(null);
-
+  const [isHabilitarModalOpen, setIsHabilitarModalOpen] = useState(false);
+  const [clienteParaHabilitar, setClienteParaHabilitar] = useState<ClienteRegistrado | null>(null);
+  
   if (!isOpen) return null;
 
   // Filtrado de datos
   const clientesFiltrados = clientesRegistrados.filter((cliente: ClienteRegistrado) => {
-    const matchesSearch = cliente.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           cliente.ruc.includes(searchTerm) ||
-                           cliente.nombreComercial.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           cliente.alias.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesPlan = filtroPlan ? cliente.plan === filtroPlan : true;
-    const matchesCiclo = filtroCiclo ? cliente.ciclo === filtroCiclo : true;
-    return matchesSearch && matchesPlan && matchesCiclo;
-  });
+  const matchesSearch = cliente.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          cliente.ruc.includes(searchTerm) ||
+                          cliente.nombreComercial.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          cliente.alias.toLowerCase().includes(searchTerm.toLowerCase());
+  const matchesPlan = filtroPlan ? cliente.plan === filtroPlan : true;
+  const matchesCiclo = filtroCiclo ? cliente.ciclo === filtroCiclo : true;
+  return matchesSearch && matchesPlan && matchesCiclo;
+});
 
   // Función para abrir el historial
   const abrirHistorial = (cliente: ClienteRegistrado) => {
     setClienteHistorial(cliente);
     setIsHistoryModalOpen(true);
     setMenuAbiertoId(null);
+  };
+  const handleAbrirHabilitar = (cliente: ClienteRegistrado) => {
+  setClienteParaHabilitar(cliente);
+  setIsHabilitarModalOpen(true);
+  setMenuAbiertoId(null);
+  };
+
+  const handleHabilitar = (clienteId: string, observaciones: string) => {
+    onValidarCliente(clienteId);
+    console.log(`✅ Cliente ${clienteId} habilitado. Obs: ${observaciones}`);
+  };
+
+  const handleObservar = (clienteId: string, observaciones: string) => {
+    // Aquí puedes cambiar el estado a 'OBSERVADO' si lo deseas
+    console.log(`👁️ Cliente ${clienteId} marcado para observación. Obs: ${observaciones}`);
+  };
+
+  const handleRechazar = (clienteId: string, observaciones: string) => {
+    onEliminarCliente(clienteId);
+    console.log(`❌ Cliente ${clienteId} rechazado. Obs: ${observaciones}`);
   };
 
   return (
@@ -173,7 +196,7 @@ const ModalRegistrados: React.FC<ModalRegistradosProps> = ({
                     <td className="py-4">
                       <div className="flex items-center justify-center gap-2">
                         <button
-                          onClick={() => onValidarCliente(cliente.id)}
+                          onClick={() => handleAbrirHabilitar(cliente)}
                           className="flex items-center gap-1 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 rounded-xl text-[10px] font-black uppercase hover:bg-emerald-100 transition"
                         >
                           <UserCheck size={12} /> Validar cliente
@@ -221,6 +244,14 @@ const ModalRegistrados: React.FC<ModalRegistradosProps> = ({
         isOpen={isHistoryModalOpen}
         onClose={() => setIsHistoryModalOpen(false)}
         cliente={clienteHistorial}
+      />
+      <HabilitarCliente
+        isOpen={isHabilitarModalOpen}
+        onClose={() => setIsHabilitarModalOpen(false)}
+        cliente={clienteParaHabilitar}
+        onHabilitar={handleHabilitar}
+        onObservar={handleObservar}
+        onRechazar={handleRechazar}
       />
     </div>
     </>
