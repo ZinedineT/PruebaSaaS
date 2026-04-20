@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, CheckCircle2, AlertCircle, Trash2, Info, Receipt, Ban } from 'lucide-react';
+import { X, CheckCircle2, AlertCircle, Trash2, Info, Receipt, Ban, Eye } from 'lucide-react';
 
 interface ActualizarEstadoProps {
   isOpen: boolean;
@@ -9,7 +9,7 @@ interface ActualizarEstadoProps {
 }
 
 // Tipos de estado admitidos
-type EstadoKey = 'REGISTRADO' | 'HABILITADO' | 'SUSPENDIDO' | 'CANCELADO';
+type EstadoKey = 'REGISTRADO' | 'HABILITADO' | 'SUSPENDIDO' | 'OBSERVADO' | 'CANCELADO';
 
 const ActualizarEstado: React.FC<ActualizarEstadoProps> = ({ isOpen, onClose, cliente, onEstadoActualizado }) => {
   const [motivo, setMotivo] = useState('');
@@ -32,6 +32,7 @@ const ActualizarEstado: React.FC<ActualizarEstadoProps> = ({ isOpen, onClose, cl
     REGISTRADO: { label: 'Registrado', color: 'bg-blue-100 text-blue-600 border-blue-200', icon: '🔵' },
     HABILITADO: { label: 'Habilitado', color: 'bg-emerald-100 text-emerald-600 border-emerald-200', icon: '🟢' },
     SUSPENDIDO: { label: 'Suspendido', color: 'bg-amber-100 text-amber-600 border-amber-200', icon: '🟠' },
+    OBSERVADO: { label: 'Observado', color: 'bg-blue-100 text-blue-600 border-blue-200', icon: '🔍' },
     CANCELADO: { label: 'Cancelado', color: 'bg-rose-100 text-rose-600 border-rose-200', icon: '🔴' },
   };
 
@@ -120,8 +121,8 @@ const ActualizarEstado: React.FC<ActualizarEstadoProps> = ({ isOpen, onClose, cl
               </p>
             </button>
 
-            {/* Fila de Suspendido y Cancelado */}
-            <div className="grid grid-cols-2 gap-3">
+            {/* Fila de Suspendido, Observar y Dar de baja (ahora 3 columnas) */}
+            <div className="grid grid-cols-3 gap-3">
               <button 
                 onClick={() => setNuevoEstado('SUSPENDIDO')}
                 className={`flex items-center justify-center gap-2 p-4 rounded-2xl border transition-all group ${nuevoEstado === 'SUSPENDIDO' ? 'bg-amber-50 border-amber-500 ring-1 ring-amber-500 text-amber-600' : 'bg-gray-50 dark:bg-gray-800/50 border-transparent text-gray-500 hover:border-amber-200 hover:text-amber-600'}`}
@@ -130,12 +131,21 @@ const ActualizarEstado: React.FC<ActualizarEstadoProps> = ({ isOpen, onClose, cl
                 <span className="text-[10px] font-black uppercase">Suspender</span>
               </button>
 
+              {/* NUEVO BOTÓN OBSERVAR */}
+              <button 
+                onClick={() => setNuevoEstado('OBSERVADO')}
+                className={`flex items-center justify-center gap-2 p-4 rounded-2xl border transition-all group ${nuevoEstado === 'OBSERVADO' ? 'bg-blue-50 border-blue-500 ring-1 ring-blue-500 text-blue-600' : 'bg-gray-50 dark:bg-gray-800/50 border-transparent text-gray-500 hover:border-blue-200 hover:text-blue-600'}`}
+              >
+                <Eye size={18} className={nuevoEstado === 'OBSERVADO' ? '' : 'group-hover:scale-110 transition-transform'} />
+                <span className="text-[10px] font-black uppercase">Observar</span>
+              </button>
+
               <button 
                 onClick={() => setNuevoEstado('CANCELADO')}
                 className={`flex items-center justify-center gap-2 p-4 rounded-2xl border transition-all group ${nuevoEstado === 'CANCELADO' ? 'bg-rose-50 border-rose-500 ring-1 ring-rose-500 text-rose-600' : 'bg-gray-50 dark:bg-gray-800/50 border-transparent text-gray-500 hover:border-rose-200 hover:text-rose-600'}`}
               >
                 <Trash2 size={18} className={nuevoEstado === 'CANCELADO' ? '' : 'group-hover:scale-110 transition-transform'} />
-                <span className="text-[10px] font-black uppercase">Cancelar</span>
+                <span className="text-[10px] font-black uppercase">Dar de baja</span> {/* ← CAMBIADO: "Cancelar" → "Dar de baja" */}
               </button>
             </div>
           </div>
