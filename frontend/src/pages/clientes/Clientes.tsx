@@ -415,7 +415,7 @@ const Clientes = () => {
                     {
                       'Profesional': 'text-blue-600 bg-blue-50 dark:bg-blue-500/10',
                       'Emprendedor': 'text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10',
-                      'Empresarial': 'text-purple-600 bg-purple-50 dark:bg-purple-500/10'
+                      'Estandar': 'text-purple-600 bg-purple-50 dark:bg-purple-500/10'
                     }[cliente.plan] 
                   }`}>
                     {cliente.plan}

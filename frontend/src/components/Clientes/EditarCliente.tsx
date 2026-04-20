@@ -1,29 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  X, Save, Building2, Globe, User, CreditCard,CheckCircle, Lock, AlertCircle,Edit, FileText
-} from 'lucide-react';
+import { X, Save, Building2, User, CreditCard, Lock, FileText, ExternalLink } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface EditarClienteProps {
   isOpen: boolean;
   onClose: () => void;
   cliente: any;
-  onClienteActualizado?: (ruc: string, datosActualizados: any) => void; 
+  onClienteActualizado?: (ruc: string, datosActualizados: any) => void;
 }
 
 const EditarCliente: React.FC<EditarClienteProps> = ({ isOpen, onClose, cliente, onClienteActualizado }) => {
+  const navigate = useNavigate();
+  
+  // MANTENER LA MISMA ESTRUCTURA ORIGINAL del formData
   const [formData, setFormData] = useState({
     // Datos del negocio
     ruc: '',
     razonSocial: '',
     nombreComercial: '',
     alias: '',
-    // Estados de la cuenta
+    // Estados de la cuenta (se mantienen aunque no se vean en el wireframe)
     estadoCliente: 'HABILITADO',
     estadoAcceso: 'ACTIVO',
     estadoSuscripcion: 'VIGENTE',
     estadoOnboarding: 'COMPLETADO',
     // Plan y ciclo
-    plan: 'PRO',
+    plan: 'Profesional',
     ciclo: 'MENSUAL',
     // Contacto
     contactoPrincipal: '',
@@ -32,7 +34,10 @@ const EditarCliente: React.FC<EditarClienteProps> = ({ isOpen, onClose, cliente,
     // Subdominio
     subdominio: '',
     // Observaciones
-    observaciones: ''
+    observaciones: '',
+    // Campos adicionales del wireframe
+    direccionFiscal: '',
+    cargo: ''
   });
 
   useEffect(() => {
@@ -46,56 +51,60 @@ const EditarCliente: React.FC<EditarClienteProps> = ({ isOpen, onClose, cliente,
         estadoAcceso: cliente.estadoAcceso || 'ACTIVO',
         estadoSuscripcion: cliente.suscripcion === 'Vigente' ? 'VIGENTE' : 'POR_VENCER',
         estadoOnboarding: cliente.estadoOnboarding || 'COMPLETADO',
-        plan: cliente.plan || 'PRO',
+        plan: cliente.plan || 'Profesional',
         ciclo: cliente.ciclo || 'MENSUAL',
         contactoPrincipal: cliente.contactoPrincipal || '',
         telefono: cliente.telefono || '',
         emailAdmin: cliente.emailAdmin || '',
         subdominio: cliente.subdominio || '',
-        observaciones: cliente.observaciones || ''
+        observaciones: cliente.observaciones || 'Se cambio de número telefónico de contacto',
+        direccionFiscal: cliente.direccionFiscal || 'Av. Primavera 123, Lima, Lima',
+        cargo: cliente.cargo || 'Administradora'
       });
     }
   }, [cliente]);
+
   const handleGuardar = () => {
     if (onClienteActualizado && cliente?.ruc) {
-      onClienteActualizado(cliente.ruc, formData);
+      // MANTENER EL MISMO FORMATO QUE ESPERA onClienteActualizado
+      onClienteActualizado(cliente.ruc, {
+        // Datos del negocio
+        razonSocial: formData.razonSocial,
+        nombreComercial: formData.nombreComercial,
+        alias: formData.alias,
+        // Estados
+        estadoCliente: formData.estadoCliente,
+        estadoAcceso: formData.estadoAcceso,
+        estadoSuscripcion: formData.estadoSuscripcion,
+        estadoOnboarding: formData.estadoOnboarding,
+        // Plan y ciclo
+        plan: formData.plan,
+        ciclo: formData.ciclo,
+        // Contacto
+        contactoPrincipal: formData.contactoPrincipal,
+        telefono: formData.telefono,
+        emailAdmin: formData.emailAdmin,
+        // Subdominio
+        subdominio: formData.subdominio,
+        // Observaciones
+        observaciones: formData.observaciones
+      });
     }
+    onClose();
+  };
+
+  const handleIrSuscripciones = () => {
+    navigate('/suscripciones');
     onClose();
   };
 
   if (!isOpen || !cliente) return null;
 
   // Opciones para selects
-  const estadosCliente = [
-    { value: 'HABILITADO', label: 'Habilitado', icon: CheckCircle, color: 'emerald' },
-    { value: 'SUSPENDIDO', label: 'Suspendido', icon: AlertCircle, color: 'amber' },
-    { value: 'CANCELADO', label: 'Cancelado', icon: Lock, color: 'rose' }
-  ];
-
-  const estadosAcceso = [
-    { value: 'ACTIVO', label: 'Activo', icon: CheckCircle, color: 'emerald' },
-    { value: 'BLOQUEADO_PAGO', label: 'Bloqueado por pago', icon: Lock, color: 'rose' },
-    { value: 'BLOQUEADO_MANUAL', label: 'Bloqueado manual', icon: Lock, color: 'orange' },
-    { value: 'CORTE_TECNICO', label: 'Corte técnico', icon: AlertCircle, color: 'purple' },
-    { value: 'DESACTIVADO', label: 'Desactivado por baja', icon: Lock, color: 'gray' }  
-  ];
-
-  const estadosSuscripcion = [
-    { value: 'VIGENTE', label: 'Vigente', color: 'emerald' },
-    { value: 'POR_VENCER', label: 'Por vencer', color: 'amber' },
-    { value: 'VENCIDA', label: 'Vencida', color: 'rose' }
-  ];
-
-  const estadosOnboarding = [
-    { value: 'PENDIENTE', label: 'Pendiente', color: 'amber' },
-    { value: 'EN_PROCESO', label: 'En proceso', color: 'blue' },
-    { value: 'COMPLETADO', label: 'Completado', color: 'emerald' }
-  ];
-
   const planes = [
-    { value: 'Pro', label: 'Pro', color: 'blue' },           // ← 'Pro' no 'PRO'
-    { value: 'Emprendedor', label: 'Emprendedor', color: 'emerald' },  // ← 'Emprendedor'
-    { value: 'Empresarial', label: 'Empresarial', color: 'purple' }     // ← 'Empresarial'
+    { value: 'Profesional', label: 'Profesional' },
+    { value: 'Emprendedor', label: 'Emprendedor' },
+    { value: 'Estandar', label: 'Estandar' }
   ];
 
   const ciclos = [
@@ -107,41 +116,34 @@ const EditarCliente: React.FC<EditarClienteProps> = ({ isOpen, onClose, cliente,
 
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-white dark:bg-[#161b22] w-full max-w-5xl rounded-[2.5rem] shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="bg-white dark:bg-[#161b22] w-full max-w-5xl rounded-[2rem] shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden flex flex-col max-h-[90vh]">
         
         {/* HEADER */}
         <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/20">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-500 rounded-lg text-white">
-              <Edit size={20} />
-            </div>
-            <div>
-              <h2 className="text-lg font-black dark:text-white uppercase tracking-tight">Editar Información del Cliente</h2>
-              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
-                {cliente.nombre} • <span className="text-blue-500">ID: {cliente.ruc}</span>
-              </p>
-            </div>
+          <div>
+            <h2 className="text-xl font-black dark:text-white">Editar cliente</h2>
+            <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-0.5">
+              ✏️ {cliente.nombre} (CLI-000245)
+            </p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl transition-colors">
             <X size={20} className="dark:text-gray-400" />
           </button>
         </div>
 
-        {/* FORMULARIO SCROLLABLE - GRID DE 2 COLUMNAS */}
-        <div className="p-8 overflow-y-auto flex-1">
+        {/* FORMULARIO SCROLLABLE */}
+        <div className="p-6 overflow-y-auto flex-1">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             
-            {/* COLUMNA IZQUIERDA */}
+            {/* COLUMNA IZQUIERDA - DATOS DEL NEGOCIO */}
             <div className="space-y-6">
-              
-              {/* SECCIÓN: DATOS DEL NEGOCIO */}
-              <div className="space-y-4">
-                <h3 className="text-[11px] font-black text-blue-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                  <Building2 size={14} /> Datos del Negocio
+              <div>
+                <h3 className="text-[11px] font-black text-blue-500 uppercase tracking-wider flex items-center gap-2 mb-4">
+                  <Building2 size={14} /> DATOS DEL NEGOCIO
                 </h3>
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <label className="text-[10px] font-bold text-gray-400 w-32 uppercase">RUC:</label>
+                    <label className="text-[10px] font-bold text-gray-400 w-28 uppercase">RUC:</label>
                     <input 
                       type="text" 
                       disabled
@@ -151,214 +153,186 @@ const EditarCliente: React.FC<EditarClienteProps> = ({ isOpen, onClose, cliente,
                     <Lock size={14} className="text-gray-400" />
                   </div>
                   <div className="flex items-center gap-2">
-                    <label className="text-[10px] font-bold text-gray-400 w-32 uppercase">Razón social:</label>
+                    <label className="text-[10px] font-bold text-gray-400 w-28 uppercase">Razón social:</label>
                     <input 
                       type="text" 
                       value={formData.razonSocial}
                       onChange={(e) => setFormData({...formData, razonSocial: e.target.value})}
-                      className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-bold dark:text-white outline-none"
+                      className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   <div className="flex items-center gap-2">
-                    <label className="text-[10px] font-bold text-gray-400 w-32 uppercase">Nombre comercial:</label>
+                    <label className="text-[10px] font-bold text-gray-400 w-28 uppercase">Nombre comercial:</label>
                     <input 
                       type="text" 
                       value={formData.nombreComercial}
                       onChange={(e) => setFormData({...formData, nombreComercial: e.target.value})}
-                      className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-bold dark:text-white outline-none"
+                      className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <Lock size={14} className="text-gray-400" />
                   </div>
                   <div className="flex items-center gap-2">
-                    <label className="text-[10px] font-bold text-gray-400 w-32 uppercase">Alias (opcional):</label>
+                    <label className="text-[10px] font-bold text-gray-400 w-28 uppercase">Dirección fiscal:</label>
+                    <input 
+                      type="text" 
+                      value={formData.direccionFiscal}
+                      onChange={(e) => setFormData({...formData, direccionFiscal: e.target.value})}
+                      className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <Lock size={14} className="text-gray-400" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-[10px] font-bold text-gray-400 w-28 uppercase">Alias (opcional):</label>
                     <input 
                       type="text" 
                       value={formData.alias}
                       onChange={(e) => setFormData({...formData, alias: e.target.value})}
-                      className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-bold dark:text-white outline-none"
+                      className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* SECCIÓN: INFORMACIÓN DE CONTACTO */}
-              <div className="space-y-4">
-                <h3 className="text-[11px] font-black text-purple-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                  <User size={14} /> Información de Contacto
+            {/* COLUMNA DERECHA - CONTACTO PRINCIPAL */}
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-[11px] font-black text-purple-500 uppercase tracking-wider flex items-center gap-2 mb-4">
+                  <User size={14} /> CONTACTO PRINCIPAL
                 </h3>
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <label className="text-[10px] font-bold text-gray-400 w-32 uppercase">Contacto principal:</label>
+                    <label className="text-[10px] font-bold text-gray-400 w-24 uppercase">Nombre:</label>
                     <input 
                       type="text" 
                       value={formData.contactoPrincipal}
                       onChange={(e) => setFormData({...formData, contactoPrincipal: e.target.value})}
-                      placeholder="María Torres"
-                      className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-bold dark:text-white outline-none"
+                      className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   <div className="flex items-center gap-2">
-                    <label className="text-[10px] font-bold text-gray-400 w-32 uppercase">Teléfono:</label>
+                    <label className="text-[10px] font-bold text-gray-400 w-24 uppercase">Teléfono:</label>
                     <input 
                       type="text" 
                       value={formData.telefono}
                       onChange={(e) => setFormData({...formData, telefono: e.target.value})}
-                      placeholder="999 888 777"
-                      className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-bold dark:text-white outline-none"
+                      className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                   <div className="flex items-center gap-2">
-                    <label className="text-[10px] font-bold text-gray-400 w-32 uppercase">Correo administrativo:</label>
-                    <input 
-                      type="email" 
-                      value={formData.emailAdmin}
-                      onChange={(e) => setFormData({...formData, emailAdmin: e.target.value})}
-                      placeholder="admin@abc.com"
-                      className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-bold dark:text-white outline-none"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* SECCIÓN: SUBDOMINIO */}
-              <div className="space-y-4">
-                <h3 className="text-[11px] font-black text-emerald-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                  <Globe size={14} /> Subdominio
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex flex-col gap-3">
-                    <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-                      <label className="text-[10px] font-bold text-gray-400 w-32 uppercase">
-                        Subdominio:
-                      </label>
-                      <div className="flex-1 flex items-center gap-1 min-w-[200px]">
-                        <input 
-                          type="text" 
-                          value={formData.subdominio}
-                          onChange={(e) => setFormData({...formData, subdominio: e.target.value})}
-                          className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-bold dark:text-white outline-none"
-                        />
-                        <span className="text-[10px] font-bold text-gray-400 whitespace-nowrap">.cistcorfact.com</span>
-                      </div>
-                    </div>
-                    <div className="flex justify-end sm:justify-start">
-                      <button className="px-4 py-2 text-[10px] font-black uppercase text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-xl transition-all">
-                        Cambiar subdominio
+                    <label className="text-[10px] font-bold text-gray-400 w-24 uppercase">Correo:</label>
+                    <div className="flex-1 flex items-center gap-2">
+                      <input 
+                        type="email" 
+                        value={formData.emailAdmin}
+                        onChange={(e) => setFormData({...formData, emailAdmin: e.target.value})}
+                        className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      <button className="px-3 py-2 bg-blue-50 dark:bg-blue-500/10 text-blue-600 rounded-xl text-[9px] font-black uppercase hover:bg-blue-100 transition whitespace-nowrap">
+                        Validar
                       </button>
                     </div>
                   </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-[10px] font-bold text-gray-400 w-24 uppercase">Cargo:</label>
+                    <input 
+                      type="text" 
+                      value={formData.cargo}
+                      onChange={(e) => setFormData({...formData, cargo: e.target.value})}
+                      className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* SECCIÓN: RESUMEN COMERCIAL (Fila completa) */}
+          <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div>
+              <h3 className="text-[11px] font-black text-emerald-500 uppercase tracking-wider flex items-center gap-2 mb-4">
+                <CreditCard size={14} /> RESUMEN COMERCIAL
+              </h3>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <label className="text-[10px] font-bold text-gray-400 w-28 uppercase">Plan:</label>
+                  <select 
+                    value={formData.plan}
+                    onChange={(e) => setFormData({...formData, plan: e.target.value})}
+                    className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    {planes.map(p => (
+                      <option key={p.value} value={p.value}>{p.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="text-[10px] font-bold text-gray-400 w-28 uppercase">Ciclo:</label>
+                  <select 
+                    value={formData.ciclo}
+                    onChange={(e) => setFormData({...formData, ciclo: e.target.value})}
+                    className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    {ciclos.map(c => (
+                      <option key={c.value} value={c.value}>{c.label}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </div>
 
-            {/* COLUMNA DERECHA */}
-            <div className="space-y-6">
-              
-              {/* SECCIÓN: ESTADOS DE LA CUENTA */}
-              <div className="space-y-4">
-                <h3 className="text-[11px] font-black text-amber-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                  <AlertCircle size={14} /> Estados de la Cuenta
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <label className="text-[10px] font-bold text-gray-400 w-32 uppercase">Cliente:</label>
-                    <select 
-                      value={formData.estadoCliente}
-                      onChange={(e) => setFormData({...formData, estadoCliente: e.target.value})}
-                      className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-bold dark:text-white outline-none"
-                    >
-                      {estadosCliente.map(est => (
-                        <option key={est.value} value={est.value}>{est.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <label className="text-[10px] font-bold text-gray-400 w-32 uppercase">Acceso:</label>
-                    <select 
-                      value={formData.estadoAcceso}
-                      onChange={(e) => setFormData({...formData, estadoAcceso: e.target.value})}
-                      className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-bold dark:text-white outline-none"
-                    >
-                      {estadosAcceso.map(est => (
-                        <option key={est.value} value={est.value}>{est.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <label className="text-[10px] font-bold text-gray-400 w-32 uppercase">Suscripción:</label>
-                    <select 
-                      value={formData.estadoSuscripcion}
-                      onChange={(e) => setFormData({...formData, estadoSuscripcion: e.target.value})}
-                      className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-bold dark:text-white outline-none"
-                    >
-                      {estadosSuscripcion.map(est => (
-                        <option key={est.value} value={est.value}>{est.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <label className="text-[10px] font-bold text-gray-400 w-32 uppercase">Onboarding:</label>
-                    <select 
-                      value={formData.estadoOnboarding}
-                      onChange={(e) => setFormData({...formData, estadoOnboarding: e.target.value})}
-                      className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-bold dark:text-white outline-none"
-                    >
-                      {estadosOnboarding.map(est => (
-                        <option key={est.value} value={est.value}>{est.label}</option>
-                      ))}
-                    </select>
-                  </div>
+            <div>
+              <h3 className="text-[11px] font-black text-amber-500 uppercase tracking-wider mb-4 opacity-0">.</h3>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <label className="text-[10px] font-bold text-gray-400 w-28 uppercase">Suscripción:</label>
+                  <select 
+                    value={formData.estadoSuscripcion === 'VIGENTE' ? 'Vigente' : formData.estadoSuscripcion === 'POR_VENCER' ? 'Por vencer' : 'Vencida'}
+                    onChange={(e) => {
+                      let nuevoEstado = 'VIGENTE';
+                      if (e.target.value === 'Por vencer') nuevoEstado = 'POR_VENCER';
+                      if (e.target.value === 'Vencida') nuevoEstado = 'VENCIDA';
+                      setFormData({...formData, estadoSuscripcion: nuevoEstado});
+                    }}
+                    className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="Vigente">Vigente</option>
+                    <option value="Por vencer">Por vencer</option>
+                    <option value="Vencida">Vencida</option>
+                  </select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="text-[10px] font-bold text-gray-400 w-28 uppercase">Acceso:</label>
+                  <select 
+                    value={formData.estadoAcceso === 'ACTIVO' ? 'Activo' : 'Bloqueado'}
+                    onChange={(e) => setFormData({...formData, estadoAcceso: e.target.value === 'Activo' ? 'ACTIVO' : 'BLOQUEADO_PAGO'})}
+                    className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="Activo">Activo</option>
+                    <option value="Bloqueado">Bloqueado</option>
+                  </select>
+                  <button 
+                    onClick={handleIrSuscripciones}
+                    className="px-4 py-2.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-xl text-[10px] font-black uppercase hover:bg-gray-200 transition flex items-center gap-1 whitespace-nowrap"
+                  >
+                    <ExternalLink size={12} /> Ir a suscripciones
+                  </button>
                 </div>
               </div>
-
-              {/* SECCIÓN: PLAN Y CICLO */}
-              <div className="space-y-4">
-                <h3 className="text-[11px] font-black text-indigo-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                  <CreditCard size={14} /> Plan y Ciclo
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <label className="text-[10px] font-bold text-gray-400 w-32 uppercase">Plan:</label>
-                    <select 
-                      value={formData.plan}
-                      onChange={(e) => setFormData({...formData, plan: e.target.value})}
-                      className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-bold dark:text-white outline-none"
-                    >
-                      {planes.map(p => (
-                        <option key={p.value} value={p.value}>{p.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <label className="text-[10px] font-bold text-gray-400 w-32 uppercase">Ciclo:</label>
-                    <select 
-                      value={formData.ciclo}
-                      onChange={(e) => setFormData({...formData, ciclo: e.target.value})}
-                      className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-bold dark:text-white outline-none"
-                    >
-                      {ciclos.map(c => (
-                        <option key={c.value} value={c.value}>{c.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              {/* SECCIÓN: OBSERVACIONES INTERNAS */}
-              <div className="space-y-4">
-                <h3 className="text-[11px] font-black text-gray-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                  <FileText size={14} /> Observaciones Internas
-                </h3>
-                <textarea 
-                  rows={6}
-                  value={formData.observaciones}
-                  onChange={(e) => setFormData({...formData, observaciones: e.target.value})}
-                  placeholder="Cliente con dos unidades de negocio. Requiere reportes personalizados de ventas a fin de mes."
-                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-medium dark:text-gray-200 outline-none resize-none"
-                />
-              </div>
-
             </div>
+          </div>
+
+          {/* SECCIÓN: OBSERVACIONES */}
+          <div className="mt-8">
+            <h3 className="text-[11px] font-black text-gray-500 uppercase tracking-wider flex items-center gap-2 mb-4">
+              <FileText size={14} /> OBSERVACIONES
+            </h3>
+            <textarea 
+              rows={3}
+              value={formData.observaciones}
+              onChange={(e) => setFormData({...formData, observaciones: e.target.value})}
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-medium dark:text-gray-200 outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            />
           </div>
         </div>
 
@@ -371,7 +345,7 @@ const EditarCliente: React.FC<EditarClienteProps> = ({ isOpen, onClose, cliente,
             Cancelar
           </button>
           <button 
-            onClick={handleGuardar}  // ← CONECTADO
+            onClick={handleGuardar}
             className="px-8 py-3 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/25 flex items-center gap-2"
           >
             <Save size={16} />
