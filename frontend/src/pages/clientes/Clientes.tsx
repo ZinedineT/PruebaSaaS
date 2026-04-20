@@ -22,7 +22,7 @@ const Clientes = () => {
       subdominio: 'minegocio',
       estado: 'HABILITADO',
       estadoAcceso: 'ACTIVO',
-      plan: 'Pro',
+      plan: 'Profesional',
       suscripcion: 'Vigente',
       fechaRegistro: '2026-03-15', 
       fechaInicio: '15/03/2026',
@@ -44,7 +44,7 @@ const Clientes = () => {
       subdominio: 'xyzstore',
       estado: 'REGISTRADO',
       estadoAcceso: 'BLOQUEADO_PAGO', 
-      plan: 'Empresarial',
+      plan: 'Emprendedor',
       suscripcion: 'Por vencer',
       fechaRegistro: '2026-03-18', 
       fechaInicio: '22/05/2025',
@@ -413,7 +413,7 @@ const Clientes = () => {
                 <td className="py-6 px-4">
                   <span className={`font-black text-[9px] uppercase px-2 py-1 rounded-md ${
                     {
-                      'Pro': 'text-blue-600 bg-blue-50 dark:bg-blue-500/10',
+                      'Profesional': 'text-blue-600 bg-blue-50 dark:bg-blue-500/10',
                       'Emprendedor': 'text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10',
                       'Empresarial': 'text-purple-600 bg-purple-50 dark:bg-purple-500/10'
                     }[cliente.plan] 
