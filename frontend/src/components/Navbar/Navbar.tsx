@@ -1,12 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  SunIcon, 
-  MoonIcon, 
-  BellIcon, 
-  MagnifyingGlassIcon,
-  ArrowRightOnRectangleIcon,
-  UserIcon,
-  Cog6ToothIcon,
+  SunIcon, MoonIcon, BellIcon, ArrowRightOnRectangleIcon,UserIcon,Cog6ToothIcon,
 } from '@heroicons/react/24/outline';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';

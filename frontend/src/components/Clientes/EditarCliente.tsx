@@ -118,22 +118,28 @@ const EditarCliente: React.FC<EditarClienteProps> = ({ isOpen, onClose, cliente,
     <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <div className="bg-white dark:bg-[#161b22] w-full max-w-5xl rounded-[2rem] shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden flex flex-col max-h-[90vh]">
         
-        {/* HEADER */}
-        <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/20">
+        {/* HEADER - Estilo Premium */}
+        <div className="p-8 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-[#161b22]/50">
           <div>
-            <h2 className="text-xl font-black dark:text-white">Editar cliente</h2>
-            <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-0.5">
-              ✏️ {cliente.nombre} (CLI-000245)
-            </p>
+            <h2 className="text-2xl font-black dark:text-white tracking-tighter">Editar Cliente</h2>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="px-2 py-0.5 bg-blue-500/10 text-blue-500 text-[10px] font-black rounded-lg uppercase">ID: CLI-000245</span>
+              <p className="text-xs font-bold text-gray-500 dark:text-gray-400">
+                ✏️ {cliente.nombre}
+              </p>
+            </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl transition-colors">
-            <X size={20} className="dark:text-gray-400" />
+          <button 
+            onClick={onClose} 
+            className="p-3 hover:bg-rose-500/10 text-gray-400 hover:text-rose-500 rounded-2xl transition-all duration-300"
+          >
+            <X size={24} />
           </button>
         </div>
 
         {/* FORMULARIO SCROLLABLE */}
         <div className="p-6 overflow-y-auto flex-1">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
             
             {/* COLUMNA IZQUIERDA - DATOS DEL NEGOCIO */}
             <div className="space-y-6">
@@ -259,7 +265,7 @@ const EditarCliente: React.FC<EditarClienteProps> = ({ isOpen, onClose, cliente,
                   <select 
                     value={formData.plan}
                     onChange={(e) => setFormData({...formData, plan: e.target.value})}
-                    className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800 rounded-xl text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     {planes.map(p => (
                       <option key={p.value} value={p.value}>{p.label}</option>
@@ -271,7 +277,7 @@ const EditarCliente: React.FC<EditarClienteProps> = ({ isOpen, onClose, cliente,
                   <select 
                     value={formData.ciclo}
                     onChange={(e) => setFormData({...formData, ciclo: e.target.value})}
-                    className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800 rounded-xl text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     {ciclos.map(c => (
                       <option key={c.value} value={c.value}>{c.label}</option>
@@ -294,7 +300,7 @@ const EditarCliente: React.FC<EditarClienteProps> = ({ isOpen, onClose, cliente,
                       if (e.target.value === 'Vencida') nuevoEstado = 'VENCIDA';
                       setFormData({...formData, estadoSuscripcion: nuevoEstado});
                     }}
-                    className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800 rounded-xl text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="Vigente">Vigente</option>
                     <option value="Por vencer">Por vencer</option>
@@ -306,7 +312,7 @@ const EditarCliente: React.FC<EditarClienteProps> = ({ isOpen, onClose, cliente,
                   <select 
                     value={formData.estadoAcceso === 'ACTIVO' ? 'Activo' : 'Bloqueado'}
                     onChange={(e) => setFormData({...formData, estadoAcceso: e.target.value === 'Activo' ? 'ACTIVO' : 'BLOQUEADO_PAGO'})}
-                    className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 px-4 py-2.5 bg-gray-50 dark:bg-gray-800 rounded-xl text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="Activo">Activo</option>
                     <option value="Bloqueado">Bloqueado</option>

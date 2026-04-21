@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, History, Download, Filter, Calendar, User, Tag, Search, Clock, Smartphone, CreditCard, ShieldCheck, PlusCircle, Edit3 } from 'lucide-react';
+import { X, History, Download, Filter, Calendar, User, Tag, Clock, Smartphone, CreditCard, ShieldCheck, PlusCircle, Edit3 } from 'lucide-react';
 
 interface HistorialClienteProps {
   isOpen: boolean;
@@ -28,7 +28,7 @@ const HistorialCliente: React.FC<HistorialClienteProps> = ({ isOpen, onClose, cl
         {/* Header con Exportar */}
         <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/20">
           <div className="flex items-center gap-4">
-            <div className="p-2.5 bg-gray-900 dark:bg-white rounded-xl text-white dark:text-black shadow-lg">
+            <div className="p-2.5 bg-transparent rounded-xl text-black dark:text-white shadow-lg">
               <History size={22} />
             </div>
             <div>
@@ -73,14 +73,14 @@ const HistorialCliente: React.FC<HistorialClienteProps> = ({ isOpen, onClose, cl
           </span>
           <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-900 px-3 py-2 rounded-xl border border-gray-100 dark:border-gray-800">
             <Calendar size={14} className="text-gray-400" />
-            <select className="bg-transparent text-[10px] font-black uppercase outline-none dark:text-gray-300 cursor-pointer">
+            <select className="bg-gray-50 dark:bg-gray-800 text-[10px] font-black uppercase outline-none dark:text-gray-300 cursor-pointer">
               <option>Últimos 30 días</option>
               <option>Este año</option>
             </select>
           </div>
           <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-900 px-3 py-2 rounded-xl border border-gray-100 dark:border-gray-800">
             <Tag size={14} className="text-gray-400" />
-            <select className="bg-transparent text-[10px] font-black uppercase outline-none dark:text-gray-300 cursor-pointer">
+            <select className="bg-gray-50 dark:bg-gray-800 text-[10px] font-black uppercase outline-none dark:text-gray-300 cursor-pointer">
               <option>Todas las categorías</option>
               <option>Acceso</option>
               <option>Suscripción</option>
@@ -88,7 +88,7 @@ const HistorialCliente: React.FC<HistorialClienteProps> = ({ isOpen, onClose, cl
           </div>
           <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-900 px-3 py-2 rounded-xl border border-gray-100 dark:border-gray-800">
             <User size={14} className="text-gray-400" />
-            <select className="bg-transparent text-[10px] font-black uppercase outline-none dark:text-gray-300 cursor-pointer">
+            <select className="bg-gray-50 dark:bg-gray-800 text-[10px] font-black uppercase outline-none dark:text-gray-300 cursor-pointer">
               <option>Todos los usuarios</option>
               <option>Sistema</option>
             </select>

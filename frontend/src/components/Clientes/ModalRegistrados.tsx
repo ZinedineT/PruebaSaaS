@@ -120,7 +120,7 @@ const ModalRegistrados: React.FC<ModalRegistradosProps> = ({
               </div>
               <div className="md:col-span-3">
                 <select
-                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 rounded-xl text-sm font-medium"
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-300 text-gray-500 dark:text-gray-300 appearance-none cursor-pointer rounded-xl text-sm"
                   value={filtroPlan}
                   onChange={(e) => setFiltroPlan(e.target.value)}
                 >
@@ -132,13 +132,15 @@ const ModalRegistrados: React.FC<ModalRegistradosProps> = ({
               </div>
               <div className="md:col-span-3">
                 <select
-                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 rounded-xl text-sm font-medium"
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-300 text-gray-500 dark:text-gray-300 appearance-none cursor-pointer rounded-xl text-sm"
                   value={filtroCiclo}
                   onChange={(e) => setFiltroCiclo(e.target.value)}
                 >
                   <option value="">Ciclo ▼</option>
                   <option value="MENSUAL">Mensual</option>
                   <option value="ANUAL">Anual</option>
+                  <option value="TRIMESTRAL">Trimestral</option>
+                  <option value="SEMESTRAL">Semestral</option>
                 </select>
               </div>
             </div>
@@ -181,16 +183,22 @@ const ModalRegistrados: React.FC<ModalRegistradosProps> = ({
                       </td>
                     <td className="py-4">
                       <p className="text-xs font-bold dark:text-white">{cliente.contactoPrincipal}</p>
-                      <p className="text-[10px] text-gray-500">{cliente.telefono}</p>
+                      <p className="text-[10px] text-gray-400">{cliente.telefono}</p>
                       <p className="text-[10px] text-blue-500 truncate max-w-[150px]">{cliente.emailAdmin}</p>
                       </td>
                     <td className="py-4">
-                      <span className="font-black text-[9px] uppercase px-2 py-1 rounded-md bg-blue-50 text-blue-600">
-                        {cliente.plan}
-                      </span>
+                    <span className={`font-black text-[9px] uppercase px-2 py-1 rounded-md ${
+                      {
+                        'Profesional': 'text-blue-600 bg-blue-50 dark:bg-blue-500/10',
+                        'Emprendedor': 'text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10',
+                        'Estandar': 'text-purple-600 bg-purple-50 dark:bg-purple-500/10'
+                      }[cliente.plan] 
+                    }`}>
+                      {cliente.plan}
+                    </span>
                       <p className="text-[9px] text-gray-400 mt-1">{cliente.ciclo}</p>
                       </td>
-                    <td className="py-4 text-xs font-mono font-bold dark:text-gray-400">
+                    <td className="py-4 text-xs font-bold dark:text-gray-400">
                       {cliente.fechaRegistro || '2026-03-15'}
                       </td>
                     <td className="py-4">
@@ -204,21 +212,21 @@ const ModalRegistrados: React.FC<ModalRegistradosProps> = ({
                         <div className="relative">
                           <button
                             onClick={() => setMenuAbiertoId(menuAbiertoId === cliente.id ? null : cliente.id)}
-                            className="p-2 hover:bg-gray-100 rounded-xl"
+                            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 rounded-xl transition-all"
                           >
                             <MoreHorizontal size={16} />
                           </button>
                           {menuAbiertoId === cliente.id && (
-                            <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg border z-20">
+                            <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-[#1c2128] rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 z-[100] py-2 overflow-hidden animate-in fade-in zoom-in duration-200">
                               <button
-                                onClick={() => abrirHistorial(cliente)} // ← Abre el modal de historial
-                                className="w-full px-4 py-2 text-left text-xs font-bold text-gray-600 hover:bg-gray-50 flex items-center gap-2"
+                                onClick={() => abrirHistorial(cliente)} 
+                                className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-500/10 hover:text-blue-600 transition-colors flex items-center gap-3"
                               >
                                 <History size={14} /> Ver historial
                               </button>
                               <button
                                 onClick={() => onEliminarCliente(cliente.id)}
-                                className="w-full px-4 py-2 text-left text-xs font-bold text-rose-500 hover:bg-rose-50 flex items-center gap-2"
+                                className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 hover:text-rose-600 transition-colors flex items-center gap-3"
                               >
                                 <UserX size={14} /> Eliminar cliente
                               </button>

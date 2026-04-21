@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  X, Lock, Unlock, Clock, AlertTriangle, 
-  Settings, CheckCircle2, FileText, CreditCard,
-  Shield, Power, Calendar, AlertCircle, Ban, Eye
+  X, Lock, Unlock, Clock,Settings, CheckCircle2, FileText, CreditCard, Calendar, AlertCircle, Ban, 
 } from 'lucide-react';
 
 interface GestionAccesoProps {
@@ -106,7 +104,7 @@ const GestionAcceso: React.FC<GestionAccesoProps> = ({
         { id: 'confirmar_pago', icon: CheckCircle2, label: 'Confirmar pago', description: 'Registrar el pago del siguiente periodo antes del bloqueo automático.', color: 'blue', requiereVoucher: true, requiereDias: false, nuevoEstado: 'ACTIVO' },
         { id: 'dar_prorroga', icon: Clock, label: 'Dar prórroga', description: 'Extiende el acceso temporalmente - Máximo 7 días.', color: 'amber', requiereVoucher: false, requiereDias: true, maxDias: 7, nuevoEstado: 'ACTIVO' },
         { id: 'bloqueo_manual', icon: Lock, label: 'Bloqueado manual', description: 'Bloqueo por gestión administrativa.', color: 'rose', requiereVoucher: false, requiereDias: false, nuevoEstado: 'BLOQUEADO_MANUAL' },
-        { id: 'corte_tecnico', icon: Settings, label: 'Bloqueado técnico', description: 'Bloqueo por incidencia o revisión técnica.', color: 'purple', requiereVoucher: false, requiereDias: false, nuevoEstado: 'CORTE_TECNICO' }
+        { id: 'corte_tecnico', icon: Settings, label: 'Corte técnico', description: 'Corte por incidencia o revisión técnica.', color: 'purple', requiereVoucher: false, requiereDias: false, nuevoEstado: 'CORTE_TECNICO' }
       ];
     }
     
@@ -116,7 +114,7 @@ const GestionAcceso: React.FC<GestionAccesoProps> = ({
         { id: 'restablecer_acceso', icon: Unlock, label: 'Restablecer acceso', description: 'Usar cuando el pago ya fue validado después del bloqueo.', color: 'green', requiereVoucher: true, requiereDias: false, nuevoEstado: 'ACTIVO' },
         { id: 'dar_prorroga', icon: Clock, label: 'Dar prórroga', description: 'Extiende el acceso temporalmente - Máximo 7 días.', color: 'amber', requiereVoucher: false, requiereDias: true, maxDias: 7, nuevoEstado: 'ACTIVO' },
         { id: 'bloqueo_manual', icon: Lock, label: 'Bloqueado manual', description: 'Bloqueo por gestión administrativa.', color: 'rose', requiereVoucher: false, requiereDias: false, nuevoEstado: 'BLOQUEADO_MANUAL' },
-        { id: 'corte_tecnico', icon: Settings, label: 'Bloqueado técnico', description: 'Bloqueo por incidencia o revisión técnica.', color: 'purple', requiereVoucher: false, requiereDias: false, nuevoEstado: 'CORTE_TECNICO' }
+        { id: 'corte_tecnico', icon: Settings, label: 'Corte técnico', description: 'Corte por incidencia o revisión técnica.', color: 'purple', requiereVoucher: false, requiereDias: false, nuevoEstado: 'CORTE_TECNICO' }
       ];
     }
     
@@ -125,7 +123,7 @@ const GestionAcceso: React.FC<GestionAccesoProps> = ({
       return [
         { id: 'restablecer_acceso', icon: Unlock, label: 'Restablecer acceso', description: 'Habilita nuevamente el acceso al sistema.', color: 'green', requiereVoucher: false, requiereDias: false, nuevoEstado: 'ACTIVO' },
         { id: 'bloqueo_pago', icon: CreditCard, label: 'Bloqueado por pago', description: 'Cambia la causa del bloqueo a pago.', color: 'rose', requiereVoucher: false, requiereDias: false, nuevoEstado: 'BLOQUEADO_PAGO' },
-        { id: 'corte_tecnico', icon: Settings, label: 'Bloqueado técnico', description: 'Cambia la causa del bloqueo a técnica.', color: 'purple', requiereVoucher: false, requiereDias: false, nuevoEstado: 'CORTE_TECNICO' }
+        { id: 'corte_tecnico', icon: Settings, label: 'Corte técnico', description: 'Cambia la causa del bloqueo a técnica.', color: 'purple', requiereVoucher: false, requiereDias: false, nuevoEstado: 'CORTE_TECNICO' }
       ];
     }
     
@@ -217,7 +215,7 @@ const GestionAcceso: React.FC<GestionAccesoProps> = ({
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
-      <div className="bg-white dark:bg-[#161b22] w-full max-w-4xl rounded-[2rem] shadow-2xl border border-gray-100 dark:border-gray-800 overflow-y-auto max-h-[90vh]">
+      <div className="bg-white dark:bg-[#161b22] w-full max-h-[90vh] max-w-5xl rounded-[2rem] shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden relative flex flex-col">
         
         {/* HEADER */}
         <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/20 sticky top-0 z-10">
@@ -237,7 +235,7 @@ const GestionAcceso: React.FC<GestionAccesoProps> = ({
           </button>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 overflow-y-auto">
           
           {/* ACCESO ACTUAL */}
           <div className="flex items-center justify-between">
@@ -313,14 +311,14 @@ const GestionAcceso: React.FC<GestionAccesoProps> = ({
                     className={`p-4 rounded-2xl border-2 transition-all text-left ${
                       isActive 
                         ? colorMap[accion.color]
-                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                        : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 text-gray-500 dark:text-gray-200'
                     }`}
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <Icon size={18} />
                       <span className="text-xs font-black uppercase">{accion.label}</span>
                     </div>
-                    <p className="text-[10px] text-gray-500 leading-tight">{accion.description}</p>
+                    <p className="text-[10px] text-gray-400 dark:text-white leading-tight">{accion.description}</p>
                     {accion.requiereDias && (
                       <p className="text-[9px] text-gray-400 mt-1">___ días</p>
                     )}

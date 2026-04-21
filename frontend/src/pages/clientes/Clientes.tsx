@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { 
-  Users, Settings,UserPlus, History,Search, FilterX, Eye, Lock, Unlock, Copy,UserCheck,UserX,UserCog,Rocket,AlertTriangle,MoreHorizontal,ShieldCheck,Ban
+  Users, Settings, History,Search, FilterX, Eye, Lock, Unlock, Copy,UserCheck,UserX,UserCog,Rocket,AlertTriangle,MoreHorizontal,ShieldCheck,Ban
 } from 'lucide-react';
 import IconButton from '../../components/ui/IconButton';
 import ModalRegistrados from '../../components/Clientes/ModalRegistrados'; 
@@ -44,7 +44,7 @@ const Clientes = () => {
       subdominio: 'xyzstore',
       estado: 'REGISTRADO',
       estadoAcceso: 'BLOQUEADO_PAGO', 
-      plan: 'Emprendedor',
+      plan: 'Estandar',
       suscripcion: 'Por vencer',
       fechaRegistro: '2026-03-18', 
       fechaInicio: '22/05/2025',
@@ -58,6 +58,12 @@ const Clientes = () => {
       observaciones: 'Cliente con retraso en pagos'
     }
   ]);
+  // Estados de filtros
+  const [filtroEstadoCliente, setFiltroEstadoCliente] = useState('');
+  const [filtroPlan, setFiltroPlan] = useState('');
+  const [filtroAcceso, setFiltroAcceso] = useState('');
+  const [filtroCiclo, setFiltroCiclo] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   // Estado para controlar el Modal de Registrados
   const [isRegistradosModalOpen, setIsRegistradosModalOpen] = useState(false);
   //refrescar
@@ -193,18 +199,60 @@ const Clientes = () => {
       }
     }
   };
+// Filtros
 
   document.addEventListener('click', handleClickOutside);
-  return () => {
-    document.removeEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [menuAbiertoId]);
+    // Clientes filtrados
+  const clientesFiltrados = clientesData.filter(cliente => {
+    // Filtro por estado del cliente
+    if (filtroEstadoCliente && cliente.estado !== filtroEstadoCliente) {
+      return false;
+    }
+    // Filtro por plan
+    if (filtroPlan && cliente.plan !== filtroPlan) {
+      return false;
+    }
+    // Filtro por estado de acceso
+    if (filtroAcceso && cliente.estadoAcceso !== filtroAcceso) {
+      return false;
+    }
+    // Filtro por ciclo
+    if (filtroCiclo && cliente.ciclo !== filtroCiclo) {
+      return false;
+    }
+    // Filtro por búsqueda (nombre, ruc, nombreComercial, alias, subdominio)
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      return (
+        cliente.nombre.toLowerCase().includes(term) ||
+        cliente.ruc.includes(term) ||
+        cliente.nombreComercial.toLowerCase().includes(term) ||
+        cliente.alias.toLowerCase().includes(term) ||
+        cliente.subdominio.toLowerCase().includes(term) ||
+        cliente.emailAdmin.toLowerCase().includes(term) ||
+        cliente.contactoPrincipal.toLowerCase().includes(term)
+      );
+    }
+    return true;
+  });
+  // Limpiar todos los filtros
+  const limpiarFiltros = () => {
+    setFiltroEstadoCliente('');
+    setFiltroPlan('');
+    setFiltroAcceso('');
+    setFiltroCiclo('');
+    setSearchTerm('');
   };
-}, [menuAbiertoId]);
   return (
     <>
-    <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8 bg-gray-50 dark:bg-[#0f1115] min-h-screen transition-colors duration-300">
+    <div className="max-w-7xl mx-auto p-6 lg:p-10 space-y-8 bg-gray-50 dark:bg-[#0f1115] min-h-screen transition-colors duration-300">
       
       {/* 1. ENCABEZADO SUPERIOR Y 2. SUBTÍTULO */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
         <div>
           <h1 className="text-3xl lg:text-4xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-3">
             <Users className="text-blue-600" size={32} />
@@ -235,11 +283,11 @@ const Clientes = () => {
       {/* 3. SECCIÓN: RESUMEN GENERAL (ESTILO BENTO) */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
         {/* Total clientes */}
-        <div className="bg-white dark:bg-[#161b22] p-6 rounded-[2rem] border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col items-center justify-center text-center group hover:scale-105 transition-transform duration-300">
+        <div className="bg-white dark:bg-[#161b22] p-6 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col items-center justify-center text-center group hover:scale-105 transition-transform duration-300">
           <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded-full mb-3">
             <Users size={20} className="text-gray-900 dark:text-white" />
           </div>
-          <p className="text-2xl font-black text-gray-900 dark:text-white">245</p>
+          <p className="text-2xl font-black text-gray-900 dark:text-white">{clientesData.length}</p>
           <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-1">Total clientes</p>
         </div>
 
@@ -248,7 +296,7 @@ const Clientes = () => {
           <div className="bg-emerald-50 dark:bg-emerald-500/10 p-3 rounded-full mb-3">
             <UserCheck size={20} className="text-emerald-500" />
           </div>
-          <p className="text-2xl font-black text-emerald-500">210</p>
+          <p className="text-2xl font-black text-emerald-500">{clientesData.filter(c => c.estado === 'HABILITADO').length}</p>
           <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-1">Activos</p>
         </div>
 
@@ -257,7 +305,9 @@ const Clientes = () => {
           <div className="bg-rose-50 dark:bg-rose-500/10 p-3 rounded-full mb-3">
             <UserX size={20} className="text-rose-500" />
           </div>
-          <p className="text-2xl font-black text-rose-500">12</p>
+            <p className="text-2xl font-black text-rose-500">
+              {clientesData.filter(c => c.estadoAcceso === 'BLOQUEADO_PAGO' || c.estadoAcceso === 'BLOQUEADO_MANUAL').length}
+            </p>
           <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-1">Bloqueados</p>
         </div>
 
@@ -270,7 +320,7 @@ const Clientes = () => {
             <UserCog size={20} className="text-blue-500" />
           </div>
             <p className="text-2xl font-black text-blue-500">
-              {clientesData.filter(c => c.estado === 'REGISTRADO').length} {/* ← Dinámico */}
+              {clientesData.filter(c => c.estado === 'REGISTRADO').length} 
             </p>
           <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-1">
             Registrados <span className="text-blue-500 underline ml-1">[Revisar]</span>
@@ -282,7 +332,7 @@ const Clientes = () => {
           <div className="bg-amber-50 dark:bg-amber-500/10 p-3 rounded-full mb-3">
             <Rocket size={20} className="text-amber-500" />
           </div>
-          <p className="text-2xl font-black text-amber-500">18</p>
+          <p className="text-2xl font-black text-amber-500">{clientesData.filter(c => c.estadoOnboarding === 'PENDIENTE').length}</p>
           <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-1">En Onboarding</p>
         </div>
 
@@ -291,7 +341,7 @@ const Clientes = () => {
           <div className="bg-purple-50 dark:bg-purple-500/10 p-3 rounded-full mb-3">
             <AlertTriangle size={20} className="text-purple-500" />
           </div>
-          <p className="text-2xl font-black text-purple-500">9</p>
+          <p className="text-2xl font-black text-purple-500">{clientesData.filter(c => c.suscripcion === 'Por vencer').length}</p>
           <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-1">Por vencer</p>
         </div>
       </div>
@@ -307,6 +357,8 @@ const Clientes = () => {
               <input 
                 type="text" 
                 placeholder="Buscar por razón social, nombre comercial, RUC, alias o contacto" 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-12 pr-6 py-4 bg-gray-50 dark:bg-gray-800 border-none rounded-2xl text-sm font-bold dark:text-white focus:ring-4 focus:ring-blue-500/10 transition-all outline-none"
               />
             </div>
@@ -314,20 +366,28 @@ const Clientes = () => {
           
           {/* Filtros */}
           <div className="lg:col-span-6 grid grid-cols-4 gap-3">
-            <select className="w-full px-4 py-4 bg-gray-50 dark:bg-gray-800 rounded-2xl text-[10px] font-black uppercase text-gray-500 dark:text-gray-300 appearance-none cursor-pointer">
+            <select className="w-full px-4 py-4 bg-gray-50 dark:bg-gray-800 rounded-2xl text-[10px] font-black uppercase text-gray-500 dark:text-gray-300 appearance-none cursor-pointer"
+            value={filtroEstadoCliente}
+            onChange={(e) => setFiltroEstadoCliente(e.target.value)} >
               <option value="">Estado cliente ▼</option>
               <option value="HABILITADO">Habilitado</option>
               <option value="REGISTRADO">Registrado</option>
+              <option value="OBSERVADO">Observado</option>
               <option value="SUSPENDIDO">Suspendido</option>
               <option value="CANCELADO">Cancelado</option>
             </select>
-            <select className="w-full px-4 py-4 bg-gray-50 dark:bg-gray-800 rounded-2xl text-[10px] font-black uppercase text-gray-500 dark:text-gray-300 appearance-none cursor-pointer">
+            <select className="w-full px-4 py-4 bg-gray-50 dark:bg-gray-800 rounded-2xl text-[10px] font-black uppercase text-gray-500 dark:text-gray-300 appearance-none cursor-pointer" 
+            value={filtroPlan}
+            onChange={(e) => setFiltroPlan(e.target.value)}>
               <option value="">Plan ▼</option>
               <option value="Pro">Pro</option>
               <option value="Emprendedor">Emprendedor</option>
               <option value="Empresarial">Empresarial</option>
+              <option value="Estandar">Estandar</option>
             </select>
-            <select className="w-full px-4 py-4 bg-gray-50 dark:bg-gray-800 rounded-2xl text-[10px] font-black uppercase text-gray-500 dark:text-gray-300 appearance-none cursor-pointer">
+            <select className="w-full px-4 py-4 bg-gray-50 dark:bg-gray-800 rounded-2xl text-[10px] font-black uppercase text-gray-500 dark:text-gray-300 appearance-none cursor-pointer"
+            value={filtroAcceso}
+            onChange={(e) => setFiltroAcceso(e.target.value)}>
               <option value="">Acceso ▼</option>
               <option value="ACTIVO">Activo</option>
               <option value="BLOQUEADO_PAGO">Bloqueado pago</option>
@@ -335,7 +395,9 @@ const Clientes = () => {
               <option value="CORTE_TECNICO">Corte técnico</option>
               <option value="DESACTIVADO">Desactivado</option>
             </select>
-            <select className="w-full px-4 py-4 bg-gray-50 dark:bg-gray-800 rounded-2xl text-[10px] font-black uppercase text-gray-500 dark:text-gray-300 appearance-none cursor-pointer">
+            <select className="w-full px-4 py-4 bg-gray-50 dark:bg-gray-800 rounded-2xl text-[10px] font-black uppercase text-gray-500 dark:text-gray-300 appearance-none cursor-pointer"
+            value={filtroCiclo}
+            onChange={(e) => setFiltroCiclo(e.target.value)}>
               <option value="">Ciclo ▼</option>
               <option value="MENSUAL">Mensual</option>
               <option value="ANUAL">Anual</option>
@@ -344,7 +406,8 @@ const Clientes = () => {
 
           {/* Limpiar */}
           <div className="lg:col-span-1">
-            <button className="w-full flex items-center justify-center gap-2 py-4 text-[10px] font-black uppercase text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-2xl transition-all">
+            <button className="w-full flex items-center justify-center gap-2 py-4 text-[10px] font-black uppercase text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-2xl transition-all"
+             onClick={limpiarFiltros}>
               <FilterX size={16} />
               Limpiar
             </button>
@@ -368,7 +431,7 @@ const Clientes = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50 dark:divide-gray-800 px-4">
-            {clientesData.map((cliente) => (
+            {clientesFiltrados.map((cliente) => (
               <tr key={cliente.ruc} className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-all">
                 {/* Columna Cliente */}
                 <td className="py-6 pl-4 px-4">
@@ -400,6 +463,8 @@ const Clientes = () => {
                       : cliente.estado === 'REGISTRADO'
                       ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600'
                       : cliente.estado === 'SUSPENDIDO'
+                      ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600'
+                      : cliente.estado === 'OBSERVADO'
                       ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600'
                       : cliente.estado === 'CANCELADO'
                       ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-600'
@@ -565,11 +630,11 @@ const Clientes = () => {
         cliente={clienteSeleccionado} 
       />
       <ModalRegistrados
-      isOpen={isRegistradosModalOpen}
-      onClose={() => setIsRegistradosModalOpen(false)}
-      clientesRegistrados={clientesData.filter(c => c.estado === 'REGISTRADO')}
-      onValidarCliente={handleValidarRegistrado}
-      onEliminarCliente={handleEliminarRegistrado}
+        isOpen={isRegistradosModalOpen}
+        onClose={() => setIsRegistradosModalOpen(false)}
+        clientesRegistrados={clientesData.filter(c => c.estado === 'REGISTRADO')}
+        onValidarCliente={handleValidarRegistrado}
+        onEliminarCliente={handleEliminarRegistrado}
       />
       <GestionAcceso 
         isOpen={isAccesoModalOpen} 
