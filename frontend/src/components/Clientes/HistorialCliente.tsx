@@ -1,5 +1,6 @@
-import React from 'react';
+import React, {useRef} from 'react';
 import { X, History, Download, Filter, Calendar, User, Tag, Clock, Smartphone, CreditCard, ShieldCheck, PlusCircle, Edit3 } from 'lucide-react';
+import { useClickOutside } from '../../hooks/useClickOutside';
 
 interface HistorialClienteProps {
   isOpen: boolean;
@@ -8,6 +9,8 @@ interface HistorialClienteProps {
 }
 
 const HistorialCliente: React.FC<HistorialClienteProps> = ({ isOpen, onClose, cliente }) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+  useClickOutside(isOpen, onClose, modalRef);
   if (!isOpen || !cliente) return null;
 
   // Mock de datos basado en tu wireframe
@@ -23,7 +26,7 @@ const HistorialCliente: React.FC<HistorialClienteProps> = ({ isOpen, onClose, cl
 
   return (
     <div className="fixed inset-0 z-[170] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-white dark:bg-[#161b22] w-full max-w-5xl rounded-[2.5rem] shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden flex flex-col max-h-[90vh]">
+      <div ref={modalRef} className="bg-white dark:bg-[#161b22] w-full max-w-5xl rounded-[2.5rem] shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden flex flex-col max-h-[90vh]">
         
         {/* Header con Exportar */}
         <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/20">

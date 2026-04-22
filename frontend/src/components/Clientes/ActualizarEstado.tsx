@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { X, CheckCircle2, AlertCircle, Trash2, Info, Receipt, Ban, Eye } from 'lucide-react';
+import React, { useState, useEffect,useRef } from 'react';
+import { X, CheckCircle2, AlertCircle, Trash2, Info, Receipt, Ban, Eye, Save } from 'lucide-react';
+import { useClickOutside } from '../../hooks/useClickOutside';
 
 interface ActualizarEstadoProps {
   isOpen: boolean;
@@ -8,15 +9,15 @@ interface ActualizarEstadoProps {
   onEstadoActualizado?: (ruc: string, nuevoEstado: string) => void;
 }
 
-// Tipos de estado admitidos
-type EstadoKey = 'REGISTRADO' | 'HABILITADO' | 'SUSPENDIDO' | 'OBSERVADO' | 'CANCELADO';
+type EstadoKey = 'REGISTRADO' | 'HABILITADO' | 'SUSPENDIDO' | 'OBSERVADO' | 'DE_BAJA';
 
 const ActualizarEstado: React.FC<ActualizarEstadoProps> = ({ isOpen, onClose, cliente, onEstadoActualizado }) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+  useClickOutside(isOpen, onClose, modalRef);
   const [motivo, setMotivo] = useState('');
   const [voucher, setVoucher] = useState('');
   const [nuevoEstado, setNuevoEstado] = useState<EstadoKey | null>(null);
 
-  // Reset al abrir el modal
   useEffect(() => {
     if (isOpen) {
       setMotivo('');
@@ -27,154 +28,140 @@ const ActualizarEstado: React.FC<ActualizarEstadoProps> = ({ isOpen, onClose, cl
 
   if (!isOpen || !cliente) return null;
 
-  // Mapeo de estilos para el estado actual (viene del cliente)
   const estadosConfig: Record<string, any> = {
-    REGISTRADO: { label: 'Registrado', color: 'bg-blue-100 text-blue-600 border-blue-200', icon: '🔵' },
-    HABILITADO: { label: 'Habilitado', color: 'bg-emerald-100 text-emerald-600 border-emerald-200', icon: '🟢' },
-    SUSPENDIDO: { label: 'Suspendido', color: 'bg-amber-100 text-amber-600 border-amber-200', icon: '🟠' },
-    OBSERVADO: { label: 'Observado', color: 'bg-blue-100 text-blue-600 border-blue-200', icon: '🔍' },
-    CANCELADO: { label: 'Cancelado', color: 'bg-rose-100 text-rose-600 border-rose-200', icon: '🔴' },
+    REGISTRADO: { label: 'Registrado', color: 'bg-blue-500/10 text-blue-500 border-blue-500/20', icon: '🔵' },
+    HABILITADO: { label: 'Habilitado', color: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20', icon: '🟢' },
+    SUSPENDIDO: { label: 'Suspendido', color: 'bg-amber-500/10 text-amber-500 border-amber-500/20', icon: '🟠' },
+    OBSERVADO: { label: 'Observado', color: 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20', icon: '🔍' },
+    DE_BAJA: { label: 'De Baja', color: 'bg-rose-500/10 text-rose-500 border-rose-500/20', icon: '🔴' },
   };
 
   const estadoActual: EstadoKey = cliente.estado || 'HABILITADO';
 
   const handleConfirmar = () => {
-    if (!nuevoEstado) return alert("Selecciona una acción primero");
-    if (!motivo) return alert("El motivo es obligatorio");
-    if (nuevoEstado === 'HABILITADO' && !voucher.trim()) {
-      return alert("⚠️ Para HABILITAR un cliente, el número de voucher es obligatorio");
-    }
-    if (onEstadoActualizado && cliente.ruc) {
-      onEstadoActualizado(cliente.ruc, nuevoEstado);
-    }
-    
-    // Mostrar feedback y cerrar
-    console.log(`✅ Cambio exitoso: ${cliente.nombre} → ${nuevoEstado}`);
-    console.log(`📝 Motivo: ${motivo}`);
-    if (voucher) console.log(`🎫 Voucher: ${voucher}`);
-    
+    if (!nuevoEstado) return;
+    if (onEstadoActualizado) onEstadoActualizado(cliente.ruc, nuevoEstado);
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 z-[160] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-[#161b22] w-full max-w-lg rounded-[2.5rem] shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden">
+    <div className="fixed inset-0 z-[160] flex items-center justify-center p-4 bg-black/50 backdrop-blur-md animate-in fade-in duration-300">
+      <div ref={modalRef} className="bg-white dark:bg-[#0d1117] w-full max-w-lg rounded-[3rem] shadow-[0_32px_64px_-15px_rgba(0,0,0,0.5)] border border-gray-100 dark:border-gray-800 overflow-hidden flex flex-col">
         
-        {/* Header */}
-        <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/20">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-amber-500 rounded-xl text-white shadow-lg shadow-amber-500/20">
-              <AlertCircle size={20} />
+        {/* HEADER PREMIUM */}
+        <div className="p-8 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-[#161b22]/50">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-amber-500 rounded-2xl text-white shadow-lg shadow-amber-500/20">
+              <AlertCircle size={24} />
             </div>
             <div>
-              <h2 className="text-lg font-black dark:text-white uppercase tracking-tight">Actualizar Estado</h2>
-              <p className="text-[10px] text-gray-500 font-bold uppercase">{cliente.nombre}</p>
+              <h2 className="text-xl font-black dark:text-white tracking-tighter uppercase">Cambiar estado</h2>
+              <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">{cliente.nombre}</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl transition-colors">
-            <X size={18} className="dark:text-gray-400" />
+          <button onClick={onClose} className="p-2 hover:bg-rose-500/10 text-gray-400 hover:text-rose-500 rounded-xl transition-all">
+            <X size={20} />
           </button>
         </div>
 
         <div className="p-8 space-y-8">
           {/* VISUALIZACIÓN DEL ESTADO ACTUAL */}
-          <div className="text-center space-y-2">
-            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Estado Actual</span>
-            <div className="flex justify-center">
-              <span className={`px-6 py-2 rounded-full text-xs font-black uppercase border transition-all ${estadosConfig[estadoActual]?.color || estadosConfig.REGISTRADO.color}`}>
-                {estadosConfig[estadoActual]?.icon || '⚪'} {estadosConfig[estadoActual]?.label || estadoActual}
-              </span>
+          <div className="flex flex-col items-center py-6 bg-gray-50/50 dark:bg-[#161b22]/30 rounded-[2.5rem] border border-gray-100 dark:border-gray-800/50">
+            <span className="text-[9px] font-black text-gray-400 uppercase tracking-[0.3em] mb-3">Situación Actual</span>
+            <div className={`px-6 py-2 rounded-full text-xs font-black uppercase border shadow-sm ${estadosConfig[estadoActual]?.color}`}>
+              {estadosConfig[estadoActual]?.icon} {estadosConfig[estadoActual]?.label}
             </div>
-            <p className="text-[11px] text-gray-500 font-medium px-4 leading-tight italic">
-              Indica en qué etapa del ciclo de vida se encuentra la cuenta.
-            </p>
           </div>
 
-          {/* ACCIONES - FUNCIONAMIENTO REAL */}
-          <div className="grid grid-cols-1 gap-4">
+          {/* SELECTORES DE ACCIÓN */}
+          <div className="space-y-4">
+            <label className="text-[10px] font-black text-gray-400 uppercase ml-4 tracking-widest">Seleccionar nueva acción</label>
             
-            {/* Botón Habilitar (Con input de Voucher) */}
+            {/* Habilitar - Card Grande */}
             <button 
               onClick={() => setNuevoEstado('HABILITADO')}
-              className={`p-4 rounded-2xl border transition-all space-y-4 text-left ${nuevoEstado === 'HABILITADO' ? 'bg-emerald-50 border-emerald-500 ring-1 ring-emerald-500' : 'bg-emerald-50/30 border-emerald-100 dark:bg-emerald-500/5 dark:border-emerald-500/10 hover:border-emerald-300'}`}
+              className={`w-full p-5 rounded-[2rem] border-2 transition-all flex flex-col gap-3 group ${
+                nuevoEstado === 'HABILITADO' 
+                ? 'bg-emerald-500/10 border-emerald-500 shadow-lg shadow-emerald-500/10' 
+                : 'bg-white dark:bg-[#161b22] border-transparent hover:border-emerald-500/30'
+              }`}
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-emerald-600">
-                  <CheckCircle2 size={18} />
-                  <span className="text-xs font-black uppercase tracking-tight">Habilitar Cliente</span>
+              <div className="flex items-center justify-between w-full">
+                <div className={`flex items-center gap-3 ${nuevoEstado === 'HABILITADO' ? 'text-emerald-500' : 'text-gray-400 group-hover:text-emerald-500'}`}>
+                  <CheckCircle2 size={22} />
+                  <span className="text-xs font-black uppercase tracking-tight">Habilitar y Activar Acceso</span>
                 </div>
                 {nuevoEstado === 'HABILITADO' && (
-                  <div className="relative animate-in slide-in-from-right-2" onClick={(e) => e.stopPropagation()}>
-                    <Receipt size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-400" />
+                  <div className="flex items-center gap-2 animate-in zoom-in-95" onClick={(e) => e.stopPropagation()}>
+                    <Receipt size={14} className="text-emerald-500" />
                     <input 
-                      type="text" 
-                      placeholder="Voucher N.°"
-                      className="pl-8 pr-4 py-2 bg-white dark:bg-gray-900 border-none rounded-lg text-[10px] font-bold outline-none focus:ring-2 focus:ring-emerald-500/20 w-32 shadow-sm"
+                      autoFocus
+                      placeholder="N° Voucher"
+                      className="w-28 px-3 py-2 bg-white dark:bg-gray-800 rounded-xl text-[10px] text-gray-400 dark:text-gray-100 font-black border border-emerald-500/30 outline-none focus:ring-2 focus:ring-emerald-500/20"
                       value={voucher}
                       onChange={(e) => setVoucher(e.target.value)}
                     />
                   </div>
                 )}
               </div>
-              <p className="text-[10px] text-emerald-600/70 font-medium italic leading-tight">
-                * Activa el acceso del cliente (requiere verificación de pago).
-              </p>
             </button>
 
-            {/* Fila de Suspendido, Observar y Dar de baja (ahora 3 columnas) */}
+            {/* Grid de acciones secundarias */}
             <div className="grid grid-cols-3 gap-3">
-              <button 
-                onClick={() => setNuevoEstado('SUSPENDIDO')}
-                className={`flex items-center justify-center gap-2 p-4 rounded-2xl border transition-all group ${nuevoEstado === 'SUSPENDIDO' ? 'bg-amber-50 border-amber-500 ring-1 ring-amber-500 text-amber-600' : 'bg-gray-50 dark:bg-gray-800/50 border-transparent text-gray-500 hover:border-amber-200 hover:text-amber-600'}`}
-              >
-                <Ban size={18} className={nuevoEstado === 'SUSPENDIDO' ? '' : 'group-hover:scale-110 transition-transform'} />
-                <span className="text-[10px] font-black uppercase">Suspender</span>
-              </button>
-
-              {/* NUEVO BOTÓN OBSERVAR */}
-              <button 
-                onClick={() => setNuevoEstado('OBSERVADO')}
-                className={`flex items-center justify-center gap-2 p-4 rounded-2xl border transition-all group ${nuevoEstado === 'OBSERVADO' ? 'bg-blue-50 border-blue-500 ring-1 ring-blue-500 text-blue-600' : 'bg-gray-50 dark:bg-gray-800/50 border-transparent text-gray-500 hover:border-blue-200 hover:text-blue-600'}`}
-              >
-                <Eye size={18} className={nuevoEstado === 'OBSERVADO' ? '' : 'group-hover:scale-110 transition-transform'} />
-                <span className="text-[10px] font-black uppercase">Observar</span>
-              </button>
-
-              <button 
-                onClick={() => setNuevoEstado('CANCELADO')}
-                className={`flex items-center justify-center gap-2 p-4 rounded-2xl border transition-all group ${nuevoEstado === 'CANCELADO' ? 'bg-rose-50 border-rose-500 ring-1 ring-rose-500 text-rose-600' : 'bg-gray-50 dark:bg-gray-800/50 border-transparent text-gray-500 hover:border-rose-200 hover:text-rose-600'}`}
-              >
-                <Trash2 size={18} className={nuevoEstado === 'CANCELADO' ? '' : 'group-hover:scale-110 transition-transform'} />
-                <span className="text-[10px] font-black uppercase">Dar de baja</span> {/* ← CAMBIADO: "Cancelar" → "Dar de baja" */}
-              </button>
+              {[
+                { id: 'SUSPENDIDO', icon: Ban, label: 'Suspender', color: 'amber' },
+                { id: 'OBSERVADO', icon: Eye, label: 'Observar', color: 'indigo' },
+                { id: 'DE_BAJA', icon: Trash2, label: 'Dar de baja', color: 'rose' }
+              ].map((item) => (
+                <button 
+                  key={item.id}
+                  onClick={() => setNuevoEstado(item.id as EstadoKey)}
+                  className={`flex flex-col items-center justify-center gap-3 p-5 rounded-[2rem] border-2 transition-all group ${
+                    nuevoEstado === item.id 
+                    ? `bg-${item.color}-500/10 border-${item.color}-500 text-${item.color}-500 shadow-lg shadow-${item.color}-500/10` 
+                    : 'bg-white dark:bg-[#161b22] border-transparent text-gray-400 hover:border-gray-200 dark:hover:border-gray-700'
+                  }`}
+                >
+                  <item.icon size={20} className={nuevoEstado === item.id ? 'scale-110' : 'group-hover:scale-110 transition-transform'} />
+                  <span className="text-[9px] font-black uppercase tracking-tighter">{item.label}</span>
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* MOTIVO (OBLIGATORIO) */}
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-gray-400 ml-2 uppercase flex items-center gap-2">
-              <Info size={14} /> Motivo del cambio <span className="text-rose-500">* Obligatorio</span>
-            </label>
+          {/* MOTIVO OBLIGATORIO */}
+          <div className="space-y-3">
+            <div className="flex justify-between items-center ml-4">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                <Info size={14} /> Motivo del cambio
+              </label>
+              <span className="text-[9px] font-black text-rose-500 uppercase tracking-tighter">* Requerido</span>
+            </div>
             <textarea 
-              className="w-full px-5 py-4 bg-gray-50 dark:bg-gray-900 border-none rounded-2xl text-sm font-medium dark:text-white outline-none min-h-[80px] focus:ring-2 focus:ring-amber-500/20 transition-all border border-transparent focus:border-amber-100"
-              placeholder="Escriba aquí por qué realiza este cambio..."
+              className="w-full px-6 py-4 bg-gray-50 dark:bg-gray-800/40 border-2 border-transparent focus:border-amber-500/20 rounded-[2rem] text-sm font-medium dark:text-gray-200 outline-none min-h-[100px] transition-all"
+              placeholder="Escriba el motivo técnico o administrativo del cambio..."
               value={motivo}
               onChange={(e) => setMotivo(e.target.value)}
-            ></textarea>
+            />
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="p-6 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-100 dark:border-gray-800 flex justify-end gap-3">
-          <button onClick={onClose} className="px-6 py-3 text-[10px] font-black uppercase text-gray-500 hover:text-gray-700 transition-all">
-            Descartar
+        {/* FOOTER */}
+        <div className="p-8 bg-gray-50 dark:bg-[#161b22]/80 border-t border-gray-100 dark:border-gray-800 flex justify-end gap-4">
+          <button onClick={onClose} className="px-6 py-4 text-[10px] font-black uppercase text-gray-400 hover:text-gray-600 transition-all">
+            Cancelar
           </button>
           <button 
-            disabled={!nuevoEstado || !motivo}
+            disabled={!nuevoEstado || !motivo || (nuevoEstado === 'HABILITADO' && !voucher)}
             onClick={handleConfirmar}
-            className={`px-10 py-4 rounded-2xl text-[10px] font-black uppercase transition-all shadow-xl ${!nuevoEstado || !motivo ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-amber-500 text-white hover:bg-amber-600 shadow-amber-500/25 active:scale-95'}`}
+            className={`px-10 py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-3 ${
+              !nuevoEstado || !motivo || (nuevoEstado === 'HABILITADO' && !voucher)
+              ? 'bg-gray-200 dark:bg-gray-800 text-gray-400 cursor-not-allowed' 
+              : 'bg-amber-500 hover:bg-amber-600 text-white shadow-xl shadow-amber-500/20 hover:-translate-y-1 active:scale-95'
+            }`}
           >
-            Confirmar {nuevoEstado ? nuevoEstado : 'Cambio'}
+            <Save size={18} />
+            Confirmar Cambio
           </button>
         </div>
       </div>

@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useRef } from 'react';
 import { 
   X, Lock, Unlock, Clock,Settings, CheckCircle2, FileText, CreditCard, Calendar, AlertCircle, Ban, 
 } from 'lucide-react';
+import { useClickOutside } from '../../hooks/useClickOutside';
 
 interface GestionAccesoProps {
   isOpen: boolean;
@@ -26,6 +27,8 @@ const GestionAcceso: React.FC<GestionAccesoProps> = ({
   onAccesoActualizado, 
   cliente 
 }) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+  useClickOutside(isOpen, onClose, modalRef);
   const [justificacion, setJustificacion] = useState('');
   const [prorrogaDias, setProrrogaDias] = useState('');
   const [voucher, setVoucher] = useState('');
@@ -39,7 +42,6 @@ const GestionAcceso: React.FC<GestionAccesoProps> = ({
   }, [cliente]);
 
   if (!isOpen || !cliente) return null;
-
   const handleClose = () => {
     setJustificacion('');
     setProrrogaDias('');
@@ -215,7 +217,7 @@ const GestionAcceso: React.FC<GestionAccesoProps> = ({
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
-      <div className="bg-white dark:bg-[#161b22] w-full max-h-[90vh] max-w-5xl rounded-[2rem] shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden relative flex flex-col">
+      <div ref={modalRef} className="bg-white dark:bg-[#161b22] w-full max-h-[90vh] max-w-5xl rounded-[2rem] shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden relative flex flex-col">
         
         {/* HEADER */}
         <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/20 sticky top-0 z-10">

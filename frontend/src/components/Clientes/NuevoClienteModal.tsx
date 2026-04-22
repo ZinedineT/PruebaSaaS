@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { X, Mail,Wallet, BookOpenTextIcon,FileEdit, Building2, User, ChevronRight, ChevronLeft, CheckCircle2, Copy, QrCode, Search } from 'lucide-react';
-
+import { useClickOutside } from '../../hooks/useClickOutside';
 interface NuevoClienteModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
 const NuevoClienteModal: React.FC<NuevoClienteModalProps> = ({ isOpen, onClose }) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+  useClickOutside(isOpen, onClose, modalRef);
   const [step, setStep] = useState(1);
   const [metodoPago, setMetodoPago] = useState<'transferencia' | 'yape'>('transferencia');
 
@@ -17,7 +19,7 @@ const NuevoClienteModal: React.FC<NuevoClienteModalProps> = ({ isOpen, onClose }
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-white dark:bg-[#161b22] w-full max-w-2xl rounded-[2.5rem] shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden flex flex-col max-h-[95vh]">
+      <div ref={modalRef} className="bg-white dark:bg-[#161b22] w-full max-w-2xl rounded-[2.5rem] shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden flex flex-col max-h-[95vh]">
         
         {/* HEADER CON STEPPER INDICATOR */}
         <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/20">

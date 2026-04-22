@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, Save, Building2, User, CreditCard, Lock, FileText, ExternalLink } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useClickOutside } from '../../hooks/useClickOutside';
 
 interface EditarClienteProps {
   isOpen: boolean;
@@ -11,6 +12,8 @@ interface EditarClienteProps {
 
 const EditarCliente: React.FC<EditarClienteProps> = ({ isOpen, onClose, cliente, onClienteActualizado }) => {
   const navigate = useNavigate();
+  const modalRef = useRef<HTMLDivElement>(null);
+  useClickOutside(isOpen, onClose, modalRef);
   
   // MANTENER LA MISMA ESTRUCTURA ORIGINAL del formData
   const [formData, setFormData] = useState({
@@ -116,7 +119,7 @@ const EditarCliente: React.FC<EditarClienteProps> = ({ isOpen, onClose, cliente,
 
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-white dark:bg-[#161b22] w-full max-w-5xl rounded-[2rem] shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden flex flex-col max-h-[90vh]">
+      <div ref={modalRef} className="bg-white dark:bg-[#161b22] w-full max-w-5xl rounded-[2rem] shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden flex flex-col max-h-[90vh]">
         
         {/* HEADER - Estilo Premium */}
         <div className="p-8 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-[#161b22]/50">

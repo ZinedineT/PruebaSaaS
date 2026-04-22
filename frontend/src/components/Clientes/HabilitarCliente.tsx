@@ -2,9 +2,7 @@
 
 import React, { useState } from 'react';
 import { 
-  X, CheckCircle2, Eye, Ban, Building2, User, 
-  CreditCard, Calendar, Hash, FileText, Pencil,
-  AlertCircle, Shield
+  X, CheckCircle2, Eye, Ban, Building2, User, CreditCard, Hash, FileText, Pencil,AlertCircle, Shield
 } from 'lucide-react';
 
 interface HabilitarClienteProps {

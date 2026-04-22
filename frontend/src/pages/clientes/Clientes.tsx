@@ -274,7 +274,7 @@ const Clientes = () => {
           onClick={() => setIsNuevoModalOpen(true)}
           className="flex items-center justify-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black shadow-xl shadow-blue-500/25 transition-all hover:-translate-y-1 active:scale-95 text-sm uppercase"
         >
-          <UserPlus size={20} />
+          <Users size={20} />
           Nuevo cliente
         </button> */}
         </div>
@@ -300,15 +300,25 @@ const Clientes = () => {
           <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-1">Activos</p>
         </div>
 
-        {/* Bloqueados */}
+        {/* Bloqueados con desglose */}
         <div className="bg-white dark:bg-[#161b22] p-6 rounded-[2rem] border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col items-center justify-center text-center group hover:scale-105 transition-transform duration-300">
           <div className="bg-rose-50 dark:bg-rose-500/10 p-3 rounded-full mb-3">
             <UserX size={20} className="text-rose-500" />
           </div>
-            <p className="text-2xl font-black text-rose-500">
-              {clientesData.filter(c => c.estadoAcceso === 'BLOQUEADO_PAGO' || c.estadoAcceso === 'BLOQUEADO_MANUAL').length}
-            </p>
+          <p className="text-2xl font-black text-rose-500">
+            {clientesData.filter(c => 
+              c.estadoAcceso === 'BLOQUEADO_PAGO' || c.estadoAcceso === 'BLOQUEADO_MANUAL').length}
+          </p>
           <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-1">Bloqueados</p>
+          {/* Desglose */}
+          <div className="flex gap-2 mt-2">
+            <span className="text-[8px] font-bold text-rose-400 bg-rose-50 dark:bg-rose-500/10 px-2 py-0.5 rounded-full">
+              Pago: {clientesData.filter(c => c.estadoAcceso === 'BLOQUEADO_PAGO').length}
+            </span>
+            <span className="text-[8px] font-bold text-orange-400 bg-orange-50 dark:bg-orange-500/10 px-2 py-0.5 rounded-full">
+              Manual: {clientesData.filter(c => c.estadoAcceso === 'BLOQUEADO_MANUAL').length}
+            </span>
+          </div>
         </div>
 
         {/* Registrados - BOTÓN CON [REVISAR] */}
@@ -352,7 +362,7 @@ const Clientes = () => {
           {/* Búsqueda */}
           <div className="lg:col-span-5 space-y-2">
             <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Buscar:</label>
-            <div className="relative">
+            <div className="relative">https://www.futbolred.com/liga-de-espana/en-vivo-minuto-a-minuto-partido-levante-vs-sevilla/2572261
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
               <input 
                 type="text" 
@@ -374,7 +384,7 @@ const Clientes = () => {
               <option value="REGISTRADO">Registrado</option>
               <option value="OBSERVADO">Observado</option>
               <option value="SUSPENDIDO">Suspendido</option>
-              <option value="CANCELADO">Cancelado</option>
+              <option value="DE_BAJA">De Baja</option>
             </select>
             <select className="w-full px-4 py-4 bg-gray-50 dark:bg-gray-800 rounded-2xl text-[10px] font-black uppercase text-gray-500 dark:text-gray-300 appearance-none cursor-pointer" 
             value={filtroPlan}
@@ -382,7 +392,7 @@ const Clientes = () => {
               <option value="">Plan ▼</option>
               <option value="Pro">Pro</option>
               <option value="Emprendedor">Emprendedor</option>
-              <option value="Empresarial">Empresarial</option>
+              <option value="Profesional">Profesional</option>
               <option value="Estandar">Estandar</option>
             </select>
             <select className="w-full px-4 py-4 bg-gray-50 dark:bg-gray-800 rounded-2xl text-[10px] font-black uppercase text-gray-500 dark:text-gray-300 appearance-none cursor-pointer"
@@ -466,7 +476,7 @@ const Clientes = () => {
                       ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600'
                       : cliente.estado === 'OBSERVADO'
                       ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600'
-                      : cliente.estado === 'CANCELADO'
+                      : cliente.estado === 'DE_BAJA'
                       ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-600'
                       : 'bg-gray-100 dark:bg-gray-800 text-gray-600'
                   }`}>
@@ -541,8 +551,8 @@ const Clientes = () => {
                 
                 {/* Columna Registrado */}
                 <td className="py-6 px-4">
-                  <p className="text-xs font-bold dark:text-gray-400">
-                    {cliente.fechaRegistro || '2026-03-15'}
+                  <p className="text-[9px] font-bold dark:text-gray-400">
+                    {cliente.fechaRegistro }
                   </p>
                 </td>
                 

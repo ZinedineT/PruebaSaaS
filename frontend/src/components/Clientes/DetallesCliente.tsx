@@ -1,8 +1,9 @@
-import React from 'react';
+import React ,{useRef} from 'react';
 import { 
   X, Pencil,  Copy, Mail, Phone, User,  ShieldCheck, Activity, CreditCard, Rocket, Info, History, Building, MapPin, Briefcase,
   CheckCircle, Clock
 } from 'lucide-react';
+import { useClickOutside } from '../../hooks/useClickOutside';
 
 interface DetallesClienteProps {
   isOpen: boolean;
@@ -11,8 +12,10 @@ interface DetallesClienteProps {
 }
 
 const DetallesCliente: React.FC<DetallesClienteProps> = ({ isOpen, onClose, cliente }) => {
-  if (!isOpen || !cliente) return null;
+  const modalRef = useRef<HTMLDivElement>(null);
+  useClickOutside(isOpen, onClose, modalRef);
 
+  if (!isOpen || !cliente) return null;
   // Badge Component para estados
   const StateBadge = ({ icon: Icon, label, value, colorClass }: any) => (
     <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 flex flex-col gap-2">
@@ -42,8 +45,8 @@ const DetallesCliente: React.FC<DetallesClienteProps> = ({ isOpen, onClose, clie
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-      <div className="bg-white dark:bg-[#161b22] w-full max-w-6xl max-h-[90vh] overflow-hidden rounded-[2rem] shadow-2xl border border-gray-100 dark:border-gray-800 relative flex flex-col">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+      <div ref={modalRef} className="bg-white dark:bg-[#161b22] w-full max-w-6xl max-h-[90vh] overflow-hidden rounded-[2rem] shadow-2xl border border-gray-100 dark:border-gray-800 relative flex flex-col">
         
         {/* HEADER */}
         <div className="sticky top-0 bg-white/95 dark:bg-[#161b22]/95 backdrop-blur-md z-10 p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-start">

@@ -127,7 +127,7 @@ const ModalRegistrados: React.FC<ModalRegistradosProps> = ({
                   <option value="">Plan ▼</option>
                   <option value="Profesional">Profesional</option>
                   <option value="Emprendedor">Emprendedor</option>
-                  <option value="Empresarial">Empresarial</option>
+                  <option value="Estandar">Estandar</option>
                 </select>
               </div>
               <div className="md:col-span-3">
