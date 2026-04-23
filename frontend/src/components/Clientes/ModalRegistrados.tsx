@@ -27,6 +27,8 @@ interface ModalRegistradosProps {
   clientesRegistrados: ClienteRegistrado[];
   onValidarCliente: (clienteId: string) => void;
   onEliminarCliente: (clienteId: string) => void;
+  onObservarCliente?: (clienteId: string, observaciones: string) => void;
+  onRechazarCliente?: (clienteId: string, observaciones: string) => void;
 }
 
 const ModalRegistrados: React.FC<ModalRegistradosProps> = ({ 
@@ -34,7 +36,9 @@ const ModalRegistrados: React.FC<ModalRegistradosProps> = ({
   onClose, 
   clientesRegistrados, 
   onValidarCliente, 
-  onEliminarCliente 
+  onEliminarCliente,
+  onObservarCliente,
+  onRechazarCliente
 }) => {
   const [menuAbiertoId, setMenuAbiertoId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -76,12 +80,20 @@ const ModalRegistrados: React.FC<ModalRegistradosProps> = ({
     onValidarCliente(clienteId);
     console.log(`✅ Cliente ${clienteId} habilitado. Obs: ${observaciones}`);
   };
-
+  // 👁️ FUNCIÓN PARA OBSERVAR CLIENTE
   const handleObservar = (clienteId: string, observaciones: string) => {
-    // Aquí puedes cambiar el estado a 'OBSERVADO' si lo deseas
-    console.log(`👁️ Cliente ${clienteId} marcado para observación. Obs: ${observaciones}`);
+    if (onObservarCliente) {
+      onObservarCliente(clienteId, observaciones);  // ✅ Cambia estado a OBSERVADO
+    }
+    console.log(`👁️ Cliente ${clienteId} observado. Obs: ${observaciones}`);
   };
-
+// Por si se quiere dejar como cliente rechazado en vez de eliminarlo directamente
+  // const handleRechazar = (clienteId: string, observaciones: string) => {
+  //   if (onRechazarCliente) {
+  //     onRechazarCliente(clienteId, observaciones);  // ✅ Cambia estado a RECHAZADO
+  //   }
+  //   console.log(`❌ Cliente ${clienteId} rechazado. Obs: ${observaciones}`);
+  // };
   const handleRechazar = (clienteId: string, observaciones: string) => {
     onEliminarCliente(clienteId);
     console.log(`❌ Cliente ${clienteId} rechazado. Obs: ${observaciones}`);

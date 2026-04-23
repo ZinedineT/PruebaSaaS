@@ -20,6 +20,41 @@ const Clientes = () => {
       nombreComercial: 'ABC Tienda',
       alias: 'ABC',
       subdominio: 'minegocio',
+      codigoInterno: 'CLI-000245',  // ← Nuevo
+      direccionFiscal: 'Jr.Crespo Castillo 215, Huanuco, Huanuco',  // ← Nuevo
+      cargoContacto: 'Administradora',  // ← Nuevo
+      montoPlan: 150.00,  // ← Nuevo
+      moneda: 'S/',  // ← Nuevo
+ historial: [  // 👈 NUEVO: Array de eventos históricos
+      {
+        id: 'hist1',
+        fecha: '2026-03-15 09:00:00',
+        accion: 'Registro recibido',
+        usuario: 'sistema',
+        tipo: 'registro'  // opcional: para colorear
+      },
+      {
+        id: 'hist2',
+        fecha: '2026-03-16 10:15:00',
+        accion: 'Cliente habilitado',
+        usuario: 'Admin_Carlos',
+        tipo: 'exito'
+      },
+      {
+        id: 'hist3',
+        fecha: '2026-03-18 14:20:00',
+        accion: 'Onboarding iniciado',
+        usuario: 'Ana Ruiz',
+        tipo: 'proceso'
+      },
+      {
+        id: 'hist4',
+        fecha: '2026-03-20 11:30:00',
+        accion: 'Plan actualizado a Profesional',
+        usuario: 'Admin_Carlos',
+        tipo: 'cambio'
+      }
+    ],
       estado: 'HABILITADO',
       estadoAcceso: 'ACTIVO',
       plan: 'Profesional',
@@ -56,6 +91,28 @@ const Clientes = () => {
       telefono: '988 777 666',
       emailAdmin: 'admin@xyz.com',
       observaciones: 'Cliente con retraso en pagos'
+    },
+    {
+      id: '3',
+      nombre: 'BEBITAS IAN SAC',
+      ruc: '20567654321',
+      nombreComercial: 'BEBAS STORE',
+      alias: 'XYZ',
+      subdominio: 'xyzstore',
+      estado: 'DE_BAJA',
+      estadoAcceso: 'BLOQUEADO_PAGO', 
+      plan: 'Estandar',
+      suscripcion: 'Vencido',
+      fechaRegistro: '2026-03-18', 
+      fechaInicio: '22/05/2025',
+      fechaVence: '21/05/2026',
+      ciclo: 'MENSUAL',
+      estadoSuscripcion: 'VENCIDO',
+      estadoOnboarding: 'PENDIENTE',
+      contactoPrincipal: 'Ian Gabriel',
+      telefono: '988 777 666',
+      emailAdmin: 'admin@xyz.com',
+      observaciones: 'Cliente con chiveria , le gustan menores y va a por todaass'
     }
   ]);
   // Estados de filtros
@@ -136,6 +193,35 @@ const Clientes = () => {
     );
     console.log(`✅ Cliente ${clienteId} validado y habilitado`);
   };
+  // 👁️ FUNCIÓN PARA OBSERVAR (agrégala si no existe)
+  const handleObservarCliente = (clienteId: string, observaciones: string) => {
+    setClientesData(prevClientes =>
+      prevClientes.map(cliente =>
+        cliente.id === clienteId
+          ? { 
+              ...cliente, 
+              estado: 'OBSERVADO',
+              observaciones: observaciones 
+            }
+          : cliente
+      )
+    );
+    console.log(`👁️ Cliente ${clienteId} observado: ${observaciones}`);
+  };
+  const handleRechazarCliente = (clienteId: string, observaciones: string) => {
+  setClientesData(prevClientes =>
+    prevClientes.map(cliente =>
+      cliente.id === clienteId
+        ? { 
+            ...cliente, 
+            estado: 'RECHAZADO',
+            observaciones: observaciones 
+          }
+        : cliente
+    )
+  );
+  console.log(`❌ Cliente ${clienteId} rechazado: ${observaciones}`);
+};
   const handleEliminarRegistrado = (clienteId: string) => {
   setClientesData(prevClientes => prevClientes.filter(cliente => cliente.id !== clienteId));
   console.log(`✅ Cliente ${clienteId} eliminado del sistema`);
@@ -212,6 +298,8 @@ const Clientes = () => {
     if (filtroEstadoCliente && cliente.estado !== filtroEstadoCliente) {
       return false;
     }
+    // Estado de registrado ignorado
+    if (cliente.estado === 'REGISTRADO'|| cliente.estado === 'RECHAZADO') return false;
     // Filtro por plan
     if (filtroPlan && cliente.plan !== filtroPlan) {
       return false;
@@ -383,6 +471,7 @@ const Clientes = () => {
               <option value="HABILITADO">Habilitado</option>
               <option value="REGISTRADO">Registrado</option>
               <option value="OBSERVADO">Observado</option>
+              <option value="RECHAZADO">Rechazado</option>    
               <option value="SUSPENDIDO">Suspendido</option>
               <option value="DE_BAJA">De Baja</option>
             </select>
@@ -476,6 +565,8 @@ const Clientes = () => {
                       ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600'
                       : cliente.estado === 'OBSERVADO'
                       ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600'
+                      : cliente.estado === 'RECHAZADO' 
+                      ? 'bg-red-100 dark:bg-red-900/30 text-red-600' 
                       : cliente.estado === 'DE_BAJA'
                       ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-600'
                       : 'bg-gray-100 dark:bg-gray-800 text-gray-600'
@@ -645,6 +736,8 @@ const Clientes = () => {
         clientesRegistrados={clientesData.filter(c => c.estado === 'REGISTRADO')}
         onValidarCliente={handleValidarRegistrado}
         onEliminarCliente={handleEliminarRegistrado}
+        onObservarCliente={handleObservarCliente}
+        onRechazarCliente={handleRechazarCliente}
       />
       <GestionAcceso 
         isOpen={isAccesoModalOpen} 

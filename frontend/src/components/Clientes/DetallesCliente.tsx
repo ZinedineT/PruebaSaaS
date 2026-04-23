@@ -53,7 +53,7 @@ const DetallesCliente: React.FC<DetallesClienteProps> = ({ isOpen, onClose, clie
           <div>
             <div className="flex items-center gap-3 mb-1">
               <h2 className="text-2xl font-black text-gray-900 dark:text-white">
-                Detalle del cliente - <span className="text-blue-500">CLI-000245</span>
+                Detalle del cliente - <span className="text-blue-500">{cliente.codigoInterno || `CLI-${cliente.id.padStart(6, '0')}`}</span>
               </h2>
             </div>
             <p className="text-xs font-bold text-gray-500 dark:text-gray-400">
@@ -87,7 +87,7 @@ const DetallesCliente: React.FC<DetallesClienteProps> = ({ isOpen, onClose, clie
                 <InfoRow label="Razón Social" value={cliente.nombre} copyable />
                 <InfoRow label="RUC" value={cliente.ruc} copyable />
                 <InfoRow label="Nombre comercial" value={cliente.nombreComercial} />
-                <InfoRow label="Dirección Fiscal" value="Av. Primavera 123, Lima, Lima" icon={MapPin} />
+                <InfoRow label="Dirección Fiscal" value={cliente.direccionFiscal || 'No registrada'} icon={MapPin} />
                 <InfoRow label="Subdominio" value={cliente.subdominio} copyable />
                 <InfoRow label="Alias" value={cliente.alias} />
               </div>
@@ -103,7 +103,7 @@ const DetallesCliente: React.FC<DetallesClienteProps> = ({ isOpen, onClose, clie
                 <InfoRow label="Nombre" value={cliente.contactoPrincipal} icon={User} />
                 <InfoRow label="Teléfono" value={cliente.telefono} icon={Phone} />
                 <InfoRow label="Correo" value={cliente.emailAdmin} icon={Mail} />
-                <InfoRow label="Cargo" value="Administradora" icon={Briefcase} />
+                <InfoRow label="Cargo" value={cliente.cargoContacto || 'No especificado'} icon={Briefcase} />
               </div>
             </div>
           </div>
@@ -129,7 +129,7 @@ const DetallesCliente: React.FC<DetallesClienteProps> = ({ isOpen, onClose, clie
               </div>
               <div className="space-y-1">
                 <p className="text-[9px] font-black text-gray-400 uppercase">Monto</p>
-                <p className="text-sm font-black text-gray-900 dark:text-white">S/ 150.00</p>
+                <p className="text-sm font-black text-gray-900 dark:text-white">{cliente.moneda || 'S/'} {cliente.montoPlan || 0}.00</p>
                 <p className="text-[10px] text-gray-500">/ mes</p>
               </div>
             </div>
@@ -170,7 +170,7 @@ const DetallesCliente: React.FC<DetallesClienteProps> = ({ isOpen, onClose, clie
                 <div className="space-y-2">
                   <p className="text-[10px] font-black text-gray-400 uppercase">Observaciones</p>
                   <p className="text-xs font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800/50 p-3 rounded-xl">
-                    Pago validado y datos correctos, reenvió voucher de pago
+                    {cliente.observaciones || 'No se registraron observaciones durante el proceso de activación.'}
                   </p>
                 </div>
               </div>
