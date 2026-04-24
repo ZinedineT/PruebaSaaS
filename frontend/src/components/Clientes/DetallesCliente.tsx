@@ -9,9 +9,10 @@ interface DetallesClienteProps {
   isOpen: boolean;
   onClose: () => void;
   cliente: any;
+  onVerHistorialCompleto?: (cliente: any) => void; 
 }
 
-const DetallesCliente: React.FC<DetallesClienteProps> = ({ isOpen, onClose, cliente }) => {
+const DetallesCliente: React.FC<DetallesClienteProps> = ({ isOpen, onClose, cliente, onVerHistorialCompleto }) => {
   const modalRef = useRef<HTMLDivElement>(null);
   useClickOutside(isOpen, onClose, modalRef);
 
@@ -222,24 +223,40 @@ const DetallesCliente: React.FC<DetallesClienteProps> = ({ isOpen, onClose, clie
                 <History size={18} className="text-gray-500" />
                 <h3 className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-wider">Historial Resumido</h3>
               </div>
-              <button className="text-[10px] font-black text-blue-500 uppercase hover:underline flex items-center gap-1">
+              <button 
+                onClick={() => onVerHistorialCompleto?.(cliente)}
+                className="text-[10px] font-black text-blue-500 uppercase hover:underline flex items-center gap-1"
+              >
                 Ver historial completo <Info size={12} />
               </button>
             </div>
             <div className="space-y-3">
-              {[
-                { date: '15/03/2026 09:00', action: 'Registro recibido', user: 'sistema' },
-                { date: '16/03/2026 10:15', action: 'Cliente habilitado', user: 'Admin_Carlos' },
-                { date: '18/03/2026 14:20', action: 'Onboarding iniciado', user: 'Ana Ruiz' },
-              ].map((log, i) => (
-                <div key={i} className="flex items-start gap-3 pb-3 border-b border-gray-100 dark:border-gray-800 last:border-0">
-                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5" />
-                  <div className="flex-1">
-                    <p className="text-xs font-black dark:text-gray-200">{log.action}</p>
-                    <p className="text-[9px] text-gray-400 font-medium">{log.date} • por {log.user}</p>
+              {cliente.historial && cliente.historial.length > 0 ? (
+                // Mostrar últimos 3 eventos del historial real
+                cliente.historial.slice(0, 3).map((log: any, i: number) => (
+                  <div key={log.id || i} className="flex items-start gap-3 pb-3 border-b border-gray-100 dark:border-gray-800 last:border-0">
+                    {/* Color del círculo según tipo de evento */}
+                    <div className={`w-1.5 h-1.5 rounded-full mt-1.5 ${
+                      log.tipo === 'exito' ? 'bg-emerald-500' :
+                      log.tipo === 'error' ? 'bg-rose-500' :
+                      log.tipo === 'proceso' ? 'bg-amber-500' :
+                      log.tipo === 'cambio' ? 'bg-purple-500' :
+                      'bg-blue-500'
+                    }`} />
+                    <div className="flex-1">
+                      <p className="text-xs font-black dark:text-gray-200">{log.accion}</p>
+                      <p className="text-[9px] text-gray-400 font-medium">
+                        {log.fecha} • por {log.usuario}
+                      </p>
+                    </div>
                   </div>
+                ))
+              ) : (
+                // Si no hay historial, mostrar mensaje
+                <div className="text-center py-6">
+                  <p className="text-xs text-gray-400">No hay eventos en el historial</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>

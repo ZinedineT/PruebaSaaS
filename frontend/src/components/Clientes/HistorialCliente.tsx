@@ -1,5 +1,5 @@
-import React, {useRef} from 'react';
-import { X, History, Download, Filter, Calendar, User, Tag, Clock, Smartphone, CreditCard, ShieldCheck, PlusCircle, Edit3 } from 'lucide-react';
+import React, { useRef } from 'react';
+import { X, History, Download, Filter, Calendar, User, Tag, Clock, CreditCard, ShieldCheck, PlusCircle, Edit3 } from 'lucide-react';
 import { useClickOutside } from '../../hooks/useClickOutside';
 
 interface HistorialClienteProps {
@@ -13,16 +13,61 @@ const HistorialCliente: React.FC<HistorialClienteProps> = ({ isOpen, onClose, cl
   useClickOutside(isOpen, onClose, modalRef);
   if (!isOpen || !cliente) return null;
 
-  // Mock de datos basado en tu wireframe
-  const eventos = [
-    { fecha: '11/04/2026', hora: '09:15 AM', cat: 'Acceso', evento: 'Restablecer acceso', motivo: 'Pago verificado BCP', usuario: 'Admin_Carlos', icon: <ShieldCheck size={14}/>, color: 'text-emerald-500 bg-emerald-500/10' },
-    { fecha: '01/04/2026', hora: '00:01 AM', cat: 'Acceso', evento: 'Bloqueado por pago (automático)', motivo: 'Falta de pago verificado', usuario: 'Sistema', icon: <Clock size={14}/>, color: 'text-rose-500 bg-rose-500/10' },
-    { fecha: '15/03/2026', hora: '02:30 PM', cat: 'Suscripción', evento: 'Cambio de plan: Básico → Pro', motivo: null, usuario: 'Maria_Ventas', icon: <CreditCard size={14}/>, color: 'text-purple-500 bg-purple-500/10' },
-    { fecha: '25/03/2026', hora: '04:40 PM', cat: 'Onboarding', evento: 'Pendiente → Completado', motivo: null, usuario: 'Ana Ruiz', icon: <PlusCircle size={14}/>, color: 'text-blue-500 bg-blue-500/10' },
-    { fecha: '20/03/2026', hora: '11:10 AM', cat: 'Edición', evento: 'Cambio de teléfono', motivo: null, usuario: 'Admin_Carlos', icon: <Edit3 size={14}/>, color: 'text-amber-500 bg-amber-500/10' },
-    { fecha: '18/03/2026', hora: '02:20 PM', cat: 'Cliente', evento: 'Registrado → Habilitado', motivo: null, usuario: 'Admin_Carlos', icon: <ShieldCheck size={14}/>, color: 'text-emerald-500 bg-emerald-500/10' },
-    { fecha: '10/01/2026', hora: '10:00 AM', cat: 'Registro', evento: 'Creación de cuenta', motivo: null, usuario: 'Registro_Web', icon: <Smartphone size={14}/>, color: 'text-gray-500 bg-gray-500/10' },
-  ];
+  // 🔥 USAR DATOS REALES DEL CLIENTE en lugar de hardcodeados
+  const eventos = cliente.historial && cliente.historial.length > 0 
+    ? cliente.historial.map((evento: any) => {
+        // Determinar categoría y color según la acción
+        let categoria = 'General';
+        let color = 'text-gray-500 bg-gray-500/10';
+        let icon = <Clock size={14} />;
+        
+        if (evento.accion.toLowerCase().includes('acceso') || evento.accion.toLowerCase().includes('bloqueado')) {
+          categoria = 'Acceso';
+          color = 'text-rose-500 bg-rose-500/10';
+          icon = <ShieldCheck size={14} />;
+        } else if (evento.accion.toLowerCase().includes('plan') || evento.accion.toLowerCase().includes('suscripción')) {
+          categoria = 'Suscripción';
+          color = 'text-purple-500 bg-purple-500/10';
+          icon = <CreditCard size={14} />;
+        } else if (evento.accion.toLowerCase().includes('onboarding')) {
+          categoria = 'Onboarding';
+          color = 'text-blue-500 bg-blue-500/10';
+          icon = <PlusCircle size={14} />;
+        } else if (evento.accion.toLowerCase().includes('registro') || evento.accion.toLowerCase().includes('habilitado')) {
+          categoria = 'Cliente';
+          color = 'text-emerald-500 bg-emerald-500/10';
+          icon = <ShieldCheck size={14} />;
+        } else if (evento.accion.toLowerCase().includes('edit') || evento.accion.toLowerCase().includes('cambio')) {
+          categoria = 'Edición';
+          color = 'text-amber-500 bg-amber-500/10';
+          icon = <Edit3 size={14} />;
+        }
+        
+        // Formatear fecha
+        let fechaFormateada = evento.fecha;
+        let horaFormateada = '';
+        
+        if (evento.fecha && evento.fecha.includes(' ')) {
+          const [fecha, hora] = evento.fecha.split(' ');
+          fechaFormateada = fecha;
+          horaFormateada = hora;
+        }
+        
+        return {
+          fecha: fechaFormateada,
+          hora: horaFormateada,
+          cat: categoria,
+          evento: evento.accion,
+          // motivo: evento.observaciones || null,
+          usuario: evento.usuario,
+          icon: icon,
+          color: color
+        };
+      })
+    : []; // Si no hay historial, array vacío
+
+  // Si no hay eventos, mostrar mensaje
+  const tieneEventos = eventos.length > 0;
 
   return (
     <div className="fixed inset-0 z-[170] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
@@ -69,7 +114,7 @@ const HistorialCliente: React.FC<HistorialClienteProps> = ({ isOpen, onClose, cl
           </div>
         </div>
 
-        {/* Filtros */}
+        {/* Filtros (opcionales, puedes mantenerlos o eliminarlos) */}
         <div className="p-6 flex flex-wrap items-center gap-4 bg-white dark:bg-[#161b22]">
           <span className="text-[10px] font-black text-gray-400 uppercase flex items-center gap-2">
             <Filter size={14} /> Filtrar por:
@@ -77,6 +122,7 @@ const HistorialCliente: React.FC<HistorialClienteProps> = ({ isOpen, onClose, cl
           <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-900 px-3 py-2 rounded-xl border border-gray-100 dark:border-gray-800">
             <Calendar size={14} className="text-gray-400" />
             <select className="bg-gray-50 dark:bg-gray-800 text-[10px] font-black uppercase outline-none dark:text-gray-300 cursor-pointer">
+              <option>Todos</option>
               <option>Últimos 30 días</option>
               <option>Este año</option>
             </select>
@@ -87,6 +133,8 @@ const HistorialCliente: React.FC<HistorialClienteProps> = ({ isOpen, onClose, cl
               <option>Todas las categorías</option>
               <option>Acceso</option>
               <option>Suscripción</option>
+              <option>Cliente</option>
+              <option>Edición</option>
             </select>
           </div>
           <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-900 px-3 py-2 rounded-xl border border-gray-100 dark:border-gray-800">
@@ -101,42 +149,50 @@ const HistorialCliente: React.FC<HistorialClienteProps> = ({ isOpen, onClose, cl
 
         {/* Tabla de Historial */}
         <div className="flex-1 overflow-y-auto px-8 pb-8">
-          <table className="w-full">
-            <thead className="sticky top-0 bg-white dark:bg-[#161b22] z-10">
-              <tr className="border-b border-gray-100 dark:border-gray-800 text-left">
-                <th className="py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Fecha y Hora</th>
-                <th className="py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Categoría</th>
-                <th className="py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Acción / Evento</th>
-                <th className="py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Usuario</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
-              {eventos.map((item, idx) => (
-                <tr key={idx} className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/10 transition-colors">
-                  <td className="py-5">
-                    <p className="text-xs font-black dark:text-white">{item.fecha}</p>
-                    <p className="text-[10px] text-gray-400 font-bold">{item.hora}</p>
-                  </td>
-                  <td className="py-5">
-                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase ${item.color}`}>
-                      {item.icon} {item.cat}
-                    </span>
-                  </td>
-                  <td className="py-5">
-                    <p className="text-xs font-bold dark:text-gray-200">{item.evento}</p>
-                    {item.motivo && (
-                      <p className="text-[10px] text-gray-500 italic mt-0.5">Motivo: {item.motivo}</p>
-                    )}
-                  </td>
-                  <td className="py-5 text-right">
-                    <span className="text-[10px] font-black text-gray-600 dark:text-gray-400 uppercase bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-md">
-                      {item.usuario}
-                    </span>
-                  </td>
+          {tieneEventos ? (
+            <table className="w-full">
+              <thead className="sticky top-0 bg-white dark:bg-[#161b22] z-10">
+                <tr className="border-b border-gray-100 dark:border-gray-800 text-left">
+                  <th className="py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Fecha y Hora</th>
+                  <th className="py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Categoría</th>
+                  <th className="py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Acción / Evento</th>
+                  <th className="py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Usuario</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
+                {eventos.map((item: { fecha: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; hora: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; color: any; icon: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; cat: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; evento: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; motivo: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; usuario: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; }, idx: React.Key | null | undefined) => (
+                  <tr key={idx} className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/10 transition-colors">
+                    <td className="py-5">
+                      <p className="text-xs font-black dark:text-white">{item.fecha}</p>
+                      {item.hora && <p className="text-[10px] text-gray-400 font-bold">{item.hora}</p>}
+                    </td>
+                    <td className="py-5">
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase ${item.color}`}>
+                        {item.icon} {item.cat}
+                      </span>
+                    </td>
+                    <td className="py-5">
+                      <p className="text-xs font-bold dark:text-gray-200">{item.evento}</p>
+                      {item.motivo && (
+                        <p className="text-[10px] text-gray-500 italic mt-0.5">Motivo: {item.motivo}</p>
+                      )}
+                    </td>
+                    <td className="py-5 text-right">
+                      <span className="text-[10px] font-black text-gray-600 dark:text-gray-400 uppercase bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-md">
+                        {item.usuario}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <div className="text-center py-20">
+              <History size={48} className="mx-auto text-gray-300 dark:text-gray-700 mb-4" />
+              <p className="text-sm font-bold text-gray-500 dark:text-gray-400">No hay eventos en el historial</p>
+              <p className="text-xs text-gray-400 mt-1">Los cambios realizados al cliente aparecerán aquí</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

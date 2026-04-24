@@ -25,7 +25,7 @@ const Clientes = () => {
       cargoContacto: 'Administradora',  // ← Nuevo
       montoPlan: 150.00,  // ← Nuevo
       moneda: 'S/',  // ← Nuevo
- historial: [  // 👈 NUEVO: Array de eventos históricos
+      historial: [  // 👈 NUEVO: Array de eventos históricos
       {
         id: 'hist1',
         fecha: '2026-03-15 09:00:00',
@@ -54,7 +54,7 @@ const Clientes = () => {
         usuario: 'Admin_Carlos',
         tipo: 'cambio'
       }
-    ],
+      ],
       estado: 'HABILITADO',
       estadoAcceso: 'ACTIVO',
       plan: 'Profesional',
@@ -77,8 +77,22 @@ const Clientes = () => {
       nombreComercial: 'XYZ Store',
       alias: 'XYZ',
       subdominio: 'xyzstore',
+      codigoInterno: 'CLI-000245',  // ← Nuevo
+      direccionFiscal: 'Jr.Crespo Castillo 215, Huanuco, Huanuco',  // ← Nuevo
+      cargoContacto: 'Administradora',  // ← Nuevo
+      montoPlan: 150.00,  // ← Nuevo
+      moneda: 'S/',  // ← Nuevo
+      historial: [  // 👈 NUEVO: Array de eventos históricos
+      {
+        id: 'hist1',
+        fecha: '2026-03-15 09:00:00',
+        accion: 'Registro recibido',
+        usuario: 'sistema',
+        tipo: 'registro'  // opcional: para colorear
+      }
+      ],
       estado: 'REGISTRADO',
-      estadoAcceso: 'BLOQUEADO_PAGO', 
+      estadoAcceso: 'HABILITADO', 
       plan: 'Estandar',
       suscripcion: 'Por vencer',
       fechaRegistro: '2026-03-18', 
@@ -99,6 +113,27 @@ const Clientes = () => {
       nombreComercial: 'BEBAS STORE',
       alias: 'XYZ',
       subdominio: 'xyzstore',
+      codigoInterno: 'CLI-000246',  // ← Nuevo
+      direccionFiscal: 'Av. Principal 123, Lima, Lima',  // ← Nuevo
+      cargoContacto: 'Gerente de Ventas',  // ← Nuevo
+      montoPlan: 100.00,  // ← Nuevo
+      moneda: 'S/',  // ← Nuevo
+      historial: [  // 👈 NUEVO: Array de eventos históricos
+      {
+        id: 'hist1',
+        fecha: '2026-03-18 09:00:00',
+        accion: 'Registro recibido',
+        usuario: 'sistema',
+        tipo: 'registro'  // opcional: para colorear
+      },
+      {
+        id: 'hist2',
+        fecha: '2026-03-19 10:15:00',
+        accion: 'Cliente habilitado',
+        usuario: 'Admin_Carlos',
+        tipo: 'exito'
+      }
+      ],
       estado: 'DE_BAJA',
       estadoAcceso: 'BLOQUEADO_PAGO', 
       plan: 'Estandar',
@@ -182,6 +217,43 @@ const Clientes = () => {
     setIsEditModalOpen(true);
     setMenuAbiertoId(null);
   };
+  const agregarEventoHistorial = (clienteId: string, accion: string, usuario: string = 'Admin_Actual') => {
+    setClientesData((prevClientes: any[]) =>
+      prevClientes.map((cliente: any) =>
+        cliente.id === clienteId
+          ? {
+              ...cliente,
+              historial: [
+                {
+                  id: Date.now().toString(),
+                  fecha: new Date().toLocaleString('es-PE', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                  }).replace(/,/g, '').replace(/\//g, '-'),
+                  accion: accion,
+                  usuario: usuario,
+                  tipo: obtenerTipoEvento(accion)
+                },
+                ...(cliente.historial || [])
+              ]
+            }
+          : cliente
+      )
+    );
+  };
+  // Función para determinar el tipo de evento (para el color)
+  const obtenerTipoEvento = (accion: string): string => {
+    if (accion.includes('habilit') || accion.includes('activ')) return 'exito';
+    if (accion.includes('bloque') || accion.includes('rechaz')) return 'error';
+    if (accion.includes('onboarding')) return 'proceso';
+    if (accion.includes('cambio') || accion.includes('edit') || accion.includes('actualiz')) return 'cambio';
+    return 'info';
+  };
   // Dentro del componente Clientes
   const handleValidarRegistrado = (clienteId: string) => {
     setClientesData(prevClientes =>
@@ -191,6 +263,8 @@ const Clientes = () => {
           : cliente
       )
     );
+    // 👈 Agregar al historial
+    agregarEventoHistorial(clienteId, 'Cliente habilitado', 'Admin_Actual');
     console.log(`✅ Cliente ${clienteId} validado y habilitado`);
   };
   // 👁️ FUNCIÓN PARA OBSERVAR (agrégala si no existe)
@@ -206,7 +280,8 @@ const Clientes = () => {
           : cliente
       )
     );
-    console.log(`👁️ Cliente ${clienteId} observado: ${observaciones}`);
+    // 👈 Agregar al historial
+    agregarEventoHistorial(clienteId, `Cliente observado: ${observaciones}`, 'Admin_Actual');
   };
   const handleRechazarCliente = (clienteId: string, observaciones: string) => {
   setClientesData(prevClientes =>
@@ -220,8 +295,9 @@ const Clientes = () => {
         : cliente
     )
   );
-  console.log(`❌ Cliente ${clienteId} rechazado: ${observaciones}`);
-};
+    // 👈 Agregar al historial
+    agregarEventoHistorial(clienteId, `Cliente rechazado: ${observaciones}`, 'Admin_Actual');
+  };
   const handleEliminarRegistrado = (clienteId: string) => {
   setClientesData(prevClientes => prevClientes.filter(cliente => cliente.id !== clienteId));
   console.log(`✅ Cliente ${clienteId} eliminado del sistema`);
@@ -231,14 +307,23 @@ const Clientes = () => {
     setClienteSeleccionado(cliente);
     setIsModalOpen(true);
   };
-  // 🔄 FUNCIÓN PARA ACTUALIZAR ESTADO DE ACCESO
   const actualizarAccesoCliente = (ruc: string, nuevoEstadoAcceso: string, detalles: any) => {
     setClientesData(prevClientes => 
-      prevClientes.map(cliente => 
-        cliente.ruc === ruc 
-          ? { ...cliente, estadoAcceso: nuevoEstadoAcceso as any }
-          : cliente
-      )
+      prevClientes.map(cliente => {
+        if (cliente.ruc === ruc) {
+          const estadoAnterior = cliente.estadoAcceso;
+          // 👇 AGREGAR AL HISTORIAL
+          if (estadoAnterior !== nuevoEstadoAcceso) {
+            agregarEventoHistorial(
+              cliente.id, 
+              `Acceso cambiado: ${estadoAnterior} → ${nuevoEstadoAcceso}. Motivo: ${detalles?.motivo || 'Sin motivo específico'}`,
+              'Admin_Acceso'
+            );
+          }
+          return { ...cliente, estadoAcceso: nuevoEstadoAcceso as any };
+        }
+        return cliente;
+      })
     );
     console.log(`🔓 Acceso actualizado: ${ruc} → ${nuevoEstadoAcceso}`, detalles);
   };
@@ -249,13 +334,18 @@ const Clientes = () => {
   // 🔄 FUNCIÓN PARA ACTUALIZAR ESTADO
   const actualizarEstadoCliente = (ruc: string, nuevoEstado: string) => {
     setClientesData(prevClientes => 
-      prevClientes.map(cliente => 
-        cliente.ruc === ruc 
-          ? { ...cliente, estado: nuevoEstado }
-          : cliente
-      )
+      prevClientes.map(cliente => {
+        if (cliente.ruc === ruc) {
+          const estadoAnterior = cliente.estado;
+          // 👇 AGREGAR AL HISTORIAL
+          if (estadoAnterior !== nuevoEstado) {
+            agregarEventoHistorial(cliente.id, `Estado cambiado: ${estadoAnterior} → ${nuevoEstado}`, 'Admin_Estado');
+          }
+          return { ...cliente, estado: nuevoEstado };
+        }
+        return cliente;
+      })
     );
-    // Feedback visual opcional
     console.log(`🔄 Estado actualizado: ${ruc} → ${nuevoEstado}`);
   };
   // Función para abrir el modal (pasa el callback)
@@ -285,7 +375,6 @@ const Clientes = () => {
       }
     }
   };
-// Filtros
 
   document.addEventListener('click', handleClickOutside);
     return () => {
@@ -450,7 +539,7 @@ const Clientes = () => {
           {/* Búsqueda */}
           <div className="lg:col-span-5 space-y-2">
             <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Buscar:</label>
-            <div className="relative">https://www.futbolred.com/liga-de-espana/en-vivo-minuto-a-minuto-partido-levante-vs-sevilla/2572261
+            <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
               <input 
                 type="text" 
@@ -729,6 +818,11 @@ const Clientes = () => {
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         cliente={clienteSeleccionado} 
+        onVerHistorialCompleto={(cliente) => {
+          setClienteSeleccionado(cliente);
+          setIsHistoryModalOpen(true);
+          setIsModalOpen(false); 
+        }}
       />
       <ModalRegistrados
         isOpen={isRegistradosModalOpen}
