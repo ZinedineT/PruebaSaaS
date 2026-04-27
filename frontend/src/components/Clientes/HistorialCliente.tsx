@@ -1,17 +1,52 @@
-import React, { useRef } from 'react';
+import React, { JSX, useRef } from 'react';
 import { X, History, Download, Filter, Calendar, User, Tag, Clock, CreditCard, ShieldCheck, PlusCircle, Edit3 } from 'lucide-react';
 import { useClickOutside } from '../../hooks/useClickOutside';
+import { HistorialRegistrado, RegistradoWithHistory } from '../../services/registradosService';
 
 interface HistorialClienteProps {
   isOpen: boolean;
   onClose: () => void;
-  cliente: any;
+  cliente: RegistradoWithHistory | null;  // 👈 Actualizado al nuevo tipo
 }
 
 const HistorialCliente: React.FC<HistorialClienteProps> = ({ isOpen, onClose, cliente }) => {
   const modalRef = useRef<HTMLDivElement>(null);
   useClickOutside(isOpen, onClose, modalRef);
   if (!isOpen || !cliente) return null;
+    const getColorByTipo = (tipo: string): string => {
+    switch (tipo) {
+      case 'registro':
+        return 'text-blue-500 bg-blue-500/10';
+      case 'exito':
+        return 'text-emerald-500 bg-emerald-500/10';
+      case 'error':
+        return 'text-rose-500 bg-rose-500/10';
+      case 'proceso':
+        return 'text-amber-500 bg-amber-500/10';
+      case 'cambio':
+        return 'text-purple-500 bg-purple-500/10';
+      default:
+        return 'text-gray-500 bg-gray-500/10';
+    }
+  };
+
+  // Función para obtener ícono según tipo
+  const getIconByTipo = (tipo: string): JSX.Element => {
+    switch (tipo) {
+      case 'registro':
+        return <ShieldCheck size={14} />;
+      case 'exito':
+        return <ShieldCheck size={14} />;
+      case 'error':
+        return <ShieldCheck size={14} />;
+      case 'proceso':
+        return <Clock size={14} />;
+      case 'cambio':
+        return <Edit3 size={14} />;
+      default:
+        return <Clock size={14} />;
+    }
+  };
 
   // 🔥 USAR DATOS REALES DEL CLIENTE en lugar de hardcodeados
   const eventos = cliente.historial && cliente.historial.length > 0 
@@ -160,26 +195,26 @@ const HistorialCliente: React.FC<HistorialClienteProps> = ({ isOpen, onClose, cl
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50 dark:divide-gray-800/50">
-                {eventos.map((item: { fecha: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; hora: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; color: any; icon: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; cat: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; evento: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; motivo: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; usuario: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; }, idx: React.Key | null | undefined) => (
-                  <tr key={idx} className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/10 transition-colors">
+                {cliente.historial.map((evento: HistorialRegistrado, idx) => (
+                  <tr key={idx}>
                     <td className="py-5">
-                      <p className="text-xs font-black dark:text-white">{item.fecha}</p>
-                      {item.hora && <p className="text-[10px] text-gray-400 font-bold">{item.hora}</p>}
+                      <p className="text-xs font-black dark:text-white">{evento.fecha?.split(' ')[0]}</p>
+                      <p className="text-[10px] text-gray-400 font-bold">{evento.fecha?.split(' ')[1]}</p>
                     </td>
                     <td className="py-5">
-                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase ${item.color}`}>
-                        {item.icon} {item.cat}
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase ${getColorByTipo(evento.tipo)}`}>
+                        {getIconByTipo(evento.tipo)} {evento.tipo}
                       </span>
                     </td>
                     <td className="py-5">
-                      <p className="text-xs font-bold dark:text-gray-200">{item.evento}</p>
-                      {item.motivo && (
-                        <p className="text-[10px] text-gray-500 italic mt-0.5">Motivo: {item.motivo}</p>
+                      <p className="text-xs font-bold dark:text-gray-200">{evento.accion}</p>  {/* ← accion, no evento */}
+                      {evento.descripcion && (
+                        <p className="text-[10px] text-gray-500 italic mt-0.5">{evento.descripcion}</p>
                       )}
                     </td>
                     <td className="py-5 text-right">
                       <span className="text-[10px] font-black text-gray-600 dark:text-gray-400 uppercase bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-md">
-                        {item.usuario}
+                        {evento.usuario}
                       </span>
                     </td>
                   </tr>

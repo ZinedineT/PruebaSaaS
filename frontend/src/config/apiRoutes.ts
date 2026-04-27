@@ -23,4 +23,13 @@ export const API_ROUTES = {
     FORCE: (id: number) => `/users/${id}/force`,      // POST (hard delete)
     CHANGE_PASSWORD: (id: number) => `/users/${id}/password`, // PUT
   },
+    // 👇 NUEVA SECCIÓN PARA REGISTRADOS
+  REGISTRADOS: {
+    BASE: '/registrados',                    // GET - Lista todos los registrados
+    DETAIL: (id: number) => `/registrados/${id}`,  // GET - Detalle de un registrado
+    WITH_HISTORY: (id: number) => `/registrados/${id}/with-history`,  // Historial de un registrado
+    APPROVE: (id: number) => `/registrados/${id}/approve`,  // POST - Aprobar
+    REJECT: (id: number) => `/registrados/${id}/reject`,    // POST - Rechazar
+    OBSERVE: (id: number) => `/registrados/${id}/observe`,  // POST - Observar
+  },
 } as const;

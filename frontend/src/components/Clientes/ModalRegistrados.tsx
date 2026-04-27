@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { X, Search, FilterX, History, UserX, Copy, MoreHorizontal, UserCheck } from 'lucide-react';
 import HistorialCliente from './HistorialCliente'; 
 import HabilitarCliente from './HabilitarCliente';
+import { RegistradoAPI,getRegistradoWithHistory, RegistradoWithHistory } from '../../services/registradosService';
 
 // INTERFACES (TIPADO)
 interface ClienteRegistrado {
@@ -24,7 +25,7 @@ interface ClienteRegistrado {
 interface ModalRegistradosProps {
   isOpen: boolean;
   onClose: () => void;
-  clientesRegistrados: ClienteRegistrado[];
+  clientesRegistrados: RegistradoAPI[];
   onValidarCliente: (clienteId: string) => void;
   onEliminarCliente: (clienteId: string) => void;
   onObservarCliente?: (clienteId: string, observaciones: string) => void;
@@ -47,28 +48,41 @@ const ModalRegistrados: React.FC<ModalRegistradosProps> = ({
   
   // Estado para el modal de historial
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
-  const [clienteHistorial, setClienteHistorial] = useState<ClienteRegistrado | null>(null);
+  const [clienteHistorial, setClienteHistorial] = useState<RegistradoWithHistory | null>(null);
+  const [cargandoHistorial, setCargandoHistorial] = useState(false);
   const [isHabilitarModalOpen, setIsHabilitarModalOpen] = useState(false);
   const [clienteParaHabilitar, setClienteParaHabilitar] = useState<ClienteRegistrado | null>(null);
   
   if (!isOpen) return null;
 
   // Filtrado de datos
-  const clientesFiltrados = clientesRegistrados.filter((cliente: ClienteRegistrado) => {
-  const matchesSearch = cliente.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  const clientesFiltrados = clientesRegistrados.filter((cliente: RegistradoAPI) => {
+  const matchesSearch = cliente.razon_social.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           cliente.ruc.includes(searchTerm) ||
-                          cliente.nombreComercial.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          cliente.nombre_comercial.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           cliente.alias.toLowerCase().includes(searchTerm.toLowerCase());
-  const matchesPlan = filtroPlan ? cliente.plan === filtroPlan : true;
+  const matchesPlan = filtroPlan ? cliente.plan?.name === filtroPlan : true;
   const matchesCiclo = filtroCiclo ? cliente.ciclo === filtroCiclo : true;
   return matchesSearch && matchesPlan && matchesCiclo;
 });
 
   // Función para abrir el historial
-  const abrirHistorial = (cliente: ClienteRegistrado) => {
-    setClienteHistorial(cliente);
-    setIsHistoryModalOpen(true);
-    setMenuAbiertoId(null);
+  const abrirHistorial = async (cliente: RegistradoAPI) => {
+    setCargandoHistorial(true);
+    try {
+      const historialData = await getRegistradoWithHistory(Number(cliente.id));  // 👈 Obtener datos con historial desde el servicio
+      if (historialData) {
+        setClienteHistorial(historialData);
+        setIsHistoryModalOpen(true);
+      } else {
+        console.error('No se pudo obtener el historial');
+      }
+    } catch (error) {
+      console.error('Error al cargar historial:', error);
+    } finally {
+      setCargandoHistorial(false);
+      setMenuAbiertoId(null);
+    }
   };
   const handleAbrirHabilitar = (cliente: ClienteRegistrado) => {
   setClienteParaHabilitar(cliente);
@@ -183,8 +197,8 @@ const ModalRegistrados: React.FC<ModalRegistradosProps> = ({
                 {clientesFiltrados.map((cliente) => (
                   <tr key={cliente.id} className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/20">
                     <td className="py-4 pl-4">
-                      <p className="font-black text-sm dark:text-white">{cliente.nombre}</p>
-                      <p className="text-[10px] text-gray-400 font-bold">{cliente.nombreComercial}</p>
+                      <p className="font-black text-sm dark:text-white">{cliente.razon_social}</p>
+                      <p className="text-[10px] text-gray-400 font-bold">{cliente.nombre_comercial}</p>
                       <p className="text-[10px] text-gray-400 font-bold">Alias: {cliente.alias}</p>
                       </td>
                     <td className="py-4">
@@ -194,9 +208,9 @@ const ModalRegistrados: React.FC<ModalRegistradosProps> = ({
                       </div>
                       </td>
                     <td className="py-4">
-                      <p className="text-xs font-bold dark:text-white">{cliente.contactoPrincipal}</p>
-                      <p className="text-[10px] text-gray-400">{cliente.telefono}</p>
-                      <p className="text-[10px] text-blue-500 truncate max-w-[150px]">{cliente.emailAdmin}</p>
+                      <p className="text-xs font-bold dark:text-white">{cliente.nombre_contacto}</p>
+                      <p className="text-[10px] text-gray-400">{cliente.telefono_contacto}</p>
+                      <p className="text-[10px] text-blue-500 truncate max-w-[150px]">{cliente.correo_contacto}</p>
                       </td>
                     <td className="py-4">
                     <span className={`font-black text-[9px] uppercase px-2 py-1 rounded-md ${
@@ -204,23 +218,23 @@ const ModalRegistrados: React.FC<ModalRegistradosProps> = ({
                         'Profesional': 'text-blue-600 bg-blue-50 dark:bg-blue-500/10',
                         'Emprendedor': 'text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10',
                         'Estandar': 'text-purple-600 bg-purple-50 dark:bg-purple-500/10'
-                      }[cliente.plan] 
+                      }[cliente.plan?.name] 
                     }`}>
-                      {cliente.plan}
+                      {cliente.plan?.name || 'Sin plan'}
                     </span>
                       <p className="text-[9px] text-gray-400 mt-1">{cliente.ciclo}</p>
                       </td>
                     <td className="py-4 text-xs font-bold dark:text-gray-400">
-                      {cliente.fechaRegistro || '2026-03-15'}
+                      {cliente.fecha_registro?.split('T')[0] || cliente.created_at?.split('T')[0]}
                       </td>
                     <td className="py-4">
                       <div className="flex items-center justify-center gap-2">
-                        <button
+                        {/* <button
                           onClick={() => handleAbrirHabilitar(cliente)}
                           className="flex items-center gap-1 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 rounded-xl text-[10px] font-black uppercase hover:bg-emerald-100 transition"
                         >
                           <UserCheck size={12} /> Validar cliente
-                        </button>
+                        </button> */}
                         <div className="relative">
                           <button
                             onClick={() => setMenuAbiertoId(menuAbiertoId === cliente.id ? null : cliente.id)}
@@ -234,7 +248,8 @@ const ModalRegistrados: React.FC<ModalRegistradosProps> = ({
                                 onClick={() => abrirHistorial(cliente)} 
                                 className="w-full px-4 py-3 text-left text-[11px] font-black uppercase text-gray-600 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-500/10 hover:text-blue-600 transition-colors flex items-center gap-3"
                               >
-                                <History size={14} /> Ver historial
+                                <History size={14} /> 
+                                {cargandoHistorial ? 'Cargando...' : 'Ver historial'}
                               </button>
                               <button
                                 onClick={() => onEliminarCliente(cliente.id)}
@@ -262,7 +277,8 @@ const ModalRegistrados: React.FC<ModalRegistradosProps> = ({
     <div className="relative z-[1100]">
       <HistorialCliente 
         isOpen={isHistoryModalOpen}
-        onClose={() => setIsHistoryModalOpen(false)}
+        onClose={() => {setIsHistoryModalOpen(false);setClienteHistorial(null);
+        }}
         cliente={clienteHistorial}
       />
       <HabilitarCliente

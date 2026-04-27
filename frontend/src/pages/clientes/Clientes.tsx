@@ -3,6 +3,7 @@ import {
   Users, Settings, History,Search, FilterX, Eye, Lock, Unlock, Copy,UserCheck,UserX,UserCog,Rocket,AlertTriangle,MoreHorizontal,ShieldCheck,Ban
 } from 'lucide-react';
 import IconButton from '../../components/ui/IconButton';
+import { getRegistrados, RegistradoAPI } from '../../services/registradosService';
 import ModalRegistrados from '../../components/Clientes/ModalRegistrados'; 
 import DetallesCliente from '../../components/Clientes/DetallesCliente';
 import GestionAcceso from '../../components/Clientes/GestionAcceso';
@@ -91,8 +92,8 @@ const Clientes = () => {
         tipo: 'registro'  // opcional: para colorear
       }
       ],
-      estado: 'REGISTRADO',
-      estadoAcceso: 'HABILITADO', 
+      estado: 'HABILITADO',
+      estadoAcceso: 'ACTIVO', 
       plan: 'Estandar',
       suscripcion: 'Por vencer',
       fechaRegistro: '2026-03-18', 
@@ -150,6 +151,15 @@ const Clientes = () => {
       observaciones: 'Cliente con chiveria , le gustan menores y va a por todaass'
     }
   ]);
+  const [clientesRegistrados, setClientesRegistrados] = useState<RegistradoAPI[]>([]);
+  const cargarRegistrados = async () => {
+    const data = await getRegistrados();
+    setClientesRegistrados(data);
+  };
+
+  useEffect(() => {
+    cargarRegistrados();
+  }, []);
   // Estados de filtros
   const [filtroEstadoCliente, setFiltroEstadoCliente] = useState('');
   const [filtroPlan, setFiltroPlan] = useState('');
@@ -827,7 +837,7 @@ const Clientes = () => {
       <ModalRegistrados
         isOpen={isRegistradosModalOpen}
         onClose={() => setIsRegistradosModalOpen(false)}
-        clientesRegistrados={clientesData.filter(c => c.estado === 'REGISTRADO')}
+        clientesRegistrados={clientesRegistrados}
         onValidarCliente={handleValidarRegistrado}
         onEliminarCliente={handleEliminarRegistrado}
         onObservarCliente={handleObservarCliente}
