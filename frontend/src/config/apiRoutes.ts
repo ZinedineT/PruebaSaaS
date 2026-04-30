@@ -28,8 +28,9 @@ export const API_ROUTES = {
     BASE: '/registrados',                    // GET - Lista todos los registrados
     DETAIL: (id: number) => `/registrados/${id}`,  // GET - Detalle de un registrado
     WITH_HISTORY: (id: number) => `/registrados/${id}/with-history`,  // Historial de un registrado
-    APPROVE: (id: number) => `/registrados/${id}/approve`,  // POST - Aprobar
-    REJECT: (id: number) => `/registrados/${id}/reject`,    // POST - Rechazar
-    OBSERVE: (id: number) => `/registrados/${id}/observe`,  // POST - Observar
+    APPROVE: (id: number | string) => `/registrados/${id}/verificar-aprobar`,
+    OBSERVE: (id: number | string) => `/registrados/${id}/observar`,
+    REJECT: (id: number | string) => `/registrados/${id}/rechazar`,
+    REGISTER_PAYMENT: (id: number | string) => `/registrados/${id}/registrar-pago`, // POST - Observar
   },
 } as const;

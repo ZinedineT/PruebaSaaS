@@ -197,3 +197,61 @@ export const getRegistradoWithHistory = async (id: number): Promise<RegistradoWi
     return null;
   }
 };
+// src/services/registradosService.ts (agrega estas funciones)
+
+// Aprobar registrado (convertir a cliente)
+export const aprobarRegistrado = async (id: string | number, body: {
+  cliente_estado: string;
+  onboarding_estado: string;
+  suscripcion_estado: string;
+  acceso_estado: string;
+  observaciones: string;
+  acceso: string;
+}): Promise<any> => {
+  try {
+    const response = await apiService.post(API_ROUTES.REGISTRADOS.APPROVE(id), body);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al aprobar registrado ${id}:`, error);
+    throw error;
+  }
+};
+
+// Observar registrado
+export const observarRegistrado = async (id: string | number, body: {
+  cliente_estado: string;
+  observaciones: string;
+}): Promise<any> => {
+  try {
+    const response = await apiService.post(API_ROUTES.REGISTRADOS.OBSERVE(id), body);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al observar registrado ${id}:`, error);
+    throw error;
+  }
+};
+
+// Rechazar registrado
+export const rechazarRegistrado = async (id: string | number, body: {
+  cliente_estado: string;
+  observaciones: string;
+}): Promise<any> => {
+  try {
+    const response = await apiService.post(API_ROUTES.REGISTRADOS.REJECT(id), body);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al rechazar registrado ${id}:`, error);
+    throw error;
+  }
+};
+
+// Obtener cliente por ID (para cuando se aprueba y necesitas los datos)
+export const getClienteById = async (id: number): Promise<any> => {
+  try {
+    const response = await apiService.get(`/clients/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al obtener cliente ${id}:`, error);
+    return null;
+  }
+};

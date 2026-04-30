@@ -3,7 +3,7 @@ import {
   Users, Settings, History,Search, FilterX, Eye, Lock, Unlock, Copy,UserCheck,UserX,UserCog,Rocket,AlertTriangle,MoreHorizontal,ShieldCheck,Ban
 } from 'lucide-react';
 import IconButton from '../../components/ui/IconButton';
-import { getRegistrados, RegistradoAPI } from '../../services/registradosService';
+import { getRegistrados, RegistradoAPI, aprobarRegistrado, observarRegistrado, rechazarRegistrado  } from '../../services/registradosService';
 import ModalRegistrados from '../../components/Clientes/ModalRegistrados'; 
 import DetallesCliente from '../../components/Clientes/DetallesCliente';
 import GestionAcceso from '../../components/Clientes/GestionAcceso';
@@ -11,146 +11,149 @@ import EditarCliente from '../../components/Clientes/EditarCliente';
 import ActualizarEstado from '../../components/Clientes/ActualizarEstado';
 import HistorialCliente from '../../components/Clientes/HistorialCliente';
 import NuevoClienteModal from '../../components/Clientes/NuevoClienteModal';
+import { getClients, ClientAPI } from '../../services/clientsService';
 const Clientes = () => {
   //Estado de clientes (simulado)
-    const [clientesData, setClientesData] = useState([
-    {
-      id: '1',
-      nombre: 'AB COMERCIAL SAC',
-      ruc: '20123456789',
-      nombreComercial: 'ABC Tienda',
-      alias: 'ABC',
-      subdominio: 'minegocio',
-      codigoInterno: 'CLI-000245',  // ← Nuevo
-      direccionFiscal: 'Jr.Crespo Castillo 215, Huanuco, Huanuco',  // ← Nuevo
-      cargoContacto: 'Administradora',  // ← Nuevo
-      montoPlan: 150.00,  // ← Nuevo
-      moneda: 'S/',  // ← Nuevo
-      historial: [  // 👈 NUEVO: Array de eventos históricos
-      {
-        id: 'hist1',
-        fecha: '2026-03-15 09:00:00',
-        accion: 'Registro recibido',
-        usuario: 'sistema',
-        tipo: 'registro'  // opcional: para colorear
-      },
-      {
-        id: 'hist2',
-        fecha: '2026-03-16 10:15:00',
-        accion: 'Cliente habilitado',
-        usuario: 'Admin_Carlos',
-        tipo: 'exito'
-      },
-      {
-        id: 'hist3',
-        fecha: '2026-03-18 14:20:00',
-        accion: 'Onboarding iniciado',
-        usuario: 'Ana Ruiz',
-        tipo: 'proceso'
-      },
-      {
-        id: 'hist4',
-        fecha: '2026-03-20 11:30:00',
-        accion: 'Plan actualizado a Profesional',
-        usuario: 'Admin_Carlos',
-        tipo: 'cambio'
-      }
-      ],
-      estado: 'HABILITADO',
-      estadoAcceso: 'ACTIVO',
-      plan: 'Profesional',
-      suscripcion: 'Vigente',
-      fechaRegistro: '2026-03-15', 
-      fechaInicio: '15/03/2026',
-      fechaVence: '14/03/2027',
-      ciclo: 'MENSUAL',
-      estadoSuscripcion: 'VIGENTE',
-      estadoOnboarding: 'COMPLETADO',
-      contactoPrincipal: 'María Torres',
-      telefono: '999 888 777',
-      emailAdmin: 'admin@abc.com',
-      observaciones: ''
-    },
-    {
-      id: '2',
-      nombre: 'INVERSIONES XYZ SAC',
-      ruc: '20987654321',
-      nombreComercial: 'XYZ Store',
-      alias: 'XYZ',
-      subdominio: 'xyzstore',
-      codigoInterno: 'CLI-000245',  // ← Nuevo
-      direccionFiscal: 'Jr.Crespo Castillo 215, Huanuco, Huanuco',  // ← Nuevo
-      cargoContacto: 'Administradora',  // ← Nuevo
-      montoPlan: 150.00,  // ← Nuevo
-      moneda: 'S/',  // ← Nuevo
-      historial: [  // 👈 NUEVO: Array de eventos históricos
-      {
-        id: 'hist1',
-        fecha: '2026-03-15 09:00:00',
-        accion: 'Registro recibido',
-        usuario: 'sistema',
-        tipo: 'registro'  // opcional: para colorear
-      }
-      ],
-      estado: 'HABILITADO',
-      estadoAcceso: 'ACTIVO', 
-      plan: 'Estandar',
-      suscripcion: 'Por vencer',
-      fechaRegistro: '2026-03-18', 
-      fechaInicio: '22/05/2025',
-      fechaVence: '21/05/2026',
-      ciclo: 'MENSUAL',
-      estadoSuscripcion: 'POR_VENCER',
-      estadoOnboarding: 'PENDIENTE',
-      contactoPrincipal: 'Carlos Ruiz',
-      telefono: '988 777 666',
-      emailAdmin: 'admin@xyz.com',
-      observaciones: 'Cliente con retraso en pagos'
-    },
-    {
-      id: '3',
-      nombre: 'BEBITAS IAN SAC',
-      ruc: '20567654321',
-      nombreComercial: 'BEBAS STORE',
-      alias: 'XYZ',
-      subdominio: 'xyzstore',
-      codigoInterno: 'CLI-000246',  // ← Nuevo
-      direccionFiscal: 'Av. Principal 123, Lima, Lima',  // ← Nuevo
-      cargoContacto: 'Gerente de Ventas',  // ← Nuevo
-      montoPlan: 100.00,  // ← Nuevo
-      moneda: 'S/',  // ← Nuevo
-      historial: [  // 👈 NUEVO: Array de eventos históricos
-      {
-        id: 'hist1',
-        fecha: '2026-03-18 09:00:00',
-        accion: 'Registro recibido',
-        usuario: 'sistema',
-        tipo: 'registro'  // opcional: para colorear
-      },
-      {
-        id: 'hist2',
-        fecha: '2026-03-19 10:15:00',
-        accion: 'Cliente habilitado',
-        usuario: 'Admin_Carlos',
-        tipo: 'exito'
-      }
-      ],
-      estado: 'DE_BAJA',
-      estadoAcceso: 'BLOQUEADO_PAGO', 
-      plan: 'Estandar',
-      suscripcion: 'Vencido',
-      fechaRegistro: '2026-03-18', 
-      fechaInicio: '22/05/2025',
-      fechaVence: '21/05/2026',
-      ciclo: 'MENSUAL',
-      estadoSuscripcion: 'VENCIDO',
-      estadoOnboarding: 'PENDIENTE',
-      contactoPrincipal: 'Ian Gabriel',
-      telefono: '988 777 666',
-      emailAdmin: 'admin@xyz.com',
-      observaciones: 'Cliente con chiveria , le gustan menores y va a por todaass'
-    }
-  ]);
+  //   const [clientesData, setClientesData] = useState([
+  //   {
+  //     id: '1',
+  //     nombre: 'AB COMERCIAL SAC',
+  //     ruc: '20123456789',
+  //     nombreComercial: 'ABC Tienda',
+  //     alias: 'ABC',
+  //     subdominio: 'minegocio',
+  //     codigoInterno: 'CLI-000245',  // ← Nuevo
+  //     direccionFiscal: 'Jr.Crespo Castillo 215, Huanuco, Huanuco',  // ← Nuevo
+  //     cargoContacto: 'Administradora',  // ← Nuevo
+  //     montoPlan: 150.00,  // ← Nuevo
+  //     moneda: 'S/',  // ← Nuevo
+  //     historial: [  // 👈 NUEVO: Array de eventos históricos
+  //     {
+  //       id: 'hist1',
+  //       fecha: '2026-03-15 09:00:00',
+  //       accion: 'Registro recibido',
+  //       usuario: 'sistema',
+  //       tipo: 'registro'  // opcional: para colorear
+  //     },
+  //     {
+  //       id: 'hist2',
+  //       fecha: '2026-03-16 10:15:00',
+  //       accion: 'Cliente habilitado',
+  //       usuario: 'Admin_Carlos',
+  //       tipo: 'exito'
+  //     },
+  //     {
+  //       id: 'hist3',
+  //       fecha: '2026-03-18 14:20:00',
+  //       accion: 'Onboarding iniciado',
+  //       usuario: 'Ana Ruiz',
+  //       tipo: 'proceso'
+  //     },
+  //     {
+  //       id: 'hist4',
+  //       fecha: '2026-03-20 11:30:00',
+  //       accion: 'Plan actualizado a Profesional',
+  //       usuario: 'Admin_Carlos',
+  //       tipo: 'cambio'
+  //     }
+  //     ],
+  //     estado: 'HABILITADO',
+  //     estadoAcceso: 'ACTIVO',
+  //     plan: 'Profesional',
+  //     suscripcion: 'Vigente',
+  //     fechaRegistro: '2026-03-15', 
+  //     fechaInicio: '15/03/2026',
+  //     fechaVence: '14/03/2027',
+  //     ciclo: 'MENSUAL',
+  //     estadoSuscripcion: 'VIGENTE',
+  //     estadoOnboarding: 'COMPLETADO',
+  //     contactoPrincipal: 'María Torres',
+  //     telefono: '999 888 777',
+  //     emailAdmin: 'admin@abc.com',
+  //     observaciones: ''
+  //   },
+  //   {
+  //     id: '2',
+  //     nombre: 'INVERSIONES XYZ SAC',
+  //     ruc: '20987654321',
+  //     nombreComercial: 'XYZ Store',
+  //     alias: 'XYZ',
+  //     subdominio: 'xyzstore',
+  //     codigoInterno: 'CLI-000245',  // ← Nuevo
+  //     direccionFiscal: 'Jr.Crespo Castillo 215, Huanuco, Huanuco',  // ← Nuevo
+  //     cargoContacto: 'Administradora',  // ← Nuevo
+  //     montoPlan: 150.00,  // ← Nuevo
+  //     moneda: 'S/',  // ← Nuevo
+  //     historial: [  // 👈 NUEVO: Array de eventos históricos
+  //     {
+  //       id: 'hist1',
+  //       fecha: '2026-03-15 09:00:00',
+  //       accion: 'Registro recibido',
+  //       usuario: 'sistema',
+  //       tipo: 'registro'  // opcional: para colorear
+  //     }
+  //     ],
+  //     estado: 'HABILITADO',
+  //     estadoAcceso: 'ACTIVO', 
+  //     plan: 'Estandar',
+  //     suscripcion: 'Por vencer',
+  //     fechaRegistro: '2026-03-18', 
+  //     fechaInicio: '22/05/2025',
+  //     fechaVence: '21/05/2026',
+  //     ciclo: 'MENSUAL',
+  //     estadoSuscripcion: 'POR_VENCER',
+  //     estadoOnboarding: 'PENDIENTE',
+  //     contactoPrincipal: 'Carlos Ruiz',
+  //     telefono: '988 777 666',
+  //     emailAdmin: 'admin@xyz.com',
+  //     observaciones: 'Cliente con retraso en pagos'
+  //   },
+  //   {
+  //     id: '3',
+  //     nombre: 'BEBITAS IAN SAC',
+  //     ruc: '20567654321',
+  //     nombreComercial: 'BEBAS STORE',
+  //     alias: 'XYZ',
+  //     subdominio: 'xyzstore',
+  //     codigoInterno: 'CLI-000246',  // ← Nuevo
+  //     direccionFiscal: 'Av. Principal 123, Lima, Lima',  // ← Nuevo
+  //     cargoContacto: 'Gerente de Ventas',  // ← Nuevo
+  //     montoPlan: 100.00,  // ← Nuevo
+  //     moneda: 'S/',  // ← Nuevo
+  //     historial: [  // 👈 NUEVO: Array de eventos históricos
+  //     {
+  //       id: 'hist1',
+  //       fecha: '2026-03-18 09:00:00',
+  //       accion: 'Registro recibido',
+  //       usuario: 'sistema',
+  //       tipo: 'registro'  // opcional: para colorear
+  //     },
+  //     {
+  //       id: 'hist2',
+  //       fecha: '2026-03-19 10:15:00',
+  //       accion: 'Cliente habilitado',
+  //       usuario: 'Admin_Carlos',
+  //       tipo: 'exito'
+  //     }
+  //     ],
+  //     estado: 'DE_BAJA',
+  //     estadoAcceso: 'BLOQUEADO_PAGO', 
+  //     plan: 'Estandar',
+  //     suscripcion: 'Vencido',
+  //     fechaRegistro: '2026-03-18', 
+  //     fechaInicio: '22/05/2025',
+  //     fechaVence: '21/05/2026',
+  //     ciclo: 'MENSUAL',
+  //     estadoSuscripcion: 'VENCIDO',
+  //     estadoOnboarding: 'PENDIENTE',
+  //     contactoPrincipal: 'Ian Gabriel',
+  //     telefono: '988 777 666',
+  //     emailAdmin: 'admin@xyz.com',
+  //     observaciones: 'Cliente con chiveria , le gustan menores y va a por todaass'
+  //   }
+  // ]);
+  const [clientesData, setClientesData] = useState<any[]>([]);
+  const [cargandoClientes, setCargandoClientes] = useState(true);
   const [clientesRegistrados, setClientesRegistrados] = useState<RegistradoAPI[]>([]);
   const cargarRegistrados = async () => {
     const data = await getRegistrados();
@@ -160,6 +163,58 @@ const Clientes = () => {
   useEffect(() => {
     cargarRegistrados();
   }, []);
+
+// Función para cargar clientes desde la API (SIN transformación complicada)
+const cargarClientes = async () => {
+  try {
+    setCargandoClientes(true);
+    const clients = await getClients();
+    console.log('Clientes desde API:', clients);
+    
+    // Transformación directa al formato que espera la tabla
+    const clientesFormateados = clients.map(client => ({
+      id: client.id.toString(),
+      nombre: client.name,
+      ruc: client.ruc,
+      nombreComercial: client.nombre_comercial,
+      alias: client.alias,
+      subdominio: client.subdominio,
+      codigoInterno: client.code_cliente,
+      direccionFiscal: client.direccion_fiscal,
+      cargoContacto: client.cargo_contacto,
+      montoPlan: parseFloat(client.precio_plan),
+      moneda: 'S/',
+      historial: [],
+      estado: client.cliente_estado?.toUpperCase() || 'HABILITADO',
+      estadoAcceso: client.acceso_estado?.toUpperCase() || 'ACTIVO',
+      plan: client.plan?.name || 'Sin plan',
+      suscripcion: client.suscripcion_estado === 'vigente' ? 'Vigente' : 
+                    client.suscripcion_estado === 'por_vencer' ? 'Por vencer' : 'Vencida',
+      fechaRegistro: client.created_at?.split('T')[0] || '',
+      fechaInicio: client.start_billing_cycle?.split('T')[0] || '',
+      fechaVence: client.fecha_vencimiento_plan?.split('T')[0] || '',
+      ciclo: client.ciclo?.toUpperCase() || 'MENSUAL',
+      estadoSuscripcion: client.suscripcion_estado?.toUpperCase() || 'VIGENTE',
+      estadoOnboarding: client.onboarding_estado?.toUpperCase() || 'PENDIENTE',
+      contactoPrincipal: client.nombre_contacto,
+      telefono: client.telefono_contacto,
+      emailAdmin: client.email,
+      observaciones: client.observaciones || ''
+    }));
+    
+    setClientesData(clientesFormateados);
+  } catch (error) {
+    console.error('Error al cargar clientes:', error);
+  } finally {
+    setCargandoClientes(false);
+  }
+};
+
+// Cargar clientes cuando el componente se monta
+useEffect(() => {
+  cargarClientes();
+  cargarRegistrados();
+}, []);
   // Estados de filtros
   const [filtroEstadoCliente, setFiltroEstadoCliente] = useState('');
   const [filtroPlan, setFiltroPlan] = useState('');
@@ -265,48 +320,56 @@ const Clientes = () => {
     return 'info';
   };
   // Dentro del componente Clientes
-  const handleValidarRegistrado = (clienteId: string) => {
-    setClientesData(prevClientes =>
-      prevClientes.map(cliente =>
-        cliente.id === clienteId
-          ? { ...cliente, estado: 'HABILITADO' }
-          : cliente
-      )
-    );
-    // 👈 Agregar al historial
-    agregarEventoHistorial(clienteId, 'Cliente habilitado', 'Admin_Actual');
-    console.log(`✅ Cliente ${clienteId} validado y habilitado`);
+  const handleValidarRegistrado = async (clienteId: string, body: any) => {
+    try {
+      const result = await aprobarRegistrado(clienteId, body);
+      console.log('✅ Cliente aprobado:', result);
+      
+      // Recargar lista de registrados
+      await cargarRegistrados();
+      
+      // El cliente aprobado ya está en la API de clients
+      // Cuando refresques la página o cargues clientes, aparecerá
+      alert('Cliente habilitado exitosamente');
+    } catch (error) {
+      console.error('Error al aprobar cliente:', error);
+      alert('Error al habilitar el cliente');
+    }
   };
   // 👁️ FUNCIÓN PARA OBSERVAR (agrégala si no existe)
-  const handleObservarCliente = (clienteId: string, observaciones: string) => {
-    setClientesData(prevClientes =>
-      prevClientes.map(cliente =>
-        cliente.id === clienteId
-          ? { 
-              ...cliente, 
-              estado: 'OBSERVADO',
-              observaciones: observaciones 
-            }
-          : cliente
-      )
-    );
-    // 👈 Agregar al historial
-    agregarEventoHistorial(clienteId, `Cliente observado: ${observaciones}`, 'Admin_Actual');
+  const handleObservarCliente = async (clienteId: string, observaciones: string) => {
+    try {
+      const result = await observarRegistrado(clienteId, {
+        cliente_estado: "observado",
+        observaciones: observaciones
+      });
+      console.log('👁️ Cliente observado:', result);
+      
+      // Recargar lista de registrados
+      await cargarRegistrados();
+      
+      alert('Cliente marcado como observado');
+    } catch (error) {
+      console.error('Error al observar cliente:', error);
+      alert('Error al observar el cliente');
+    }
   };
-  const handleRechazarCliente = (clienteId: string, observaciones: string) => {
-  setClientesData(prevClientes =>
-    prevClientes.map(cliente =>
-      cliente.id === clienteId
-        ? { 
-            ...cliente, 
-            estado: 'RECHAZADO',
-            observaciones: observaciones 
-          }
-        : cliente
-    )
-  );
-    // 👈 Agregar al historial
-    agregarEventoHistorial(clienteId, `Cliente rechazado: ${observaciones}`, 'Admin_Actual');
+  const handleRechazarCliente = async (clienteId: string, observaciones: string) => {
+    try {
+      const result = await rechazarRegistrado(clienteId, {
+        cliente_estado: "rechazado",
+        observaciones: observaciones
+      });
+      console.log('❌ Cliente rechazado:', result);
+      
+      // Recargar lista de registrados (ya no aparece)
+      await cargarRegistrados();
+      
+      alert('Cliente rechazado exitosamente');
+    } catch (error) {
+      console.error('Error al rechazar cliente:', error);
+      alert('Error al rechazar el cliente');
+    }
   };
   const handleEliminarRegistrado = (clienteId: string) => {
   setClientesData(prevClientes => prevClientes.filter(cliente => cliente.id !== clienteId));
@@ -517,7 +580,7 @@ const Clientes = () => {
             <UserCog size={20} className="text-blue-500" />
           </div>
             <p className="text-2xl font-black text-blue-500">
-              {clientesData.filter(c => c.estado === 'REGISTRADO').length} 
+              {clientesRegistrados.length} 
             </p>
           <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-1">
             Registrados <span className="text-blue-500 underline ml-1">[Revisar]</span>
@@ -630,7 +693,7 @@ const Clientes = () => {
           </thead>
           <tbody className="divide-y divide-gray-50 dark:divide-gray-800 px-4">
             {clientesFiltrados.map((cliente) => (
-              <tr key={cliente.ruc} className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-all">
+              <tr key={cliente.id} className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-all">
                 {/* Columna Cliente */}
                 <td className="py-6 pl-4 px-4">
                   <p className="font-black text-sm dark:text-white">{cliente.nombre}</p>
@@ -681,9 +744,9 @@ const Clientes = () => {
                       'Profesional': 'text-blue-600 bg-blue-50 dark:bg-blue-500/10',
                       'Emprendedor': 'text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10',
                       'Estandar': 'text-purple-600 bg-purple-50 dark:bg-purple-500/10'
-                    }[cliente.plan] 
+                    }[cliente.plan as string] || 'bg-gray-100 dark:bg-gray-800 text-gray-600'
                   }`}>
-                    {cliente.plan}
+                    {cliente.plan|| 'Sin plan'}
                   </span>
                   <p className="text-[9px] text-gray-400 font-bold mt-1 uppercase">{cliente.ciclo}</p>
                 </td>
@@ -785,13 +848,13 @@ const Clientes = () => {
                     {/* Menú de 3 puntos */}
                     <div className="relative">
                       <button 
-                        onClick={() => setMenuAbiertoId(menuAbiertoId === cliente.ruc ? null : cliente.ruc)}
+                        onClick={() => setMenuAbiertoId(menuAbiertoId === cliente.id ? null : cliente.id)}
                         className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 rounded-xl transition-all"
                       >
                         <MoreHorizontal size={18}/>
                       </button>
                       
-                      {menuAbiertoId === cliente.ruc && (
+                      {menuAbiertoId === cliente.id && (
                         <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-[#1c2128] rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 z-[100] py-2 overflow-hidden animate-in fade-in zoom-in duration-200">
                           <button 
                             onClick={() => abrirEditar(cliente)} 

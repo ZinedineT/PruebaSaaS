@@ -26,7 +26,7 @@ interface ModalRegistradosProps {
   isOpen: boolean;
   onClose: () => void;
   clientesRegistrados: RegistradoAPI[];
-  onValidarCliente: (clienteId: string) => void;
+  onValidarCliente: (clienteId: string, body: any) => void;
   onEliminarCliente: (clienteId: string) => void;
   onObservarCliente?: (clienteId: string, observaciones: string) => void;
   onRechazarCliente?: (clienteId: string, observaciones: string) => void;
@@ -51,9 +51,8 @@ const ModalRegistrados: React.FC<ModalRegistradosProps> = ({
   const [clienteHistorial, setClienteHistorial] = useState<RegistradoWithHistory | null>(null);
   const [cargandoHistorial, setCargandoHistorial] = useState(false);
   const [isHabilitarModalOpen, setIsHabilitarModalOpen] = useState(false);
-  const [clienteParaHabilitar, setClienteParaHabilitar] = useState<ClienteRegistrado | null>(null);
-  
-  if (!isOpen) return null;
+  const [clienteParaHabilitar, setClienteParaHabilitar] = useState<RegistradoAPI | null>(null);  
+    if (!isOpen) return null;
 
   // Filtrado de datos
   const clientesFiltrados = clientesRegistrados.filter((cliente: RegistradoAPI) => {
@@ -84,15 +83,15 @@ const ModalRegistrados: React.FC<ModalRegistradosProps> = ({
       setMenuAbiertoId(null);
     }
   };
-  const handleAbrirHabilitar = (cliente: ClienteRegistrado) => {
+  const handleAbrirHabilitar = (cliente: RegistradoAPI) => {
   setClienteParaHabilitar(cliente);
   setIsHabilitarModalOpen(true);
   setMenuAbiertoId(null);
   };
 
-  const handleHabilitar = (clienteId: string, observaciones: string) => {
-    onValidarCliente(clienteId);
-    console.log(`✅ Cliente ${clienteId} habilitado. Obs: ${observaciones}`);
+  const handleHabilitar = (clienteId: string, observaciones: string, body: any) => {
+    onValidarCliente(clienteId, body);
+    console.log(`✅ Cliente ${clienteId} habilitado. Obs: ${observaciones}`, body);
   };
   // 👁️ FUNCIÓN PARA OBSERVAR CLIENTE
   const handleObservar = (clienteId: string, observaciones: string) => {
@@ -102,16 +101,16 @@ const ModalRegistrados: React.FC<ModalRegistradosProps> = ({
     console.log(`👁️ Cliente ${clienteId} observado. Obs: ${observaciones}`);
   };
 // Por si se quiere dejar como cliente rechazado en vez de eliminarlo directamente
-  // const handleRechazar = (clienteId: string, observaciones: string) => {
-  //   if (onRechazarCliente) {
-  //     onRechazarCliente(clienteId, observaciones);  // ✅ Cambia estado a RECHAZADO
-  //   }
-  //   console.log(`❌ Cliente ${clienteId} rechazado. Obs: ${observaciones}`);
-  // };
   const handleRechazar = (clienteId: string, observaciones: string) => {
-    onEliminarCliente(clienteId);
+    if (onRechazarCliente) {
+      onRechazarCliente(clienteId, observaciones);  // ✅ Cambia estado a RECHAZADO
+    }
     console.log(`❌ Cliente ${clienteId} rechazado. Obs: ${observaciones}`);
   };
+  // const handleRechazar = (clienteId: string, observaciones: string) => {
+  //   onEliminarCliente(clienteId);
+  //   console.log(`❌ Cliente ${clienteId} rechazado. Obs: ${observaciones}`);
+  // };
 
   return (
     <>
@@ -229,12 +228,12 @@ const ModalRegistrados: React.FC<ModalRegistradosProps> = ({
                       </td>
                     <td className="py-4">
                       <div className="flex items-center justify-center gap-2">
-                        {/* <button
+                        <button
                           onClick={() => handleAbrirHabilitar(cliente)}
                           className="flex items-center gap-1 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 rounded-xl text-[10px] font-black uppercase hover:bg-emerald-100 transition"
                         >
                           <UserCheck size={12} /> Validar cliente
-                        </button> */}
+                        </button>
                         <div className="relative">
                           <button
                             onClick={() => setMenuAbiertoId(menuAbiertoId === cliente.id ? null : cliente.id)}
