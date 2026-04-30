@@ -12,6 +12,15 @@ import ActualizarEstado from '../../components/Clientes/ActualizarEstado';
 import HistorialCliente from '../../components/Clientes/HistorialCliente';
 import NuevoClienteModal from '../../components/Clientes/NuevoClienteModal';
 import { getClients, ClientAPI } from '../../services/clientsService';
+interface ClienteAcceso {
+  id: number;
+  nombre: string;
+  ruc: string;
+  subdominio?: string;
+  alias?: string;
+  nombreComercial?: string;
+  estadoAcceso?: 'ACTIVO' | 'BLOQUEADO_PAGO' | 'BLOQUEADO_MANUAL' | 'CORTE_TECNICO' | 'DESACTIVADO';
+}
 const Clientes = () => {
   //Estado de clientes (simulado)
   //   const [clientesData, setClientesData] = useState([
@@ -72,85 +81,6 @@ const Clientes = () => {
   //     emailAdmin: 'admin@abc.com',
   //     observaciones: ''
   //   },
-  //   {
-  //     id: '2',
-  //     nombre: 'INVERSIONES XYZ SAC',
-  //     ruc: '20987654321',
-  //     nombreComercial: 'XYZ Store',
-  //     alias: 'XYZ',
-  //     subdominio: 'xyzstore',
-  //     codigoInterno: 'CLI-000245',  // ← Nuevo
-  //     direccionFiscal: 'Jr.Crespo Castillo 215, Huanuco, Huanuco',  // ← Nuevo
-  //     cargoContacto: 'Administradora',  // ← Nuevo
-  //     montoPlan: 150.00,  // ← Nuevo
-  //     moneda: 'S/',  // ← Nuevo
-  //     historial: [  // 👈 NUEVO: Array de eventos históricos
-  //     {
-  //       id: 'hist1',
-  //       fecha: '2026-03-15 09:00:00',
-  //       accion: 'Registro recibido',
-  //       usuario: 'sistema',
-  //       tipo: 'registro'  // opcional: para colorear
-  //     }
-  //     ],
-  //     estado: 'HABILITADO',
-  //     estadoAcceso: 'ACTIVO', 
-  //     plan: 'Estandar',
-  //     suscripcion: 'Por vencer',
-  //     fechaRegistro: '2026-03-18', 
-  //     fechaInicio: '22/05/2025',
-  //     fechaVence: '21/05/2026',
-  //     ciclo: 'MENSUAL',
-  //     estadoSuscripcion: 'POR_VENCER',
-  //     estadoOnboarding: 'PENDIENTE',
-  //     contactoPrincipal: 'Carlos Ruiz',
-  //     telefono: '988 777 666',
-  //     emailAdmin: 'admin@xyz.com',
-  //     observaciones: 'Cliente con retraso en pagos'
-  //   },
-  //   {
-  //     id: '3',
-  //     nombre: 'BEBITAS IAN SAC',
-  //     ruc: '20567654321',
-  //     nombreComercial: 'BEBAS STORE',
-  //     alias: 'XYZ',
-  //     subdominio: 'xyzstore',
-  //     codigoInterno: 'CLI-000246',  // ← Nuevo
-  //     direccionFiscal: 'Av. Principal 123, Lima, Lima',  // ← Nuevo
-  //     cargoContacto: 'Gerente de Ventas',  // ← Nuevo
-  //     montoPlan: 100.00,  // ← Nuevo
-  //     moneda: 'S/',  // ← Nuevo
-  //     historial: [  // 👈 NUEVO: Array de eventos históricos
-  //     {
-  //       id: 'hist1',
-  //       fecha: '2026-03-18 09:00:00',
-  //       accion: 'Registro recibido',
-  //       usuario: 'sistema',
-  //       tipo: 'registro'  // opcional: para colorear
-  //     },
-  //     {
-  //       id: 'hist2',
-  //       fecha: '2026-03-19 10:15:00',
-  //       accion: 'Cliente habilitado',
-  //       usuario: 'Admin_Carlos',
-  //       tipo: 'exito'
-  //     }
-  //     ],
-  //     estado: 'DE_BAJA',
-  //     estadoAcceso: 'BLOQUEADO_PAGO', 
-  //     plan: 'Estandar',
-  //     suscripcion: 'Vencido',
-  //     fechaRegistro: '2026-03-18', 
-  //     fechaInicio: '22/05/2025',
-  //     fechaVence: '21/05/2026',
-  //     ciclo: 'MENSUAL',
-  //     estadoSuscripcion: 'VENCIDO',
-  //     estadoOnboarding: 'PENDIENTE',
-  //     contactoPrincipal: 'Ian Gabriel',
-  //     telefono: '988 777 666',
-  //     emailAdmin: 'admin@xyz.com',
-  //     observaciones: 'Cliente con chiveria , le gustan menores y va a por todaass'
-  //   }
   // ]);
   const [clientesData, setClientesData] = useState<any[]>([]);
   const [cargandoClientes, setCargandoClientes] = useState(true);
@@ -164,57 +94,57 @@ const Clientes = () => {
     cargarRegistrados();
   }, []);
 
-// Función para cargar clientes desde la API (SIN transformación complicada)
-const cargarClientes = async () => {
-  try {
-    setCargandoClientes(true);
-    const clients = await getClients();
-    console.log('Clientes desde API:', clients);
-    
-    // Transformación directa al formato que espera la tabla
-    const clientesFormateados = clients.map(client => ({
-      id: client.id.toString(),
-      nombre: client.name,
-      ruc: client.ruc,
-      nombreComercial: client.nombre_comercial,
-      alias: client.alias,
-      subdominio: client.subdominio,
-      codigoInterno: client.code_cliente,
-      direccionFiscal: client.direccion_fiscal,
-      cargoContacto: client.cargo_contacto,
-      montoPlan: parseFloat(client.precio_plan),
-      moneda: 'S/',
-      historial: [],
-      estado: client.cliente_estado?.toUpperCase() || 'HABILITADO',
-      estadoAcceso: client.acceso_estado?.toUpperCase() || 'ACTIVO',
-      plan: client.plan?.name || 'Sin plan',
-      suscripcion: client.suscripcion_estado === 'vigente' ? 'Vigente' : 
-                    client.suscripcion_estado === 'por_vencer' ? 'Por vencer' : 'Vencida',
-      fechaRegistro: client.created_at?.split('T')[0] || '',
-      fechaInicio: client.start_billing_cycle?.split('T')[0] || '',
-      fechaVence: client.fecha_vencimiento_plan?.split('T')[0] || '',
-      ciclo: client.ciclo?.toUpperCase() || 'MENSUAL',
-      estadoSuscripcion: client.suscripcion_estado?.toUpperCase() || 'VIGENTE',
-      estadoOnboarding: client.onboarding_estado?.toUpperCase() || 'PENDIENTE',
-      contactoPrincipal: client.nombre_contacto,
-      telefono: client.telefono_contacto,
-      emailAdmin: client.email,
-      observaciones: client.observaciones || ''
-    }));
-    
-    setClientesData(clientesFormateados);
-  } catch (error) {
-    console.error('Error al cargar clientes:', error);
-  } finally {
-    setCargandoClientes(false);
-  }
-};
+  // Función para cargar clientes desde la API (SIN transformación complicada)
+  const cargarClientes = async () => {
+    try {
+      setCargandoClientes(true);
+      const clients = await getClients();
+      console.log('Clientes desde API:', clients);
+      
+      // Transformación directa al formato que espera la tabla
+      const clientesFormateados = clients.map(client => ({
+        id: client.id.toString(),
+        nombre: client.name,
+        ruc: client.ruc,
+        nombreComercial: client.nombre_comercial,
+        alias: client.alias,
+        subdominio: client.subdominio,
+        codigoInterno: client.code_cliente,
+        direccionFiscal: client.direccion_fiscal,
+        cargoContacto: client.cargo_contacto,
+        montoPlan: parseFloat(client.precio_plan),
+        moneda: 'S/',
+        historial: [],
+        estado: client.cliente_estado?.toUpperCase() || 'HABILITADO',
+        estadoAcceso: client.acceso_estado?.toUpperCase() || 'ACTIVO',
+        plan: client.plan?.name || 'Sin plan',
+        suscripcion: client.suscripcion_estado === 'vigente' ? 'Vigente' : 
+                      client.suscripcion_estado === 'por_vencer' ? 'Por vencer' : 'Vencida',
+        fechaRegistro: client.created_at?.split('T')[0] || '',
+        fechaInicio: client.start_billing_cycle?.split('T')[0] || '',
+        fechaVence: client.fecha_vencimiento_plan?.split('T')[0] || '',
+        ciclo: client.ciclo?.toUpperCase() || 'MENSUAL',
+        estadoSuscripcion: client.suscripcion_estado?.toUpperCase() || 'VIGENTE',
+        estadoOnboarding: client.onboarding_estado?.toUpperCase() || 'PENDIENTE',
+        contactoPrincipal: client.nombre_contacto,
+        telefono: client.telefono_contacto,
+        emailAdmin: client.email,
+        observaciones: client.observaciones || ''
+      }));
+      
+      setClientesData(clientesFormateados);
+    } catch (error) {
+      console.error('Error al cargar clientes:', error);
+    } finally {
+      setCargandoClientes(false);
+    }
+  };
 
-// Cargar clientes cuando el componente se monta
-useEffect(() => {
-  cargarClientes();
-  cargarRegistrados();
-}, []);
+  // Cargar clientes cuando el componente se monta
+  useEffect(() => {
+    cargarClientes();
+    cargarRegistrados();
+  }, []);
   // Estados de filtros
   const [filtroEstadoCliente, setFiltroEstadoCliente] = useState('');
   const [filtroPlan, setFiltroPlan] = useState('');
@@ -230,7 +160,7 @@ useEffect(() => {
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
   //Acceso gestion
   const [isAccesoModalOpen, setIsAccesoModalOpen] = useState(false);
-  const [clienteAcceso, setClienteAcceso] = useState(null);
+  const [clienteAcceso, setClienteAcceso] = useState<ClienteAcceso | null>(null);
   // Editar cliente
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [menuAbiertoId, setMenuAbiertoId] = useState<string | null>(null);
@@ -380,10 +310,10 @@ useEffect(() => {
     setClienteSeleccionado(cliente);
     setIsModalOpen(true);
   };
-  const actualizarAccesoCliente = (ruc: string, nuevoEstadoAcceso: string, detalles: any) => {
+  const actualizarAccesoCliente = (clienteId: number, nuevoEstadoAcceso: string, detalles: any) => {
     setClientesData(prevClientes => 
       prevClientes.map(cliente => {
-        if (cliente.ruc === ruc) {
+        if (cliente.id === clienteId) {
           const estadoAnterior = cliente.estadoAcceso;
           // 👇 AGREGAR AL HISTORIAL
           if (estadoAnterior !== nuevoEstadoAcceso) {
@@ -398,17 +328,25 @@ useEffect(() => {
         return cliente;
       })
     );
-    console.log(`🔓 Acceso actualizado: ${ruc} → ${nuevoEstadoAcceso}`, detalles);
+    console.log(`🔓 Acceso actualizado: ${clienteId} → ${nuevoEstadoAcceso}`, detalles);
   };
   const abrirGestionAcceso = (cliente: any) => {
-    setClienteAcceso(cliente);
+    setClienteAcceso({
+      id: Number(cliente.id),        // Asegurar que sea número
+      nombre: cliente.nombre,
+      ruc: cliente.ruc,
+      nombreComercial: cliente.nombreComercial,
+      alias: cliente.alias,
+      subdominio: cliente.subdominio,
+      estadoAcceso: cliente.estadoAcceso
+    });
     setIsAccesoModalOpen(true);
   };
   // 🔄 FUNCIÓN PARA ACTUALIZAR ESTADO
-  const actualizarEstadoCliente = (ruc: string, nuevoEstado: string) => {
+  const actualizarEstadoCliente = (clienteId: string, nuevoEstado: string) => {
     setClientesData(prevClientes => 
       prevClientes.map(cliente => {
-        if (cliente.ruc === ruc) {
+        if (cliente.id === clienteId) {
           const estadoAnterior = cliente.estado;
           // 👇 AGREGAR AL HISTORIAL
           if (estadoAnterior !== nuevoEstado) {
@@ -419,12 +357,12 @@ useEffect(() => {
         return cliente;
       })
     );
-    console.log(`🔄 Estado actualizado: ${ruc} → ${nuevoEstado}`);
+    console.log(`🔄 Estado actualizado: ${clienteId} → ${nuevoEstado}`);
   };
   // Función para abrir el modal (pasa el callback)
   const abrirEstado = (c: any) => {
     // Buscar el cliente actualizado con su estado real
-    const clienteActualizado = clientesData.find(cli => cli.ruc === c.ruc);
+    const clienteActualizado = clientesData.find(cli => cli.id === c.id);
     setClienteSeleccionado(clienteActualizado || c);
     setIsStatusModalOpen(true);
     setMenuAbiertoId(null);
@@ -819,14 +757,7 @@ useEffect(() => {
                       <Eye size={18}/>
                     </button>
                     <button 
-                      onClick={() => abrirGestionAcceso({
-                        nombre: cliente.nombre,
-                        ruc: cliente.ruc,
-                        nombreComercial: cliente.nombreComercial,
-                        alias: cliente.alias,
-                        subdominio: cliente.subdominio,
-                        estadoAcceso: cliente.estadoAcceso
-                      })}
+                      onClick={() => abrirGestionAcceso(cliente)} 
                       className={`p-2 rounded-xl transition-all ${
                         cliente.estadoAcceso === 'ACTIVO' 
                           ? 'hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-emerald-500' 

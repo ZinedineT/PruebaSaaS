@@ -42,5 +42,12 @@ export const API_ROUTES = {
     CREATE: '/clients',
     UPDATE: (id: number) => `/clients/${id}`,
     DELETE: (id: number) => `/clients/${id}`,
+    PAGOS: (id: number) => `/clients/${id}/pagos`,
+    CONFIRMAR_PAGO: (id: number) => `/clients/${id}/confirmar-pago`,
+    DAR_PRORROGA: (id: number) => `/clients/${id}/dar-prorroga`,
+    BLOQUEO_MANUAL: (id: number) => `/clients/${id}/bloqueo-manual`,
+    BLOQUEO_PAGO: (id: number) => `/clients/${id}/bloqueo-pago`,      // 👈 NUEVO
+    CORTE_TECNICO: (id: number) => `/clients/${id}/corte-tecnico`,
+    RESTABLECER_ACCESO: (id: number) => `/clients/${id}/restablecer-acceso`,
   },
 } as const;

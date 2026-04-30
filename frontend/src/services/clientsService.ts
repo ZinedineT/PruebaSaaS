@@ -65,6 +65,25 @@ export interface ClientAPI {
     email: string;
   };
 }
+// Interfaz para respuesta de pagos
+export interface PagosResponse {
+  ultimo_pago: {
+    fecha: string;
+    monto: string;
+    voucher: string;
+    metodo_pago: string;
+    banco: string;
+    billetera: string | null;
+    fecha_vencimiento: string;
+  } | null;
+  proximo_vencimiento: string;
+  dias_restantes: number;
+  periodo_adeudado: string | null;
+  estado_acceso: string;
+  plan_nombre: string;
+  precio_plan: string;
+  ciclo: string;
+}
 
 // Obtener todos los clientes
 export const getClients = async (): Promise<ClientAPI[]> => {
@@ -95,5 +114,107 @@ export const getActiveClients = async (): Promise<ClientAPI[]> => {
   } catch (error) {
     console.error('Error al obtener clientes activos:', error);
     return [];
+  }
+};
+// Obtener información de pagos del cliente
+export const getPagosCliente = async (id: number): Promise<PagosResponse | null> => {
+  try {
+    const response = await apiService.get(API_ROUTES.CLIENTS.PAGOS(id));
+    
+    if (response.data.success && response.data.data) {
+      return response.data.data;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error(`Error al obtener pagos del cliente ${id}:`, error);
+    return null;
+  }
+};
+
+// Confirmar pago
+export const confirmarPago = async (id: number, body: {
+  n_operacion_voucher: string;
+  motivo: string;
+  monto: number;
+}): Promise<any> => {
+  try {
+    const response = await apiService.patch(API_ROUTES.CLIENTS.CONFIRMAR_PAGO(id), body);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al confirmar pago del cliente ${id}:`, error);
+    throw error;
+  }
+};
+
+// Dar prórroga
+export const darProrroga = async (id: number, body: {
+  dias_prorroga: number;
+  motivo: string;
+}): Promise<any> => {
+  try {
+    const response = await apiService.patch(API_ROUTES.CLIENTS.DAR_PRORROGA(id), body);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al dar prórroga al cliente ${id}:`, error);
+    throw error;
+  }
+};
+
+// Bloqueo manual
+export const bloqueoManual = async (id: number, body: { motivo: string }): Promise<any> => {
+  try {
+    console.log('🔒 Bloqueo manual - Cliente ID:', id);
+    console.log('🔒 Body enviado:', JSON.stringify(body, null, 2));
+    
+    const response = await apiService.patch(API_ROUTES.CLIENTS.BLOQUEO_MANUAL(id), body);
+    return response.data;
+  } catch (error: any) {
+    // Muestra el mensaje de error del backend
+    const errorMessage = error.response?.data?.message || error.response?.data?.errors || error.message;
+    console.error('❌ Error detallado del backend:', errorMessage);
+    console.error('❌ Respuesta completa:', error.response?.data);
+    throw error;
+  }
+};
+// Bloqueo por pago
+export const bloqueoPago = async (id: number, body: { 
+  motivo: string; 
+  periodo_adeudado: string;
+}): Promise<any> => {
+  try {
+    console.log('💳 Bloqueo por pago - Cliente ID:', id);
+    console.log('💳 Body enviado:', body);
+    
+    const response = await apiService.patch(API_ROUTES.CLIENTS.BLOQUEO_PAGO(id), body);
+    console.log('✅ Respuesta:', response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error('❌ Error al bloquear por pago:', error.response?.data);
+    throw error;
+  }
+};
+// Corte técnico
+export const corteTecnico = async (id: number, body: {
+  motivo: string;
+  fecha_restauracion: string;
+}): Promise<any> => {
+  try {
+    const response = await apiService.patch(API_ROUTES.CLIENTS.CORTE_TECNICO(id), body);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al aplicar corte técnico al cliente ${id}:`, error);
+    throw error;
+  }
+};
+
+// Restablecer acceso (para casos donde estaba bloqueado y se quiere activar)
+export const restablecerAcceso = async (id: number, body: { motivo: string }): Promise<any> => {
+  try {
+    const response = await apiService.patch(API_ROUTES.CLIENTS.RESTABLECER_ACCESO(id), body);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al restablecer acceso del cliente ${id}:`, error);
+    throw error;
   }
 };
