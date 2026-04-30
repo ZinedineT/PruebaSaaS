@@ -31,6 +31,16 @@ export const API_ROUTES = {
     APPROVE: (id: number | string) => `/registrados/${id}/verificar-aprobar`,
     OBSERVE: (id: number | string) => `/registrados/${id}/observar`,
     REJECT: (id: number | string) => `/registrados/${id}/rechazar`,
-    REGISTER_PAYMENT: (id: number | string) => `/registrados/${id}/registrar-pago`, // POST - Observar
+    REGISTER_PAYMENT: (id: number | string) => `/registrados/${id}/registrar-pago`,
+  },
+    // 👇 NUEVA SECCIÓN PARA CLIENTS
+  CLIENTS: {
+    BASE: '/clients',
+    ALL: '/clients',
+    ACTIVE: '/clients?status=active',
+    DETAIL: (id: number) => `/clients/${id}`,
+    CREATE: '/clients',
+    UPDATE: (id: number) => `/clients/${id}`,
+    DELETE: (id: number) => `/clients/${id}`,
   },
 } as const;

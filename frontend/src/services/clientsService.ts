@@ -69,7 +69,7 @@ export interface ClientAPI {
 // Obtener todos los clientes
 export const getClients = async (): Promise<ClientAPI[]> => {
   try {
-    const response = await apiService.get('/clients');
+    const response = await apiService.get(API_ROUTES.CLIENTS.ALL);
     
     if (response.data.success && response.data.data) {
       return response.data.data;
@@ -85,7 +85,7 @@ export const getClients = async (): Promise<ClientAPI[]> => {
 // Obtener clientes activos (o todos)
 export const getActiveClients = async (): Promise<ClientAPI[]> => {
   try {
-    const response = await apiService.get('/clients?status=active');
+    const response = await apiService.get(API_ROUTES.CLIENTS.ACTIVE);
     
     if (response.data.success && response.data.data) {
       return response.data.data;
